@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="./assets/jquery.js"></script>
+</head>
+
+<body>
+
+
+<script type="text/javascript">
+
+
+
+    ViewFirst.Templates = new Templates
+
+
+    var TemplateDisplayer = new Object({
+
+    findTemplate: function() {
+
+        return $('script[type="text/view-first-template"]#Default');
+
+    },
+
+    replacePage: function() {
+
+        $('body').html(this.findTemplate().html());
+
+    }
+
+    });
+
+    $(function() {TemplateDisplayer.replacePage()});
+
+</script>
+
+
+<script id="Default" type="text/view-first-template" >
+    <div id="topBar">
+
+        Welcome To View First
+
+        It's
+        <viewFirstSnippet id="Default:Year"/>
+        which means it's time to use ViewFirst
+
+    </div>
+
+    <div id="sidebar">
+        <div class="menuItem">
+            <viewFirstReplace id="default:menuItemName"/>
+        </div>
+    </div>
+
+    <viewFirstBind id="default:content"/>
+</script>
+
+<script type="ViewFirstView" id="Todo" surround-with="Default">
+
+    <div id="todoList">
+
+        <viewFirstSnippet id="Todo:List">
+            <div id="todoItem">
+                <viewFirstReplace id="todo:list:name"/>
+                -
+                <viewFirstReplace id="todo:list:description"/>
+            </div>
+        </viewFirstSnippet>
+
+        <viewFirstSnippet id="Todo:Create">
+
+            <form id="AddTodo">
+                <input type="text" id="todoNameInput">
+                <viewFirstReplace id="todo:create:name"/>
+                </input>
+                <input type="text" id="todoDescriptionInput">
+                <viewFirstReplace id="todo:description:name"/>
+                </input>
+                <input type="submit" id="createNewTodo"/>
+            </form>
+
+        </viewFirstSnippet>
+
+    </div>
+
+</script>
+
+
+
+
+</body>
+
+</html>
