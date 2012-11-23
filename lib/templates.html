@@ -1,0 +1,121 @@
+<html>
+
+  <head>
+    <title>View First Example - This shouldn't be the title!</title>
+    
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="./ViewFirst.js"></script>
+    
+  </head>
+  
+  <body>
+
+    <script type="text/view-first-template id="simple-main">
+
+      <head>
+        <title>Simple Main</title>
+      </head>
+
+      <body>
+	<div id="contentDiv">
+	  <div data-bind-name="content" />
+	</div>
+      </body>
+    </script>
+
+    <script type="text/view-first-template id="simple-main">
+
+      <div data-snippet="surround" data-with="main" data-at="topNavDiv">
+      
+	surrounded!
+
+      </div>
+      
+    </script>
+  
+    <script type="text/view-first-template id="main">
+
+      <head>
+      </head>
+
+      <body>
+	<div id="topNavDiv">
+	  <bind name="navigation" />
+	</div>
+
+	<div id="sideBarDiv">
+	  <bind name="sideBar" />
+	</div>
+
+	<div id="contentDiv">
+	  <bind name="content" />
+	</div>
+      </body>
+    </script>
+
+    <script type="text/view-first-template" id="admin" >
+
+      <div data-snippet="surround" data-with="main" data-at="topNavDiv">
+	<ul>
+	  <li>Administration</li>
+	  <li>User Statistics</li>
+	</ul>
+      </div>
+      
+    </script>
+
+    <script type="text/view-first-template" id="normal">
+
+      <div data-snippet="surround" data-with="main" data-at="topNavDiv">
+	<ul>
+	  <li>Todo list</li>
+	  <li>Diary</li>
+	</ul>
+      </div>
+      
+    </script>
+
+    <script type="text/view-first-template" id="todo" >
+
+      
+      <div data-snippet="surround" data-with="normal">
+      
+	<div data-snippet="bind-at" data-name="sideBarDiv">
+	  
+	  <div id="currentTodo">
+	    <div data-snippet="currentTodo">
+	  
+	    
+	      <div class="tag" >Name:</div>
+	      <div id="nameContent" class="content"></div>
+	      
+	      <div class="tag">Description:</div>
+	      <div id="tagContent" class="content"></div>
+	    
+	    </snippet>
+	  </div>
+	</div>
+
+	<div data-snippet="bind" data-at="content">
+	  <div id="todoList">
+	    <div data-snippet="todoList">
+	    
+	      <div class="todoItem">
+		<div class="todoName" />
+	      </div>
+	    
+	    </div>
+	  </div>
+	  <div id="todoControls">
+	    <div data-snippet="todoControls">
+	    
+	      <button id="deleteTodo" />
+	    
+	    </div>
+	  </div>
+	</div>
+
+      </div>
+    </script>
+  </body>
+</html>
