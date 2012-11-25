@@ -15,7 +15,7 @@ class window.ViewFirst
   addViews: =>
     $('script[type="text/view-first-template"]').each( (id, el) => 
                                                           node = $(el)
-                                                          console.log "Loading script with node=#{node.attr('id')}, html()=#{node.html()}"
+                                                          console.log "Loading script with id=#{node.attr('id')}"
                                                           @createView(node.attr("id"), node.html())) 
   createView: (viewId, content) =>
 
@@ -40,11 +40,29 @@ class window.ViewFirst
     
     surroundingContent = $("<div>#{surroundingView.getElement()}</div>")
     
-    bindElement = surroundingContent.find("[data-bind-name='#{at}']")
-    bindElement.replaceWith(html)
+    if at?
+      @_bind(surroundingContent, html, at)
+    else
+      @_bindParts(surroundingContent, html)
     
     return surroundingContent.html()
 
+  @_bindParts: (surroundingContent, html) =>
+
+    parent = document.createElement("div")
+    parent.innerHTML = html
+    
+    child = parent.firstChild
+    while child?
+      at = $(child).attr("data-at")
+      if(at?)
+        @_bind(surroundingContent, child.innerHTML, at)
+      child = child.nextSibling
+  
+  @_bind: (surroundingContent, html, at) =>
+    bindElement = surroundingContent.find("[data-bind-name='#{at}']")
+    bindElement.replaceWith(html)
+    
   @_embedSnippet: (viewFirst, html, argumentMap) =>
   
     templateName = argumentMap['template']
@@ -54,24 +72,3 @@ class window.ViewFirst
       throw "Unable to find template to embed '#{templateName}'"
     
     return embeddedView.render()
-
-init = () -> 
-
-  dateSnippet = (viewFirst, html, argumentMap) ->
-      currentDate = new Date()
-      return currentDate.getDay() + "-" + currentDate.getMonth() + "-" + currentDate.getFullYear()
-
-  viewFirst = new ViewFirst
-  viewFirst.addSnippet("date", dateSnippet)
-  
-  
-  #innerView = viewFirst.createView("innerView", '<div data-snippet="surround" data-with="outerView" data-at="content"><p>Simple</p></div>');
-  #outerView = viewFirst.createView("outerView", '<div id="outerViewDiv"><span data-bind-name="content" /></div>')
-   
-  console.log("created views")
- 
-  #$('body').html(viewFirst.findView("innerView").render())
-  
-  viewFirst.renderView("innerView")
-  
-$(init)

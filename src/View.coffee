@@ -58,9 +58,9 @@ class window.View
     node = $(element)
     snippetName = node.attr('data-snippet')
 
-    console.log("snippetName=#{snippetName}")
   
     return if snippetName?
+      console.log("snippet usage found for #{snippetName}")
       snippetFunc = @viewFirst.snippets[snippetName]
       if(!snippetFunc?)
         throw "Unable to find snippet '#{snippetName}'"

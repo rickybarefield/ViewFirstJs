@@ -1,6 +1,8 @@
+<!doctype html>
 <html>
 
   <head>
+    <meta charset="UTF-8">
     <title>View First Example - This shouldn't be the title!</title>
     
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
@@ -11,6 +13,48 @@
   
   <body>
 
+    <script type="text/view-first-template" id="main">
+    
+      <div id="banner">
+        <h1>View First - <span data-bind-name="title" /></h1>
+      </div>
+      
+      <div id="sidebar">
+         <span data-snippet="embed" data-template="sidebar" />
+      </div>
+      
+      <div id="content">
+        <span data-bind-name="content" />
+      </div>
+    
+    </script>
+
+    
+    <script type="text/view-first-template" id="sidebar">
+
+      <ul>
+        <li>Home</li>
+        <li>Somewhere Else</li>
+      </ul>
+    
+    </script>
+    
+    <script type="text/view-first-template" id="todo">
+    
+      <div data-snippet="surround" data-with="main">
+
+        <div data-at="title">
+           TODO
+        </div>
+      
+        <div data-at="content">
+          <span>The TODO App</span>
+        </div>
+        
+      </div>
+    
+    </script>
+  
     <script type="text/view-first-template" id="outerView">
       
       <h1>Outer View</h1>
@@ -46,6 +90,13 @@
       
       </div>
     
+    </script>
+    
+    <script type="text/javascript">
+      $(function() {
+      viewFirst = new ViewFirst()
+      viewFirst.renderView("todo")
+      });
     </script>
     
   </body>
