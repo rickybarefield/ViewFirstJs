@@ -27,9 +27,9 @@ class window.ViewFirst
     
     @snippets[name] = func
 
-  @_surroundSnippet: (viewFirst, html, argumentMap)  =>
+  @_surroundSnippet: (viewFirst, nodes, argumentMap)  =>
 
-    console.log("_surroundSnippet invoked with #{html}")
+    console.log("_surroundSnippet invoked with #{nodes}")
   
     surroundingName = argumentMap['with']
     at = argumentMap['at']
@@ -38,29 +38,27 @@ class window.ViewFirst
     if(!surroundingView?)
       throw "Unable to find surrounding template '#{surroundingName}'"
     
-    surroundingContent = $("<div>#{surroundingView.getElement()}</div>")
+    surroundingContent = document.createElement("div")
+    surroundingContent.innerHTML = surroundingView.getElement()
     
     if at?
-      @_bind(surroundingContent, html, at)
+      @_bind(surroundingContent, nodes, at)
     else
-      @_bindParts(surroundingContent, html)
+      @_bindParts(surroundingContent, nodes)
     
-    return surroundingContent.html()
+    return surroundingContent.childNodes
 
-  @_bindParts: (surroundingContent, html) =>
+  @_bindParts: (surroundingContent, nodes) =>
 
-    parent = document.createElement("div")
-    parent.innerHTML = html
-    
-    child = parent.firstChild
+    child = nodes[0]
     while child?
       at = $(child).attr("data-at")
       if(at?)
-        @_bind(surroundingContent, child.innerHTML, at)
+        @_bind(surroundingContent, child.childNodes, at)
       child = child.nextSibling
   
   @_bind: (surroundingContent, html, at) =>
-    bindElement = surroundingContent.find("[data-bind-name='#{at}']")
+    bindElement = $(surroundingContent).find("[data-bind-name='#{at}']")
     bindElement.replaceWith(html)
     
   @_embedSnippet: (viewFirst, html, argumentMap) =>
@@ -71,4 +69,35 @@ class window.ViewFirst
     if(!embeddedView?)
       throw "Unable to find template to embed '#{templateName}'"
     
-    return embeddedView.render()
+    tmp = document.createElement("div")
+    tmp.innerHTML = embeddedView.render()
+    
+    return tmp.childNodes
+    
+  @replaceNode: (parent, node, nodeOrNodeList) =>
+  
+     if(ViewFirst.isNodeListOrArray(nodeOrNodeList))
+  
+       nodeArray = []
+       ((node) -> (nodeArray.push(node))) node for node in nodeOrNodeList
+     
+       nextSibling = node.nextSibling
+       ((newNode) ->
+         if(!ViewFirst.containsChild(parent, nextSibling))
+            throw "nextSibling was not contained in parent"
+         parent.insertBefore(newNode, nextSibling)) newNode for newNode in nodeArray
+       parent.removeChild(node)
+       return nodeArray
+     else
+       parent.replaceChild(nodeOrNodeList, node)
+       return nodeOrNodeList
+       
+  @isNodeListOrArray: (nodeOrNodeList) => return nodeOrNodeList.toString() is '[object NodeList]' || nodeOrNodeList instanceof Array
+
+  
+  @containsChild: (parent, child) =>
+  
+    contained = !child?
+    ((node) => contained = contained || node == child) node for node in parent.childNodes
+    contained
+  
