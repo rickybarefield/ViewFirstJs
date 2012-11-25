@@ -12,10 +12,16 @@
   <body>
 
     <script type="text/view-first-template" id="outerView">
+      
       <h1>Outer View</h1>
       <div id="outerViewDiv">
 	<span data-bind-name="content" />
-      </div></script>
+      </div>
+      <div id="outerViewAvatar">
+        <span data-snippet="embed" data-template="avatar" /> 
+      </div>
+      
+    </script>
 
 
 
@@ -26,6 +32,21 @@
       </div>
   
     </script>
-  
+
+    <script type="text/view-first-template" id="avatar">
+    
+      <div id="avatarPic">
+      
+	Picture
+      
+      </div>
+      <div id="tagLine">
+      
+        Avatar - it's a word
+      
+      </div>
+    
+    </script>
+    
   </body>
 </html>

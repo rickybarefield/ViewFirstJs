@@ -3,6 +3,7 @@ class window.ViewFirst
   constructor: (@views = {}) ->
     @snippets =
       surround: ViewFirst._surroundSnippet
+      embed: ViewFirst._embedSnippet
     @addViews()
   
   findView: (viewId) => this.views[viewId] 
@@ -34,20 +35,25 @@ class window.ViewFirst
     at = argumentMap['at']
     surroundingView = viewFirst.findView(surroundingName)
 
-    console.log("surroundingView found #{surroundingView.viewId}")
+    if(!surroundingView?)
+      throw "Unable to find surrounding template '#{surroundingName}'"
     
     surroundingContent = $("<div>#{surroundingView.getElement()}</div>")
     
-    console.log("surroundingContent.html()=#{surroundingContent.html()}")
-    
     bindElement = surroundingContent.find("[data-bind-name='#{at}']")
-    
     bindElement.replaceWith(html)
-
-    console.log("surroundingContent.html() = #{surroundingContent.html()}")
     
     return surroundingContent.html()
 
+  @_embedSnippet: (viewFirst, html, argumentMap) =>
+  
+    templateName = argumentMap['template']
+    embeddedView = viewFirst.findView(templateName)
+    
+    if(!embeddedView?)
+      throw "Unable to find template to embed '#{templateName}'"
+    
+    return embeddedView.render()
 
 init = () -> 
 
