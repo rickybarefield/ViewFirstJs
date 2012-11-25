@@ -15,8 +15,8 @@ class window.ViewFirst
   addViews: =>
     $('script[type="text/view-first-template"]').each( (id, el) => 
                                                           node = $(el)
-                                                          console.log "Loading script with id=#{node.attr('id')}"
-                                                          @createView(node.attr("id"), node.html())) 
+                                                          console.log "Loading script with id=#{node.attr('name')}"
+                                                          @createView(node.attr("name"), node.html())) 
   createView: (viewId, content) =>
 
     view = new View(this, viewId, content)
