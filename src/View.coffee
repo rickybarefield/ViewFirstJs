@@ -15,8 +15,10 @@ class window.View
     if domNode.nodeType != View.TEXT_NODE then @applySnippetsRecursivelyToNonTextNode(parent, domNode) else domNode
     
   applySnippetsRecursivelyToChildNodes: (parent, childNodes) =>
-    
-    ((node) => @applySnippetsRecursively(parent, node)) node for node in childNodes
+  
+    nodeArray = []
+    ((node) -> (nodeArray.push(node))) node for node in childNodes
+    ((node) => @applySnippetsRecursively(parent, node)) node for node in nodeArray
   
   applySnippetsRecursivelyToNonTextNode: (parent, domNode) =>
   

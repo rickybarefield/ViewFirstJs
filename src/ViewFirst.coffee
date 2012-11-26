@@ -78,8 +78,7 @@ class window.ViewFirst
   
      if(ViewFirst.isNodeListOrArray(nodeOrNodeList))
   
-       nodeArray = []
-       ((node) -> (nodeArray.push(node))) node for node in nodeOrNodeList
+       nodeArray = ViewFirst._convertToFlatArray(nodeOrNodeList)
      
        nextSibling = nodeToReplace.nextSibling
        ((newNode) ->
@@ -91,6 +90,16 @@ class window.ViewFirst
      else
        parent.replaceChild(nodeOrNodeList, nodeToReplace)
        return nodeOrNodeList
+
+  #Need to cope with nested arrays
+  @_convertToFlatArray: (nodeList) =>
+    nodeArray = []
+    ViewFirst._addAllToArray(nodeList, nodeArray)
+    return nodeArray
+    
+  @_addAllToArray: (nodeList, nodeArray) =>
+    ((node) -> if ViewFirst.isNodeListOrArray(node) then ViewFirst._addAllToArray(node, nodeArray) else nodeArray.push(node) ) node for node in nodeList
+    
        
   @isNodeListOrArray: (nodeOrNodeList) => return nodeOrNodeList.toString() is '[object NodeList]' || nodeOrNodeList instanceof Array
 
