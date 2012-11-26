@@ -11,6 +11,14 @@ createTodoApp = ->
     return p
   
   viewFirst.addSnippet("date", dateSnippet)
+
+  yearSnippet = (viewFirst, nodeList, argMap) =>
+    
+    return document.createTextNode(new Date().getFullYear())
+  
+  
+  viewFirst.addSnippet("year", yearSnippet)
+
   
   ###  
   bindTodoForm = (viewFirst, html, argMap) =>

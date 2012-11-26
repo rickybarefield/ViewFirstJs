@@ -74,22 +74,22 @@ class window.ViewFirst
     
     return tmp.childNodes
     
-  @replaceNode: (parent, node, nodeOrNodeList) =>
+  @replaceNode: (parent, nodeToReplace, nodeOrNodeList) =>
   
      if(ViewFirst.isNodeListOrArray(nodeOrNodeList))
   
        nodeArray = []
        ((node) -> (nodeArray.push(node))) node for node in nodeOrNodeList
      
-       nextSibling = node.nextSibling
+       nextSibling = nodeToReplace.nextSibling
        ((newNode) ->
          if(!ViewFirst.containsChild(parent, nextSibling))
             throw "nextSibling was not contained in parent"
          parent.insertBefore(newNode, nextSibling)) newNode for newNode in nodeArray
-       parent.removeChild(node)
+       parent.removeChild(nodeToReplace)
        return nodeArray
      else
-       parent.replaceChild(nodeOrNodeList, node)
+       parent.replaceChild(nodeOrNodeList, nodeToReplace)
        return nodeOrNodeList
        
   @isNodeListOrArray: (nodeOrNodeList) => return nodeOrNodeList.toString() is '[object NodeList]' || nodeOrNodeList instanceof Array
