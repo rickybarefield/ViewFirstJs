@@ -1,6 +1,11 @@
 class window.ViewFirst
 
-  constructor: (@views = {}) ->
+  ###
+    
+    namedModelEventListeners contain a map of namedModel name to array of event handlers
+  
+  ###
+  constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}) ->
     @snippets =
       surround: ViewFirst._surroundSnippet
       embed: ViewFirst._embedSnippet
@@ -75,38 +80,67 @@ class window.ViewFirst
     return tmp.childNodes
     
   @replaceNode: (parent, nodeToReplace, nodeOrNodeList) =>
-  
-     if(ViewFirst.isNodeListOrArray(nodeOrNodeList))
-  
-       nodeArray = ViewFirst._convertToFlatArray(nodeOrNodeList)
-     
-       nextSibling = nodeToReplace.nextSibling
-       ((newNode) ->
-         if(!ViewFirst.containsChild(parent, nextSibling))
-            throw "nextSibling was not contained in parent"
-         parent.insertBefore(newNode, nextSibling)) newNode for newNode in nodeArray
-       parent.removeChild(nodeToReplace)
-       return nodeArray
-     else
-       parent.replaceChild(nodeOrNodeList, nodeToReplace)
-       return nodeOrNodeList
 
-  #Need to cope with nested arrays
-  @_convertToFlatArray: (nodeList) =>
-    nodeArray = []
-    ViewFirst._addAllToArray(nodeList, nodeArray)
-    return nodeArray
-    
-  @_addAllToArray: (nodeList, nodeArray) =>
-    ((node) -> if ViewFirst.isNodeListOrArray(node) then ViewFirst._addAllToArray(node, nodeArray) else nodeArray.push(node) ) node for node in nodeList
-    
+    #Need to cope with nested arrays
+    convertToFlatArray = (nodeList) =>
+      addAllToArray = (nodeList, nodeArray) =>
+        ((node) -> if ViewFirst.isNodeListOrArray(node) then addAllToArray(node, nodeArray) else nodeArray.push(node) ) node for node in nodeList
+
+      nodeArray = []
+      addAllToArray(nodeList, nodeArray)
+      return nodeArray
+  
+    if(ViewFirst.isNodeListOrArray(nodeOrNodeList))
+  
+      nodeArray = convertToFlatArray(nodeOrNodeList)
+     
+      nextSibling = nodeToReplace.nextSibling
+      ((newNode) ->
+        if(!ViewFirst.containsChild(parent, nextSibling))
+           throw "nextSibling was not contained in parent"
+        parent.insertBefore(newNode, nextSibling)) newNode for newNode in nodeArray
+      parent.removeChild(nodeToReplace)
+      return nodeArray
+    else
+      parent.replaceChild(nodeOrNodeList, nodeToReplace)
+      return nodeOrNodeList
+
        
   @isNodeListOrArray: (nodeOrNodeList) => return nodeOrNodeList.toString() is '[object NodeList]' || nodeOrNodeList instanceof Array
 
   
   @containsChild: (parent, child) =>
-  
     contained = !child?
     ((node) => contained = contained || node == child) node for node in parent.childNodes
     contained
+
+  setNamedModel: (name, model) =>
+
+    oldModel = @namedModels[name]
+    @namedModels[name] = model
+    
+    eventListenerArray = @namedModelEventListeners[name]
+    
+    if eventListenerArray?
+      func(oldModel, model) for func in eventListenerArray
+
+  getOrCreateNamedModel: (name, modelClass) =>
+  
+    namedModel = @namedModels[name]
+    
+    if !namedModel?
+      namedModel = new modelClass()
+      @namedModels[name] = namedModel
+    
+    return namedModel
+
+  addNamedModelEventListener: (name, func) =>
+  
+    eventListenerArray = @namedModelEventListeners[name]
+
+    if !eventListenerArray?
+      eventListenerArray = []
+      @namedModelEventListeners[name] = eventListenerArray
+    
+    eventListenerArray.push(func)
   

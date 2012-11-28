@@ -4,13 +4,6 @@ createTodoApp = ->
 
   viewFirst = new ViewFirst()
   
-  dateSnippet = (viewFirst, nodeList, argMap) =>
-  
-    p = document.createElement("p")
-    p.innerHTML = new Date().toString()
-    return p
-  
-
   yearSnippet = (viewFirst, nodeList, argMap) =>
     
     return document.createTextNode(new Date().getFullYear())
@@ -19,27 +12,39 @@ createTodoApp = ->
   todoCreationSnippet = (viewFirst, nodeList, argMap) =>
   
     nodesInJQuery = $(nodeList)
-    newTodo = new window.Todo()
-    
-    updateAndSaveTodo = (aForm) =>
-    
-      name = aForm.children("[data-property='name']").val()
-      description = aForm.children("[data-property='description']").val()
 
-      newTodo.name = name
-      newTodo.description = description
-      newTodo.save()
+    todo = viewFirst.getOrCreateNamedModel("currentTodo", window.Todo)
+    form = nodesInJQuery.filter("#createTodoForm")
+    
+    saveTodo = (aTodo) =>
+    
+      name = form.children("[data-property='name']").val()
+      description = form.children("[data-property='description']").val()
+
+      aTodo.name = name
+      aTodo.description = description
+      aTodo.save()
       
       alert("Saved this todo, you'll need to refresh the browser to see it!")
       
       return false
-      
-    form = nodesInJQuery.filter("#createTodoForm")
 
-    nodesInJQuery.find("#createTodo").click((event) ->
-      event.preventDefault()
-      updateAndSaveTodo(form)
-      )
+    updateForm = (oldTodo, newTodo) =>
+    
+      name = form.children("[data-property='name']").val(newTodo.name)
+      description = form.children("[data-property='description']").val(newTodo.description)
+      
+      createTodoButton = nodesInJQuery.find("#createTodo")
+      createTodoButton.unbind("click.saveTodo")
+      createTodoButton.bind("click.saveTodo", (event) ->
+        event.preventDefault()
+        saveTodo(newTodo)
+        )
+    
+    
+    
+    viewFirst.addNamedModelEventListener("currentTodo", updateForm)
+    updateForm(null, todo)
     
     return nodeList
 
@@ -47,10 +52,10 @@ createTodoApp = ->
   
     createTodoItem = (todo) =>
       clonedNodes = $(nodeList).clone()
+      clonedNodes.filter("li").click(-> viewFirst.setNamedModel("currentTodo", todo))
       clonedNodes.find("[data-property='name']").replaceWith(todo.name)
       clonedNodes.find("[data-property='description']").replaceWith(todo.description)
       clonedNodes.get()
-    
     
     todoNodes = (createTodoItem aTodo for aTodo in window.Todo.all())
     todoNodes = [] unless todoNodes?
@@ -60,8 +65,7 @@ createTodoApp = ->
   viewFirst.addSnippet("todoForm", todoCreationSnippet)
   viewFirst.addSnippet("listTodos", listTodosSnippet)
   viewFirst.addSnippet("year", yearSnippet)
-  viewFirst.addSnippet("date", dateSnippet)
-
+  
   viewFirst.renderView("todo")
   
   alert("There are #{window.Todo.all().length} todos")
