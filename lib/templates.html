@@ -56,20 +56,16 @@
       
         <div data-at="content">
           <h3>Your todos</h3>
-          <ul>
-            <div data-snippet="listTodos">
-	      <li><span data-property="name" /> --- <span data-property="description" /></li>
-	    </div>
-          </ul>
+          <select data-snippet="listTodos">
+	      <option>#{name} --- #{description}</option>
+          </select>
           <h3>Create Todo</h3>
-          <div data-snippet="todoForm" >
-            <form id="createTodoForm">
-              <label for="todoName">Name:</label><input data-property="name" type="text" id="todoName" />
-              <label for="todoDescription">Description:</label><textarea data-property="description" id="todoDescription"></textarea>
-              <br />
-              <input type="submit" id="createTodo" value="Create" />
-            </form>
-          </div>
+	  <form id="createTodoForm" data-snippet="todoForm">
+	    <label for="todoName">Name:</label><input data-property="name" type="text" id="todoName" />
+	    <label for="todoDescription">Description:</label><textarea data-property="description" id="todoDescription"></textarea>
+	    <br />
+	    <input type="submit" id="createTodo" value="Create" />
+	  </form>
         </div>
         
       </div>

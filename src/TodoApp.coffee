@@ -9,12 +9,10 @@ createTodoApp = ->
     return document.createTextNode(new Date().getFullYear())
   
 
-  todoCreationSnippet = (viewFirst, nodeList, argMap) =>
+  todoCreationSnippet = (viewFirst, node, argMap) =>
   
-    nodesInJQuery = $(nodeList)
-
     todo = viewFirst.getOrCreateNamedModel("currentTodo", window.Todo)
-    form = nodesInJQuery.filter("#createTodoForm")
+    form = $(node)
     
     saveTodo = (aTodo) =>
     
@@ -34,33 +32,37 @@ createTodoApp = ->
       name = form.children("[data-property='name']").val(newTodo.name)
       description = form.children("[data-property='description']").val(newTodo.description)
       
-      createTodoButton = nodesInJQuery.find("#createTodo")
+      createTodoButton = form.find("#createTodo")
       createTodoButton.unbind("click.saveTodo")
       createTodoButton.bind("click.saveTodo", (event) ->
         event.preventDefault()
         saveTodo(newTodo)
         )
     
-    
-    
     viewFirst.addNamedModelEventListener("currentTodo", updateForm)
     updateForm(null, todo)
     
-    return nodeList
+    return node
 
-  listTodosSnippet = (viewFirst, nodeList, argMap) =>
+  listTodosSnippet = (viewFirst, node, argMap) =>
+
+    select = $(node)
+    select.change(-> viewFirst.setNamedModel("currentTodo", Todo.find(@value)))
   
-    createTodoItem = (todo) =>
-      clonedNodes = $(nodeList).clone()
-      clonedNodes.filter("li").click(-> viewFirst.setNamedModel("currentTodo", todo))
-      clonedNodes.find("[data-property='name']").replaceWith(todo.name)
-      clonedNodes.find("[data-property='description']").replaceWith(todo.description)
-      clonedNodes.get()
+    template = select.find("option")
+    template.detach()
+  
+    addTodoItem = (todo) =>
+      option = template.clone()
+      option.find("[data-property='name']").replaceWith(todo.name)
+      option.find("[data-property='description']").replaceWith(todo.description)
+      option.attr("value", todo.id)
+      ViewFirst.bindTextNodes(option.get(0), todo)
+      $(node).append(option)
     
-    todoNodes = (createTodoItem aTodo for aTodo in window.Todo.all())
-    todoNodes = [] unless todoNodes?
+    addTodoItem aTodo for aTodo in window.Todo.all()
 
-    return todoNodes
+    return node
         
   viewFirst.addSnippet("todoForm", todoCreationSnippet)
   viewFirst.addSnippet("listTodos", listTodosSnippet)

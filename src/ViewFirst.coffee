@@ -32,9 +32,11 @@ class window.ViewFirst
     
     @snippets[name] = func
 
-  @_surroundSnippet: (viewFirst, nodes, argumentMap)  =>
+  @_surroundSnippet: (viewFirst, node, argumentMap)  =>
 
-    console.log("_surroundSnippet invoked with #{nodes}")
+  
+    nodes = node.children #This snippet is only interested in child nodes
+    console.log("_surroundSnippet invoked with #{node}")
   
     surroundingName = argumentMap['with']
     at = argumentMap['at']
@@ -114,6 +116,27 @@ class window.ViewFirst
     ((node) => contained = contained || node == child) node for node in parent.childNodes
     contained
 
+  @bindTextNodes: (node, model) =>
+  
+    bindSingleNode = (node, model) =>
+
+      removeSurround = (str) =>
+        str.match /[^#{}]+/
+    
+      replaceText = (nodeText, model) =>
+        nodeText.replace /#\{[^\}]*\}/g, (match) -> model[removeSurround(match)]
+    
+      if node.nodeType == 3
+        node.nodeValue = replaceText(node.nodeValue, model)
+  
+    bindSingleNode(node, model)
+    
+    child =  node.firstChild
+    while child?
+      ViewFirst.bindTextNodes(child, model)
+      child = child.nextSibling
+    
+    
   setNamedModel: (name, model) =>
 
     oldModel = @namedModels[name]

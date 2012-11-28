@@ -43,7 +43,8 @@ class window.View
       snippetFunc = @viewFirst.snippets[snippetName]
       if(!snippetFunc?)
         throw "Unable to find snippet '#{snippetName}'"
-      snippetFunc(@viewFirst, element.childNodes, node.data())
+      node.removeAttr("data-snippet") #Otherwise this will be recursively invoked
+      snippetFunc(@viewFirst, element, node.data())
     else
       element
       
