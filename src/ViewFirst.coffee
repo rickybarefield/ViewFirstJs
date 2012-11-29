@@ -135,6 +135,22 @@ class window.ViewFirst
     while child?
       ViewFirst.bindTextNodes(child, model)
       child = child.nextSibling
+
+      
+  @bindNodeValues: (node, model) =>
+    
+    bindSingleNode = (singleNode, model) =>
+      jQNode = $(singleNode)
+      property = jQNode.attr("data-property")
+      if property?
+        jQNode.val(model[property])
+        
+    bindSingleNode(node, model)
+    
+    child = node.firstChild
+    while child?
+      ViewFirst.bindNodeValues(child, model)
+      child = child.nextSibling    
     
     
   setNamedModel: (name, model) =>

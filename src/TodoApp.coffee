@@ -29,8 +29,10 @@ createTodoApp = ->
 
     updateForm = (oldTodo, newTodo) =>
     
-      name = form.children("[data-property='name']").val(newTodo.name)
-      description = form.children("[data-property='description']").val(newTodo.description)
+      #name = form.children("[data-property='name']").val(newTodo.name)
+      #description = form.children("[data-property='description']").val(newTodo.description)
+      
+      ViewFirst.bindNodeValues(node, newTodo)
       
       createTodoButton = form.find("#createTodo")
       createTodoButton.unbind("click.saveTodo")
@@ -54,8 +56,6 @@ createTodoApp = ->
   
     addTodoItem = (todo) =>
       option = template.clone()
-      option.find("[data-property='name']").replaceWith(todo.name)
-      option.find("[data-property='description']").replaceWith(todo.description)
       option.attr("value", todo.id)
       ViewFirst.bindTextNodes(option.get(0), todo)
       $(node).append(option)
