@@ -6,22 +6,27 @@ class window.ViewFirst
   
   ###
   constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}) ->
+
+    addViews = () =>
+      $('script[type="text/view-first-template"]').each( (id, el) => 
+                                                          node = $(el)
+                                                          console.log "Loading script with id=#{node.attr('name')}"
+                                                          @createView(node.attr("name"), node.html())) 
     @snippets =
       surround: ViewFirst._surroundSnippet
       embed: ViewFirst._embedSnippet
-    @addViews()
-  
+    addViews()
+
+  serialize: () =>
+    
+    modelNameStrings = (((key) => key + "_=" + @namedModels[key].constructor.name) key for key of @namedModels)
+    
   findView: (viewId) => this.views[viewId] 
 
   renderView: (viewId) =>
     view = @findView(viewId)
     $('body').html(view.render())
   
-  addViews: =>
-    $('script[type="text/view-first-template"]').each( (id, el) => 
-                                                          node = $(el)
-                                                          console.log "Loading script with id=#{node.attr('name')}"
-                                                          @createView(node.attr("name"), node.html())) 
   createView: (viewId, content) =>
 
     view = new View(this, viewId, content)
@@ -32,6 +37,39 @@ class window.ViewFirst
     
     @snippets[name] = func
 
+  setNamedModel: (name, model) =>
+
+    oldModel = @namedModels[name]
+    @namedModels[name] = model
+
+    @serialize()
+    
+    eventListenerArray = @namedModelEventListeners[name]
+    
+    if eventListenerArray?
+      func(oldModel, model) for func in eventListenerArray
+
+  getOrCreateNamedModel: (name, modelClass) =>
+  
+    namedModel = @namedModels[name]
+    
+    if !namedModel?
+      namedModel = new modelClass()
+      @namedModels[name] = namedModel
+    
+    return namedModel
+
+  addNamedModelEventListener: (name, func) =>
+  
+    eventListenerArray = @namedModelEventListeners[name]
+
+    if !eventListenerArray?
+      eventListenerArray = []
+      @namedModelEventListeners[name] = eventListenerArray
+    
+    eventListenerArray.push(func)
+    
+    
   @_surroundSnippet: (viewFirst, node, argumentMap)  =>
 
   
@@ -151,35 +189,4 @@ class window.ViewFirst
     while child?
       ViewFirst.bindNodeValues(child, model)
       child = child.nextSibling    
-    
-    
-  setNamedModel: (name, model) =>
-
-    oldModel = @namedModels[name]
-    @namedModels[name] = model
-    
-    eventListenerArray = @namedModelEventListeners[name]
-    
-    if eventListenerArray?
-      func(oldModel, model) for func in eventListenerArray
-
-  getOrCreateNamedModel: (name, modelClass) =>
-  
-    namedModel = @namedModels[name]
-    
-    if !namedModel?
-      namedModel = new modelClass()
-      @namedModels[name] = namedModel
-    
-    return namedModel
-
-  addNamedModelEventListener: (name, func) =>
-  
-    eventListenerArray = @namedModelEventListeners[name]
-
-    if !eventListenerArray?
-      eventListenerArray = []
-      @namedModelEventListeners[name] = eventListenerArray
-    
-    eventListenerArray.push(func)
   
