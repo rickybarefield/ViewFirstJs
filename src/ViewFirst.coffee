@@ -7,7 +7,7 @@ class window.ViewFirst
     namedModelEventListeners contain a map of namedModel name to array of event handlers
   
   ###
-  constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}, @nodeBindings={}) ->
+  constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}, @nodeBindings={}, @router=new Router(this)) ->
 
     addViews = () =>
       $('script[type="text/view-first-template"]').each( (id, el) => 
@@ -18,10 +18,6 @@ class window.ViewFirst
       surround: ViewFirst._surroundSnippet
       embed: ViewFirst._embedSnippet
     addViews()
-
-  serialize: () =>
-    
-    modelNameStrings = (((key) => key + "_=" + @namedModels[key].constructor.name) key for key of @namedModels)
     
   findView: (viewId) => this.views[viewId] 
 
@@ -44,7 +40,7 @@ class window.ViewFirst
     oldModel = @namedModels[name]
     @namedModels[name] = model
 
-    @serialize()
+    @router.serialize()
     
     eventListenerArray = @namedModelEventListeners[name]
     
@@ -155,8 +151,6 @@ class window.ViewFirst
     contained = !child?
     ((node) => contained = contained || node == child) node for node in parent.childNodes
     contained
-
-  
     
   bindTextNodes: (node, model) =>
 
