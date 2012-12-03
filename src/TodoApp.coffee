@@ -22,8 +22,6 @@ createTodoApp = ->
       aTodo.description = description
       aTodo.save()
       
-      alert("Saved this todo, you'll need to refresh the browser to see it!")
-      
       return false
 
     updateForm = (oldTodo, newTodo) =>

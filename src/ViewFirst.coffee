@@ -1,5 +1,7 @@
 class window.ViewFirst
 
+  @TEXT_NODE = 3
+
   ###
     
     namedModelEventListeners contain a map of namedModel name to array of event handlers
@@ -155,17 +157,23 @@ class window.ViewFirst
     contained
 
   @bindTextNodes: (node, model) =>
-  
-    bindSingleNode = (node, model) =>
 
-      removeSurround = (str) =>
-        str.match /[^#{}]+/
+    bindSingleNode = (node, model) =>
     
-      replaceText = (nodeText, model) =>
+      getReplacementText = (nodeText, model) =>
+        removeSurround = (str) =>
+          str.match /[^#{}]+/
         nodeText.replace /#\{[^\}]*\}/g, (match) -> model[removeSurround(match)]
-    
-      if node.nodeType == 3
-        node.nodeValue = replaceText(node.nodeValue, model)
+        
+      if node.nodeType ==  ViewFirst.TEXT_NODE
+
+        originalText = node.nodeValue
+        replacementText = getReplacementText(node.nodeValue, model)
+        if originalText != replacementText
+          node.nodeValue = replacementText
+          model.bind "save", ->
+            nextReplacement = getReplacementText(originalText, this)
+            node.nodeValue = nextReplacement
   
     bindSingleNode(node, model)
     
