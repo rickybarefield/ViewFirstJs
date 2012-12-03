@@ -54,7 +54,7 @@ createTodoApp = ->
     addTodoItem = (todo) =>
       option = template.clone()
       option.attr("value", todo.id)
-      ViewFirst.bindTextNodes(option.get(0), todo)
+      viewFirst.bindTextNodes(option.get(0), todo)
       $(node).append(option)
     
     addTodoItem aTodo for aTodo in window.Todo.all()

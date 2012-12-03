@@ -7,7 +7,7 @@ class window.ViewFirst
     namedModelEventListeners contain a map of namedModel name to array of event handlers
   
   ###
-  constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}) ->
+  constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}, @nodeBindings={}) ->
 
     addViews = () =>
       $('script[type="text/view-first-template"]').each( (id, el) => 
@@ -156,8 +156,18 @@ class window.ViewFirst
     ((node) => contained = contained || node == child) node for node in parent.childNodes
     contained
 
-  @bindTextNodes: (node, model) =>
+  
+    
+  bindTextNodes: (node, model) =>
 
+    bindNodeToModel = (node, model, func) =>
+      currentBinding = @nodeBindings[node]
+      if currentBinding?
+        model.unbind "save", currentBinding
+      model.bind "save", func
+      @nodeBindings[node] = func
+      
+      
     bindSingleNode = (node, model) =>
     
       getReplacementText = (nodeText, model) =>
@@ -179,7 +189,7 @@ class window.ViewFirst
     
     child =  node.firstChild
     while child?
-      ViewFirst.bindTextNodes(child, model)
+      @bindTextNodes(child, model)
       child = child.nextSibling
 
       
