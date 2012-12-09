@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>View First Example - This shouldn't be the title!</title>
     
-    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <!--link href="css/bootstrap.min.css" rel="stylesheet" media="screen"-->
     <link rel="stylesheet" href="./main.css" type="text/css" />
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
     <script type="text/javascript" src="./js/spine.js"></script>
@@ -15,7 +15,7 @@
     <script type="text/javascript" src="./Router.js"></script>
     <script type="text/javascript" src="./ViewFirst.js"></script>
     <script type="text/javascript" src="./TodoApp.js"></script>
-    <script src="./js/bootstrap.min.js"></script>    
+    <!-- script src="./js/bootstrap.min.js"></script-->    
     
   </head>
   
@@ -29,7 +29,9 @@
         <div class="page-header">
           <h1><span data-bind-name="title" /></h1>
         </div>
-        <p class="lead">Created with ViewFirstJs</p>
+        <div id="sidebar">
+           <span data-bind-name="sidebar" />
+        </div>
         <span data-bind-name="content" />
       </div>
 
@@ -40,7 +42,7 @@
 
       <div id="footer">
         <div class="container">
-          <p>ViewFirstJs by <a href="https://github.com/rickybarefield/ViewFirstJs">Ricky Barefield</a> &copy; <span data-snippet="year" /></p>
+          <p>ViewFirstJs by <a href="https://github.com/rickybarefield/ViewFirstJs">Ricky Barefield</a> &copy; 2012</p>
         </div>
       </div>  
 
@@ -52,63 +54,26 @@
       <div data-snippet="surround" data-with="main">
 
         <div data-at="title">
-           ViewFirstTODO
+           ViewFirst TODOs
         </div>
       
         <div data-at="content">
-          <h3>Your todos</h3>
-          <select data-snippet="listTodos">
-	      <option>#{name} --- #{description}</option>
-          </select>
-          <h3>Create Todo</h3>
-	  <form id="createTodoForm" data-snippet="todoForm">
-	    <label for="todoName">Name:</label><input data-property="name" type="text" id="todoName" />
-	    <label for="todoDescription">Description:</label><textarea data-property="description" id="todoDescription"></textarea>
-	    <br />
-	    <input type="submit" id="createTodo" value="Create" />
-	  </form>
+          <input type="text" data-snippet="newTodo" data-property="name" />
+          <div data-snippet="todoItems">
+            <div>
+              <input type="text" disabled="true" data-property="name" />#{name} - #{description}<button id="deleteTodo">Delete</button>
+            </div>
+          </div>
+        </div>
+	      
+        <div data-at="sidebar">
+    	    <textarea data-snippet="todoDescription" data-property="description" type="text" id="todoDescription"></textarea>
         </div>
         
       </div>
     
     </script>
   
-    <script type="text/view-first-template" name="outerView">
-      
-      <h1>Outer View</h1>
-      <div id="outerViewDiv">
-	<span data-bind-name="content" />
-      </div>
-      <div id="outerViewAvatar">
-        <span data-template="avatar" /> 
-      </div>
-      
-    </script>
-
-
-
-    <script type="text/view-first-template" name="innerView">
-
-      <div data-snippet="surround" data-with="outerView" data-at="content">
-	<p>surrounded on <span data-snippet="date" /></p>
-      </div>
-  
-    </script>
-
-    <script type="text/view-first-template" name="avatar">
-    
-      <div id="avatarPic">
-      
-	Picture
-      
-      </div>
-      <div id="tagLine">
-      
-        Avatar - it's a word
-      
-      </div>
-    
-    </script>
 
     </body>
 </html>

@@ -17,30 +17,47 @@ class window.Router
   serialize: () =>
   
     modelsSerialized = (((key) =>
-                  "#{key}=#{@viewFirst.namedModels[key].constructor.name}!#{@viewFirst.namedModels[key].id}") key for key of @viewFirst.namedModels)
-    @currentBinding = modelsSerialized.join("&")
+                  "#{key}=#{@viewFirst.namedModels[key].constructor.name}!#{@viewFirst.namedModels[key].id}") key for key of @viewFirst.namedModels when @viewFirst.namedModels[key].id?)
+    @currentBinding = @viewFirst.currentView + "|" + modelsSerialized.join("&")
     window.location.hash = @currentBinding
     
   deserialize: =>
     
     if "#" + @currentBinding != window.location.hash
       @disableListener()
-      
+
       @currentBinding = window.location.hash.substring 1
-      items = @currentBinding.split ("&")
+      viewAndRest = @currentBinding.split "|"
+      view = viewAndRest[0]
+
+      if(@viewFirst.findView(view))
+        @restore(view, viewAndRest[1])
+
+      @enableListener()
+
+  restore: (view, modelDataString) =>
+
+      items = modelDataString.split ("&")
+      console.log items
       
       @setModelForString item for item in items
-      
-      @enableListener()
+
+      @viewFirst.renderView(view)
     
 
   setModelForString: (string) =>
     
-    keyAndData = string.split("=")
-    key = keyAndData[0]
-    data = keyAndData[1]
-    classNameAndId = data.split("!")
-    
-    model = window[classNameAndId[0]].find(classNameAndId[1])
-    
-    @viewFirst.setNamedModel(key, model)
+    if string?
+
+      keyAndData = string.split("=")
+
+      key = keyAndData[0]
+      data = keyAndData[1]
+
+      if key? and data?
+
+        classNameAndId = data.split("!")
+      
+        model = window[classNameAndId[0]].find(classNameAndId[1])
+      
+        @viewFirst.setNamedModel(key, model, false)

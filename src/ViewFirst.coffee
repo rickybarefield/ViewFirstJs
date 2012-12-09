@@ -7,21 +7,29 @@ class window.ViewFirst
     namedModelEventListeners contain a map of namedModel name to array of event handlers
   
   ###
-  constructor: (@views = {}, @namedModels={}, @namedModelEventListeners={}, @nodeBindings={}, @router=new Router(this)) ->
+  constructor: (@indexView, @views = {}, @namedModels={}, @namedModelEventListeners={}, @namedBindings = {}, @router=new Router(this)) ->
 
-    addViews = () =>
+    @snippets =
+      surround: ViewFirst._surroundSnippet
+      embed: ViewFirst._embedSnippet
+
+  initialize: =>
+    addViews = =>
       $('script[type="text/view-first-template"]').each( (id, el) => 
                                                           node = $(el)
                                                           console.log "Loading script with id=#{node.attr('name')}"
                                                           @createView(node.attr("name"), node.html())) 
-    @snippets =
-      surround: ViewFirst._surroundSnippet
-      embed: ViewFirst._embedSnippet
+
     addViews()
-    
+    @router.deserialize()
+    if !@currentView?
+      @renderView(@indexView)
+      @router.serialize()
+
   findView: (viewId) => this.views[viewId] 
 
   renderView: (viewId) =>
+    @currentView = viewId
     view = @findView(viewId)
     $('body').html(view.render())
   
@@ -35,12 +43,17 @@ class window.ViewFirst
     
     @snippets[name] = func
 
-  setNamedModel: (name, model) =>
+  setNamedModel: (name, model, serialize = true) =>
 
     oldModel = @namedModels[name]
-    @namedModels[name] = model
 
-    @router.serialize()
+    if model?
+      @namedModels[name] = model
+    else
+      delete @namedModels[name]
+
+    if serialize
+      @router.serialize()
     
     eventListenerArray = @namedModelEventListeners[name]
     
@@ -151,54 +164,86 @@ class window.ViewFirst
     contained = !child?
     ((node) => contained = contained || node == child) node for node in parent.childNodes
     contained
-    
-  bindTextNodes: (node, model) =>
 
-    bindNodeToModel = (node, model, func) =>
-      currentBinding = @nodeBindings[node]
-      if currentBinding?
-        model.unbind "save", currentBinding
-      model.bind "save", func
-      @nodeBindings[node] = func
+  bindModel: (modelClass, parentNode, func) =>
+
+    boundModels = {}
+
+    addChild = (modelToAdd) =>
+      childNode = func(modelToAdd)
+      @bindTextNodes(childNode, modelToAdd)
+      @bindNodeValues(childNode, modelToAdd)
+      $parent.append(childNode)
+      boundModels[modelToAdd] = childNode
+
+    removeChild = (modelToRemove) =>
+      childNode = boundModels[modelToRemove]
+      $(childNode).detach()
+      delete boundModels[modelToRemove]
+    
+    $parent = $(parentNode)
+
+    addChild model for model in modelClass.all()
+
+    modelClass.bind "create", (newModel) -> addChild(newModel)
+    modelClass.bind "destroy", (removedModel) -> removeChild(removedModel)
+
+  bindNodeToModel: (node, model, func) =>
+    currentBinding = node["currentBinding"]
+    #if currentBinding?
+    #  model.unbind "save", currentBinding
+    model.bind "save", func
+    node["currentBinding"] = func
+
+  bindTextNodes: (node, model) =>
       
-      
-    bindSingleNode = (node, model) =>
+    bindSingleNode = (node) =>
     
       getReplacementText = (nodeText, model) =>
         removeSurround = (str) =>
           str.match /[^#{}]+/
         nodeText.replace /#\{[^\}]*\}/g, (match) -> model[removeSurround(match)]
-        
-      if node.nodeType ==  ViewFirst.TEXT_NODE
-
-        originalText = node.nodeValue
-        replacementText = getReplacementText(node.nodeValue, model)
-        if originalText != replacementText
-          node.nodeValue = replacementText
-          model.bind "save", ->
-            nextReplacement = getReplacementText(originalText, this)
-            node.nodeValue = nextReplacement
-  
-    bindSingleNode(node, model)
-    
-    child =  node.firstChild
-    while child?
-      @bindTextNodes(child, model)
-      child = child.nextSibling
-
       
-  @bindNodeValues: (node, model) =>
+      originalText = node.nodeValue
+
+      doReplacement = =>
+        replacementText = getReplacementText(originalText, model)
+        node.nodeValue = replacementText
+
+      if node.nodeType ==  ViewFirst.TEXT_NODE and node.nodeValue.match /#{.*}/
+        @bindNodeToModel node, model, doReplacement
+        doReplacement()
+  
+    ViewFirst.doForNodeAndChildren(node, bindSingleNode)
+
+  addNamedBinding: (name, event, $node, func) =>
+
+    key = event + "." + name
+    $node.unbind key
+    $node.bind key, func
+      
+  bindNodeValues: (node, model) =>
     
-    bindSingleNode = (singleNode, model) =>
+    bindSingleNode = (singleNode) =>
       jQNode = $(singleNode)
       property = jQNode.attr("data-property")
       if property?
+        @bindNodeToModel singleNode, model, =>
+          jQNode.val(model[property])
+        @addNamedBinding("updateModel", "blur", jQNode, =>
+          model[property] = jQNode.val()
+          model.save())
         jQNode.val(model[property])
+      
         
-    bindSingleNode(node, model)
+    ViewFirst.doForNodeAndChildren(node, bindSingleNode)
     
+
+  @doForNodeAndChildren: (node, func) =>
+    
+    func(node)
+
     child = node.firstChild
     while child?
-      ViewFirst.bindNodeValues(child, model)
+      @doForNodeAndChildren(child, func)
       child = child.nextSibling    
-  
