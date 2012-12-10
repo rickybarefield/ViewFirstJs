@@ -23,8 +23,8 @@ class window.View
   applySnippetsRecursivelyToNonTextNode: (parent, domNode) =>
   
     withSnippetsApplied = @applySnippets(domNode)
-
-    if(domNode != withSnippetsApplied)
+    
+    if(withSnippetsApplied? and domNode != withSnippetsApplied)
       withSnippetsApplied = ViewFirst.replaceNode(parent, domNode, withSnippetsApplied)
       if(ViewFirst.isNodeListOrArray(withSnippetsApplied))
         @applySnippetsRecursivelyToChildNodes(parent, withSnippetsApplied)

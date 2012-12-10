@@ -58,11 +58,27 @@
         </div>
       
         <div data-at="content">
-          <input type="text" data-snippet="newTodo" data-property="name" />
+          <input placeholder="something todo?" type="text" data-snippet="newTodo" data-property="name" />
           <div data-snippet="todoItems">
             <div>
-              <input type="text" disabled="true" data-property="name" />#{name} - #{description}<button id="deleteTodo">Delete</button>
+              <input class="editable" type="text" disabled="true" data-property="name" /><button>Delete</button>
             </div>
+          </div>
+          <p>Double click to edit a todo or add a description</p>
+          <hr />
+          <div>
+            <p>A simple table to demonstrate binding text nodes</p>
+            <table>
+              <tr>
+                <th>name</th>
+                <th>description</th>
+              </tr>
+              <tr data-snippet="todoRow">
+                <td>#{name}</td>
+                <td>#{description}</td>
+              </tr>
+            </table>
+
           </div>
         </div>
 	      

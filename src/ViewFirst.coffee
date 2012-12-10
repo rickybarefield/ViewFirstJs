@@ -47,8 +47,10 @@ class window.ViewFirst
 
     oldModel = @namedModels[name]
 
+
     if model?
       @namedModels[name] = model
+      model.constructor.bind("destroy", => @setNamedModel(name, null))
     else
       delete @namedModels[name]
 
@@ -190,10 +192,12 @@ class window.ViewFirst
 
   bindNodeToModel: (node, model, func) =>
     currentBinding = node["currentBinding"]
-    #if currentBinding?
-    #  model.unbind "save", currentBinding
-    model.bind "save", func
-    node["currentBinding"] = func
+    if currentBinding?
+      #TODO There is a slight problem here
+      #Unbinding leaves an unbinder bound! See bind in model, an unbinder is added which
+      #can't easily be removed, may have to override bind 
+      model.constructor.unbind "save", currentBinding
+    node["currentBinding"] = model.bind "save", func
 
   bindTextNodes: (node, model) =>
       

@@ -15,7 +15,7 @@ body {
   width : 300px;
 }
 
-input {
+.editable {
  
  border : 0px;
  background-color : white;
