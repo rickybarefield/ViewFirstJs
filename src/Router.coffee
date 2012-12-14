@@ -7,20 +7,26 @@ class window.Router
 
   constructor: (@viewFirst, @currentBinding = "") ->
     @enableListener()
-  
+
+
   enableListener: () =>
     window.addEventListener "hashchange", @deserialize
 
+
   disableListener: () =>
     window.removeEventListener "hashchange", @deserialize
-    
+
+
   serialize: () =>
-  
-    modelsSerialized = (((key) =>
-                  "#{key}=#{@viewFirst.namedModels[key].constructor.name}!#{@viewFirst.namedModels[key].id}") key for key of @viewFirst.namedModels when @viewFirst.namedModels[key].id?)
+    namedModels = @viewFirst.namedModels
+    modelsSerialized = for key of namedModels when namedModels[key].id?
+      do (key) ->
+        "#{key}=#{namedModels[key].constructor.name}!#{namedModels[key].id}"
+
     @currentBinding = @viewFirst.currentView + "|" + modelsSerialized.join("&")
     window.location.hash = @currentBinding
     
+
   deserialize: =>
     
     if "#" + @currentBinding != window.location.hash
@@ -35,29 +41,27 @@ class window.Router
 
       @enableListener()
 
+
   restore: (view, modelDataString) =>
 
       items = modelDataString.split ("&")
       console.log items
       
-      @setModelForString item for item in items
+      @setModelForString(item) for item in items
 
       @viewFirst.renderView(view)
     
 
-  setModelForString: (string) =>
+  setModelForString: (string) ->
     
     if string?
 
-      keyAndData = string.split("=")
-
-      key = keyAndData[0]
-      data = keyAndData[1]
+      [key, data] = string.split("=")
 
       if key? and data?
 
-        classNameAndId = data.split("!")
+        [className, id] = data.split("!")
       
-        model = window[classNameAndId[0]].find(classNameAndId[1])
+        model = window[className].find(id)
       
         @viewFirst.setNamedModel(key, model, false)
