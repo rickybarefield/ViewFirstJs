@@ -13,7 +13,7 @@ class window.ViewFirst
       embed: ViewFirst._embedSnippet
 
 
-  initialize: =>
+  initialize: ->
 
     $('script[type="text/view-first-template"]').each (id, el) =>
       node = $(el)
@@ -26,29 +26,31 @@ class window.ViewFirst
       @router.serialize()
 
 
-  findView: (viewId) => @views[viewId]
+  findView: (viewId) ->
+      @views[viewId]
 
-  renderView: (viewId) =>
+
+  renderView: (viewId) ->
 
     @currentView = viewId
     view = @findView viewId
     $('body').html view.render()
 
 
-  createView: (viewId, content) =>
+  createView: (viewId, content) ->
 
     view = new View(this, viewId, content)
     @views[viewId] = view
     return view
 
 
-  addSnippet: (name, func) => @snippets[name] = func
+  addSnippet: (name, func) ->
+      @snippets[name] = func
 
 
-  setNamedModel: (name, model, serialize = true) =>
+  setNamedModel: (name, model, serialize = true) ->
 
     oldModel = @namedModels[name]
-
 
     if model?
       @namedModels[name] = model
@@ -64,7 +66,8 @@ class window.ViewFirst
     if eventListenerArray?
       func(oldModel, model) for func in eventListenerArray
 
-  getOrCreateNamedModel: (name, modelClass) =>
+
+  getOrCreateNamedModel: (name, modelClass) ->
 
     namedModel = @namedModels[name]
 
@@ -75,7 +78,7 @@ class window.ViewFirst
     return namedModel
 
 
-  addNamedModelEventListener: (name, func) =>
+  addNamedModelEventListener: (name, func) ->
 
     eventListenerArray = @namedModelEventListeners[name]
 
@@ -86,7 +89,7 @@ class window.ViewFirst
     eventListenerArray.push(func)
 
 
-  @_surroundSnippet: (viewFirst, node, argumentMap)  ->
+  @_surroundSnippet: (viewFirst, node, argumentMap) ->
 
     nodes = node.children #This snippet is only interested in child nodes
     console.log "_surroundSnippet invoked with #{node}"
@@ -124,12 +127,13 @@ class window.ViewFirst
     bindElement = $(surroundingContent).find("[data-bind-name='#{at}']")
     bindElement.replaceWith(html)
 
+
   @_embedSnippet: (viewFirst, html, argumentMap) ->
 
     templateName = argumentMap['template']
     embeddedView = viewFirst.findView(templateName)
 
-    if(!embeddedView?)
+    unless embeddedView?
       throw "Unable to find template to embed '#{templateName}'"
 
     tmp = document.createElement("div")
@@ -157,7 +161,8 @@ class window.ViewFirst
 
       for newNode in nodeArray
         do (newNode) =>
-          throw "nextSibling was not contained in parent" unles  @containsChild(parent, nextSibling)
+          unless @containsChild(parent, nextSibling)
+            throw "nextSibling was not contained in parent"
           parent.insertBefore(newNode, nextSibling)
 
       parent.removeChild(nodeToReplace)

@@ -9,12 +9,12 @@ class window.Router
     @enableListener()
 
 
-  enableListener: () =>
-    window.addEventListener "hashchange", @deserialize
+  enableListener: () ->
+    window.addEventListener("hashchange", @deserialize)
 
 
-  disableListener: () =>
-    window.removeEventListener "hashchange", @deserialize
+  disableListener: () ->
+    window.removeEventListener("hashchange", @deserialize)
 
 
   serialize: () =>
@@ -32,17 +32,17 @@ class window.Router
     if "#" + @currentBinding != window.location.hash
       @disableListener()
 
-      @currentBinding = window.location.hash.substring 1
-      viewAndRest = @currentBinding.split "|"
+      @currentBinding = window.location.hash.substring(1)
+      viewAndRest = @currentBinding.split("|")
       view = viewAndRest[0]
 
-      if(@viewFirst.findView(view))
+      if @viewFirst.findView(view)
         @restore(view, viewAndRest[1])
 
       @enableListener()
 
 
-  restore: (view, modelDataString) =>
+  restore: (view, modelDataString) ->
 
       items = modelDataString.split ("&")
       console.log items
