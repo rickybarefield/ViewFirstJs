@@ -12,16 +12,17 @@ class window.View
 
 
   applySnippetsRecursively: (parent, domNode) ->
-    unless domNode.nodeType is View.TEXT_NODE
+    unless domNode?.nodeType is View.TEXT_NODE
       @applySnippetsRecursivelyToNonTextNode(parent, domNode)
     else
       domNode
     
 
   applySnippetsRecursivelyToChildNodes: (parent, childNodes) ->
-    for node in childNodes
-      do (node) =>
-        @applySnippetsRecursively(parent, node)
+    if childNodes?
+        for node in childNodes
+          do (node) =>
+            @applySnippetsRecursively(parent, node)
   
   
   applySnippetsRecursivelyToNonTextNode: (parent, domNode) ->
@@ -37,7 +38,7 @@ class window.View
         @applySnippetsRecursively(parent, withSnippetsApplied)
 
     else
-      @applySnippetsRecursivelyToChildNodes(domNode, domNode.childNodes)
+      @applySnippetsRecursivelyToChildNodes(domNode, domNode?.childNodes)
       
 
   applySnippets: (element) =>

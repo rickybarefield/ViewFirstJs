@@ -89,7 +89,7 @@ class window.ViewFirst
     eventListenerArray.push(func)
 
 
-  @_surroundSnippet: (viewFirst, node, argumentMap) ->
+  @_surroundSnippet: (viewFirst, node, argumentMap) =>
 
     nodes = node.children #This snippet is only interested in child nodes
     console.log "_surroundSnippet invoked with #{node}"
@@ -148,7 +148,7 @@ class window.ViewFirst
     convertToFlatArray = (nodeList) =>
       addAllToArray = (nodeList, nodeArray) =>
         for node in nodeList
-          do (node) ->
+          do (node) =>
               if @isNodeListOrArray(node) then addAllToArray(node, nodeArray) else nodeArray.push(node)
 
       nodeArray = []
