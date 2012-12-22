@@ -6,7 +6,4 @@ class window.Todo extends Spine.Model
 
   @url: "/todos"
 
-
-
-
-window.Todo.fetch()
+Todo.fetch()
