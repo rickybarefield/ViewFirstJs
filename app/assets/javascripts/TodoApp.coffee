@@ -8,7 +8,7 @@ $ ->
     template = $node.children("div")
     template.detach()
 
-    viewFirst.bindModel Todo, node, (todo) ->
+    viewFirst.bindModel allTodos, node, (todo) ->
 
       todoDiv = template.clone()
       input = todoDiv.children("input")
@@ -47,6 +47,8 @@ $ ->
       name = $node.val()
       if key.which is 13 and name?
         newTodo = new Todo(name: name, description: "")
+        console.log "adding"
+        allTodos.add newTodo
         newTodo.save()
         $node.val("")
 
@@ -75,7 +77,7 @@ $ ->
     $parent = $node.parent()
     $template = $node.detach()
 
-    viewFirst.bindModel Todo, $parent, ->
+    viewFirst.bindModel allTodos, $parent, ->
       $template.clone().get(0)
 
     return null

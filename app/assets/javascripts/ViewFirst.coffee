@@ -1,3 +1,5 @@
+random = -> Math.floor(Math.random() * 0x10000).toString(16)
+
 class window.ViewFirst
 
   @TEXT_NODE = 3
@@ -184,11 +186,12 @@ class window.ViewFirst
     contained
 
 
-  bindModel: (modelClass, parentNode, func) ->
+  bindModel: (collection, parentNode, func) ->
 
     boundModels = {}
 
     addChild = (modelToAdd) =>
+      console.log "adding child"
       childNode = func(modelToAdd)
       @bindTextNodes(childNode, modelToAdd)
       @bindNodeValues(childNode, modelToAdd)
@@ -196,20 +199,21 @@ class window.ViewFirst
       boundModels[modelToAdd] = childNode
 
     removeChild = (modelToRemove) ->
-      childNode = boundModels[modelToRemove]
+      childNode =boundModels[modelToRemove]
       $(childNode).detach()
       delete boundModels[modelToRemove]
 
     $parent = $(parentNode)
 
-    addChild(model) for model in modelClass.all()
+    context = random()
 
-    console.log("There are " + modelClass.all().length)
+    collection.each (model) -> addChild(model)
 
-    modelClass.bind "create", (newModel) -> addChild(newModel)
-    modelClass.bind "destroy", (removedModel) -> removeChild(removedModel)
-    modelClass.bind "refresh", -> bindModel(modelClass, parentNode, func)
-
+    collection.on "add", ((newModel) -> addChild(newModel)), context
+    collection.on "destroy", ((removedModel) -> removeChild(removedModel)), context
+    collection.on "reset", ( =>
+      collection.off null, null, context
+      @bindModel(collection, parentNode, func)), context
 
   bindNodeToModel: (node, model, func) ->
     currentBinding = node["currentBinding"]
@@ -217,8 +221,8 @@ class window.ViewFirst
       #TODO There is a slight problem here
       #Unbinding leaves an unbinder bound! See bind in model, an unbinder is added which
       #can't easily be removed, may have to override bind
-      model.constructor.unbind "save", currentBinding
-    node["currentBinding"] = model.bind "save", func
+      model.off "save", currentBinding
+    node["currentBinding"] = model.on "save", func
 
 
   bindTextNodes: (node, model) ->
@@ -228,7 +232,7 @@ class window.ViewFirst
       getReplacementText = (nodeText, model) ->
         removeSurround = (str) ->
           str.match /[^#{}]+/
-        nodeText.replace /#\{[^\}]*\}/g, (match) -> model[removeSurround(match)]
+        nodeText.replace /#\{[^\}]*\}/g, (match) -> model.get(removeSurround(match))
 
       originalText = node.nodeValue
 
@@ -254,13 +258,13 @@ class window.ViewFirst
       property = jQNode.attr("data-property")
       if property?
         @bindNodeToModel singleNode, model, =>
-          jQNode.val(model[property])
+          jQNode.val(model.get(property))
 
         @addNamedBinding "updateModel", "blur", jQNode, =>
-          model[property] = jQNode.val()
+          model.set(property, jQNode.val())
           model.save()
 
-        jQNode.val(model[property])
+        jQNode.val(model.get(property))
 
 
   @doForNodeAndChildren: (node, func) ->
