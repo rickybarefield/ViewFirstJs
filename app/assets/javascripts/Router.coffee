@@ -1,67 +1,40 @@
-class window.Router
+class window.ViewFirstRouter extends Backbone.Router
 
-  ###
-    TODO This is currently using the hashchange event, looks like this is currently poorly supported so need
-         to fallback on polling mechanism.  Perhaps a jQuery special event...
-  ###
+  constructor: (@viewFirst) ->
 
-  constructor: (@viewFirst, @currentBinding = "") ->
-    @enableListener()
+  addRoute: (pageName, index = false) =>
 
+    createRegex = (pageName) -> new RegExp("^#{pageName}/?([/A-Za-z!0-9]*)$")
 
-  enableListener: () ->
-    window.addEventListener("hashchange", @deserialize)
+    routingFunction = (serializedModels) =>
+      console.log "Routing to #{pageName}"
+      @currentPage = pageName
+      @viewFirst.renderView pageName
+      @viewFirst.namedModels = {}
+      console.log "Should be deserializing #{pageName} '#{serializedModels}'"
+      for serializedModel in serializedModels.split("/") when serializedModels? and serializedModels != ""
+        do (serializedModel) =>
+          serializedParts = serializedModel.split ("!")
+          model = new window[serializedParts[1]]
+          model.set("id", serializedParts[2])
+          model.fetch
+            success: => @viewFirst.setNamedModel(serializedParts[0], model, true)
+          console.log model.get("description") + "with id: " + model.get("id")
+          
+    console.log "Adding a route to #{pageName}"
 
+    @route(createRegex(pageName), pageName, routingFunction)
+    if index then @route("", "index", =>
+      console.log "navy"
+      @navigate pageName, true)
 
-  disableListener: () ->
-    window.removeEventListener("hashchange", @deserialize)
+  updateState: =>
 
-
-  serialize: () =>
     namedModels = @viewFirst.namedModels
     modelsSerialized = for key of namedModels when namedModels[key].id?
       do (key) ->
-        "#{key}=#{namedModels[key].constructor.name}!#{namedModels[key].id}"
+        "/#{key}!#{namedModels[key].constructor.name}!#{namedModels[key].id}"
 
-    @currentBinding = @viewFirst.currentView + "|" + modelsSerialized.join("&")
-    window.location.hash = @currentBinding
-    
-
-  deserialize: =>
-    
-    if "#" + @currentBinding != window.location.hash
-      @disableListener()
-
-      @currentBinding = window.location.hash.substring(1)
-      viewAndRest = @currentBinding.split("|")
-      view = viewAndRest[0]
-
-      if @viewFirst.findView(view)
-        @restore(view, viewAndRest[1])
-
-      @enableListener()
-
-
-  restore: (view, modelDataString) ->
-
-      items = modelDataString.split ("&")
-      console.log items
-      
-      @setModelForString(item) for item in items
-
-      @viewFirst.renderView(view)
-    
-
-  setModelForString: (string) ->
-    
-    if string?
-
-      [key, data] = string.split("=")
-
-      if key? and data?
-
-        [className, id] = data.split("!")
-      
-        model = window[className].find(id)
-      
-        @viewFirst.setNamedModel(key, model, false)
+    url = @currentPage + modelsSerialized.join("")
+    console.log("navigating to " + url)
+    @navigate url

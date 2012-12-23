@@ -8,7 +8,7 @@ $ ->
     template = $node.children("div")
     template.detach()
 
-    viewFirst.bindModel allTodos, node, (todo) ->
+    viewFirst.bindCollection allTodos, node, (todo) ->
 
       todoDiv = template.clone()
       input = todoDiv.children("input")
@@ -77,7 +77,7 @@ $ ->
     $parent = $node.parent()
     $template = $node.detach()
 
-    viewFirst.bindModel allTodos, $parent, ->
+    viewFirst.bindCollection allTodos, $parent, ->
       $template.clone().get(0)
 
     return null

@@ -9,7 +9,7 @@ class window.ViewFirst
     namedModelEventListeners contain a map of namedModel name to array of event handlers
 
   ###
-  constructor: (@indexView, @views = {}, @namedModels={}, @namedModelEventListeners={}, @namedBindings = {}, @router=new Router(this)) ->
+  constructor: (@indexView, @views = {}, @namedModels={}, @namedModelEventListeners={}, @namedBindings = {}, @router=new ViewFirstRouter(this)) ->
     @snippets =
       surround: ViewFirst._surroundSnippet
       embed: ViewFirst._embedSnippet
@@ -20,13 +20,16 @@ class window.ViewFirst
     $('script[type="text/view-first-template"]').each (id, el) =>
       node = $(el)
       console.log "Loading script with id=#{node.attr 'name' }"
-      @createView node.attr("name"), node.html()
+      viewName = node.attr("name")
+      @createView viewName , node.html()
+      @router.addRoute viewName, viewName == @indexView
 
-    @router.deserialize()
-    unless @currentView?
-      @renderView @indexView
-      @router.serialize()
+    Backbone.history.start()
 
+    #@router.deserialize()
+    #unless @currentView?
+    #  @renderView @indexView
+    #  #@router.serialize()
 
   findView: (viewId) ->
     @views[viewId]
@@ -50,7 +53,7 @@ class window.ViewFirst
     @snippets[name] = func
 
 
-  setNamedModel: (name, model, serialize = true) ->
+  setNamedModel: (name, model, dontSerialize = false) ->
 
     oldModel = @namedModels[name]
 
@@ -60,8 +63,9 @@ class window.ViewFirst
     else
       delete @namedModels[name]
 
-    if serialize
-      @router.serialize()
+    console.log "named model set"
+
+    @router.updateState() unless dontSerialize
 
     eventListenerArray = @namedModelEventListeners[name]
 
@@ -186,7 +190,7 @@ class window.ViewFirst
     contained
 
 
-  bindModel: (collection, parentNode, func) ->
+  bindCollection: (collection, parentNode, func) ->
 
     boundModels = {}
 
@@ -213,7 +217,7 @@ class window.ViewFirst
     collection.on "destroy", ((removedModel) -> removeChild(removedModel)), context
     collection.on "reset", ( =>
       collection.off null, null, context
-      @bindModel(collection, parentNode, func)), context
+      @bindCollection(collection, parentNode, func)), context
 
   bindNodeToModel: (node, model, func) ->
     currentBinding = node["currentBinding"]
