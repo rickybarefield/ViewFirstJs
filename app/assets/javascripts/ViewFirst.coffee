@@ -18,8 +18,6 @@ class window.ViewFirstModel extends Backbone.Model
 
     Backbone.Model.apply(this, arguments)
 
-random = -> Math.floor(Math.random() * 0x10000).toString(16)
-
 class window.ViewFirst
 
   @TEXT_NODE = 3
@@ -34,6 +32,8 @@ class window.ViewFirst
       surround: ViewFirst._surroundSnippet
       embed: ViewFirst._embedSnippet
 
+  uniqueNumber = -> if @lastNumber? then @lastNumber++ else @lastNumber = 0
+
 
   initialize: ->
 
@@ -46,10 +46,6 @@ class window.ViewFirst
 
     Backbone.history.start()
 
-    #@router.deserialize()
-    #unless @currentView?
-    #  @renderView @indexView
-    #  #@router.serialize()
 
   findView: (viewId) ->
     @views[viewId]
@@ -229,7 +225,8 @@ class window.ViewFirst
 
     $parent = $(parentNode)
 
-    context = random()
+    context = uniqueNumber()
+    console.log("context = #{context}")
 
     collection.each (model) -> addChild(model)
 
