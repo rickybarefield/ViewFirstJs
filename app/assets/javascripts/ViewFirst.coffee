@@ -1,3 +1,23 @@
+class window.ViewFirstModel extends Backbone.Model
+
+  @instances: {}
+  
+  constructor: (attributes) ->
+
+    instances = this.constructor.instances
+
+    if attributes?.id?
+      if instances[attributes.id]?
+        console.log "returning an existing instance"
+        model = instances[attributes.id]
+        Backbone.Model.apply(model, arguments)
+        return model
+
+      instances[attributes.id] = this
+      console.log("Had an id of #{attributes.id}")
+
+    Backbone.Model.apply(this, arguments)
+
 random = -> Math.floor(Math.random() * 0x10000).toString(16)
 
 class window.ViewFirst

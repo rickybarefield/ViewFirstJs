@@ -1,4 +1,4 @@
-class window.Todo extends Backbone.Model
+class window.Todo extends window.ViewFirstModel
 
   urlRoot: "/todos"
 
@@ -12,7 +12,6 @@ class window.Todos extends Backbone.Collection
 
 
 window.allTodos = new Todos()
-
 
 allTodos.fetch
   success: (collection) -> console.log "There are now #{collection.length} in the todos"
