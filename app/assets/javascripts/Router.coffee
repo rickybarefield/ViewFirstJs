@@ -35,5 +35,4 @@ class window.ViewFirstRouter extends Backbone.Router
         "/#{key}!#{namedModels[key].constructor.name}!#{namedModels[key].id}"
 
     url = @currentPage + modelsSerialized.join("")
-    console.log("navigating to " + url)
     @navigate url

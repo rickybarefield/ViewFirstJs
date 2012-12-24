@@ -245,8 +245,8 @@ class window.ViewFirst
       #TODO There is a slight problem here
       #Unbinding leaves an unbinder bound! See bind in model, an unbinder is added which
       #can't easily be removed, may have to override bind
-      model.off "save", currentBinding
-    node["currentBinding"] = model.on "save", func
+      model.off "change", currentBinding
+    node["currentBinding"] = model.on "change", func
 
 
   bindTextNodes: (node, model) ->
