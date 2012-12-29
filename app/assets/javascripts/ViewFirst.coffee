@@ -14,7 +14,6 @@ class window.ViewFirstModel extends Backbone.Model
         return model
 
       instances[attributes.id] = this
-      console.log("Had an id of #{attributes.id}")
 
     Backbone.Model.apply(this, arguments)
 

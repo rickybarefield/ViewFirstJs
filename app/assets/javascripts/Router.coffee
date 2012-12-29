@@ -11,7 +11,7 @@ class window.ViewFirstRouter extends Backbone.Router
       @currentPage = pageName
       @viewFirst.renderView pageName
       @viewFirst.namedModels = {}
-      console.log "Should be deserializing #{pageName} '#{serializedModels}'"
+
       for serializedModel in serializedModels.split("/") when serializedModels? and serializedModels != ""
         do (serializedModel) =>
           serializedParts = serializedModel.split ("!")
