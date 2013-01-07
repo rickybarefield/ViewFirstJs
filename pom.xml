@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.appagility.viewfirstjs</groupId>
+  <artifactId>view-first-test</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <packaging>jar</packaging>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.technophobia.substeps</groupId>
+      <artifactId>substeps-bom</artifactId>
+      <version>1.1.0</version>
+      <type>pom</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.technophobia.substeps</groupId>
+      <artifactId>webdriver-substeps</artifactId>
+      <version>1.1.0</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.6.6</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.technophobia.substeps</groupId>
+        <artifactId>substeps-maven-plugin</artifactId>
+
+        <executions>
+          <execution>
+            <id>SubSteps Test</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>run-features</goal>
+            </goals>
+          </execution>
+        </executions>
+
+        <configuration>
+
+          <executionConfigs>
+            <executionConfig>
+  
+              <description>View First Js Tests</description>
+              <featureFile>${basedir}/src/test/resources/features</featureFile>
+              <subStepsFileName>${basedir}/src/test/resources/substeps/ViewFirstJs.substeps</subStepsFileName>
+
+              <stepImplementationClassNames>
+                <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param>
+              </stepImplementationClassNames>
+              
+            </executionConfig>
+
+          </executionConfigs>
+
+          <executionReportBuilder implementation="com.technophobia.substeps.report.DefaultExecutionReportBuilder">
+            <outputDirectory>${project.build.directory}</outputDirectory>
+            <reportTitle>ViewFirstJs Test Report - ${project.version}</reportTitle>
+          </executionReportBuilder>
+ 
+        </configuration>
+      </plugin>
+ 
+      <plugin>
+        <groupId>com.technophobia.substeps</groupId>
+        <artifactId>substeps-glossary-builder</artifactId>
+        <version>1.1.0</version>
+          <executions>
+            <execution>
+              <id>Build SubSteps Glossary</id>
+              <phase>process-test-resources</phase>
+              <goals>
+                <goal>generate-docs</goal>
+              </goals>
+            </execution>
+          </executions>
+
+          <configuration>
+            <stepImplementationClassNames>
+              <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param>
+            </stepImplementationClassNames>
+
+            <glossaryPublisher implementation="com.technophobia.substeps.glossary.HTMLSubstepsPublisher">
+              <outputFile>target/stepimplementations.html</outputFile>
+              </glossaryPublisher>
+
+          </configuration>
+
+          <dependencies>
+            <dependency>
+              <groupId>org.slf4j</groupId>
+              <artifactId>slf4j-log4j12</artifactId>
+              <version>1.6.6</version>
+            </dependency>
+          </dependencies>
+
+        </plugin>
+    </plugins>
+  </build>
+
+
+</project>
