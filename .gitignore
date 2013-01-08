@@ -13,4 +13,9 @@
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
+
+#For maven / eclipse
 /target
+.classpath
+.project
+/.settings
