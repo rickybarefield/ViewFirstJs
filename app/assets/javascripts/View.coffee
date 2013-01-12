@@ -6,42 +6,47 @@ class window.View
 
   render: ->
     wrapped = document.createElement("div")
-    wrapped.innerHTML = "<div>#{@element}</div>"
+    wrapped.innerHTML = "<div id=\"boom\">#{@element}</div>"
     @applySnippetsRecursively(wrapped, wrapped.firstChild)
-    return wrapped.firstChild
+    return wrapped.firstChild.childNodes
 
 
-  applySnippetsRecursively: (parent, domNode) ->
+  applySnippetsRecursively: (parent, domNode, attributes = {a: "b"}) ->
     unless domNode?.nodeType is View.TEXT_NODE
-      @applySnippetsRecursivelyToNonTextNode(parent, domNode)
+      @applySnippetsRecursivelyToNonTextNode(parent, domNode, attributes)
     else
       domNode
     
 
-  applySnippetsRecursivelyToChildNodes: (parent, childNodes) ->
+  applySnippetsRecursivelyToChildNodes: (parent, childNodes, attributes) ->
+
+    combinedAttributes = new Object extends attributes
+    parentsData = $(parent).data()
+    combinedAttributes[key]=parentsData[key] for key of parentsData
+
     if childNodes?
         for node in childNodes
           do (node) =>
-            @applySnippetsRecursively(parent, node)
+            @applySnippetsRecursively(parent, node, combinedAttributes)
   
   
-  applySnippetsRecursivelyToNonTextNode: (parent, domNode) ->
+  applySnippetsRecursivelyToNonTextNode: (parent, domNode, attributes) ->
   
-    withSnippetsApplied = @applySnippets(domNode)
+    withSnippetsApplied = @applySnippets(domNode, attributes)
     
     if withSnippetsApplied? and domNode != withSnippetsApplied
       withSnippetsApplied = ViewFirst.replaceNode(parent, domNode, withSnippetsApplied)
 
       if ViewFirst.isNodeListOrArray(withSnippetsApplied)
-        @applySnippetsRecursivelyToChildNodes(parent, withSnippetsApplied)
+        @applySnippetsRecursivelyToChildNodes(parent, withSnippetsApplied, attributes)
       else
-        @applySnippetsRecursively(parent, withSnippetsApplied)
+        @applySnippetsRecursively(parent, withSnippetsApplied, attributes)
 
     else
-      @applySnippetsRecursivelyToChildNodes(domNode, domNode?.childNodes)
+      @applySnippetsRecursivelyToChildNodes(domNode, domNode?.childNodes, attributes)
       
 
-  applySnippets: (element) =>
+  applySnippets: (element, attributes) =>
   
     node = $(element)
     snippetName = node.attr('data-snippet')

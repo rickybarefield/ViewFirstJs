@@ -122,15 +122,14 @@ class window.ViewFirst
     unless surroundingView?
       throw "Unable to find surrounding template '#{surroundingName}'"
 
-    surroundingContent = document.createElement("div")
-    surroundingContent.innerHTML = surroundingView.getElement()
+    surroundingContent = $(surroundingView.getElement()).get()
 
     if at?
       @_bind(surroundingContent, nodes, at)
     else
       @_bindParts(surroundingContent, nodes)
 
-    return surroundingContent.childNodes
+    return surroundingContent
 
 
   @_bindParts: (surroundingContent, nodes) ->
@@ -157,10 +156,7 @@ class window.ViewFirst
     unless embeddedView?
       throw "Unable to find template to embed '#{templateName}'"
 
-    tmp = document.createElement("div")
-    tmp.innerHTML = embeddedView.render()
-
-    return tmp.childNodes
+    return $(embeddedView.getElement()).clone().get()
 
 
   @replaceNode: (parent, nodeToReplace, nodeOrNodeList) ->
