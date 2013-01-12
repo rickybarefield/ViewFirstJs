@@ -2,11 +2,12 @@ Define: Given I go to the ViewFirstJs example
         NavigateTo /index.html
         WaitForPageTitle "View First Example"
 
-Define: And I type MyTodo into the text box
-        ClearAndSendKeys "MyTodo" to id newTodoText
+Define: And I type "<TODO_NAME>" into the text box
+        ClearAndSendKeys "<TODO_NAME>" to id newTodoText
 
 Define: And I click return
         SendKey Key.RETURN
 
-Define: Then a todo should be added
-        NavigateTo /index.html
+Define: Then a todo should be added with the name "<TODO_NAME>"
+        FindById simple-todo-list
+        AssertChildElementsContainText xpath="//tbody//tr" text="<TODO_NAME>"

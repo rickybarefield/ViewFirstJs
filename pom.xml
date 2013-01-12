@@ -62,6 +62,7 @@
 
               <stepImplementationClassNames>
                 <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param>
+                <param>com.appagility.viewfirstjs.test.TodoSteps</param>
               </stepImplementationClassNames>
               
             </executionConfig>

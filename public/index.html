@@ -6,7 +6,7 @@
     <title>View First Example</title>
     
     <link rel="stylesheet" href="./main.css" type="text/css" />
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="./assets/jquery.js"></script>
     <script type="text/javascript" src="./assets/underscore.js"></script>
     <script type="text/javascript" src="./assets/backbone.js"></script>
     <script type="text/javascript" src="./assets/View.js"></script>
@@ -59,14 +59,14 @@
           <input id="newTodoText"  placeholder="something todo?" type="text" data-snippet="newTodo" data-property="name" />
           <div data-snippet="todoItems">
             <div>
-              <input class="editable" type="text" disabled="true" data-property="name" /><button>Delete</button>
+              <input class="editable" type="text" disabled="true" data-property="name" /><button class="deleteTodoButton">Delete</button>
             </div>
           </div>
           <p>Double click to edit a todo or add a description</p>
           <hr />
           <div>
             <p>A simple table to demonstrate binding text nodes</p>
-            <table>
+            <table id="simple-todo-list">
               <tr>
                 <th>name</th>
                 <th>description</th>

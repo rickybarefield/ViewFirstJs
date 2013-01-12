@@ -30,9 +30,8 @@ $ ->
 
       deleteButton = todoDiv.children "button"
       deleteButton.click ->
-        if window.confirm "Are you sure?"
-          todo.destroy()
-          todoDiv.detach()
+        todo.destroy()
+        todoDiv.detach()
 
       todoDiv.get(0)
   
