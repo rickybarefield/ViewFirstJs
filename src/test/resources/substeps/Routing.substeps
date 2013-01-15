@@ -1,0 +1,5 @@
+Define: The routing home page should be shown
+        AssertValue id viewTitle text = "Routing Home"
+
+Define: The other view should be shown
+        AssertValue id viewTitle text = "Other View"

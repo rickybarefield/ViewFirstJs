@@ -1,0 +1,8 @@
+Define: When I navigate to "<url>"
+        NavigateTo <url>
+
+Define: The url should be updated to "<url>"
+        AssertUrlEndsWith "<url>"
+        
+Define: The url should remain as "<url>"
+        AssertUrlEndsWith "<url>"

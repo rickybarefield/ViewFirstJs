@@ -56,6 +56,8 @@ class window.ViewFirst
     view = @findView viewId
     $('body').html view.render()
 
+  navigate: (viewId) ->
+    Backbone.history.navigate viewId, true
 
   createView: (viewId, content) ->
 

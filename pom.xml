@@ -58,11 +58,12 @@
   
               <description>View First Js Tests</description>
               <featureFile>${basedir}/src/test/resources/features</featureFile>
-              <subStepsFileName>${basedir}/src/test/resources/substeps/ViewFirstJs.substeps</subStepsFileName>
+              <subStepsFileName>${basedir}/src/test/resources/substeps</subStepsFileName>
 
               <stepImplementationClassNames>
                 <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param>
                 <param>com.appagility.viewfirstjs.test.TodoSteps</param>
+                <param>com.appagility.viewfirstjs.test.UrlSteps</param>
               </stepImplementationClassNames>
               
             </executionConfig>

@@ -1,0 +1,2 @@
+Define: And click the "<buttonText>" button
+        ClickButton <buttonText>
