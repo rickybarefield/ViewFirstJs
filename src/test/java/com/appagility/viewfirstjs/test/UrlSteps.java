@@ -17,4 +17,15 @@ public class UrlSteps extends AbstractWebDriverSubStepImplementations
 			throw new AssertionError("Was expecting the url to end with " + expected + " but it was in fact " + currentUrl);
 		}
 	}
+	
+	@Step("AssertUrlDoesNotContain \"([^\"]*)\"")
+	public void assetNotInUrl(String text)
+	{
+		String currentUrl = webDriver().getCurrentUrl();
+
+		if(currentUrl.contains(text))
+		{
+			throw new AssertionError("Url contained unwated text, '" + text + "' url was '" +  currentUrl + "'");
+		}
+	}
 }

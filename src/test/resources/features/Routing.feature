@@ -15,7 +15,7 @@ Scenario: Other views should be accessible via their particular hash
           The other view should be shown
           The url should remain as "/routing.html#otherView"
 
-Scenario: You should be able to programatically transition between views in a snippet
+Scenario: You should be able to programatically transition between views in a snippet using the navigate method
           When I navigate to "/routing.html#routingHome"
           And click the "Go to Other View" button
           The other view should be shown

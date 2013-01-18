@@ -9,8 +9,8 @@ class window.ViewFirstRouter extends Backbone.Router
     routingFunction = (serializedModels) =>
       console.log "Routing to #{pageName}"
       @currentPage = pageName
-      @viewFirst.renderView pageName
       @viewFirst.namedModels = {}
+      @viewFirst.renderView pageName
 
       for serializedModel in serializedModels.split("/") when serializedModels? and serializedModels != ""
         do (serializedModel) =>

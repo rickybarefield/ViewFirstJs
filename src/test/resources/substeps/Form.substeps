@@ -1,2 +1,2 @@
-Define: And click the "<buttonText>" button
+Define: <ANYTHING>click the "<buttonText>" button
         ClickButton <buttonText>
