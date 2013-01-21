@@ -60,10 +60,13 @@
               <featureFile>${basedir}/src/test/resources/features</featureFile>
               <subStepsFileName>${basedir}/src/test/resources/substeps</subStepsFileName>
 
+              <tags>${tags}</tags>
+
               <stepImplementationClassNames>
-                <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param>
-                <param>com.appagility.viewfirstjs.test.TodoSteps</param>
-                <param>com.appagility.viewfirstjs.test.UrlSteps</param>
+                <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param> 
+                <param>com.appagility.viewfirstjs.test.UrlSteps</param> 
+                <param>com.appagility.viewfirstjs.test.SiblingSteps</param>  
+                <param>com.appagility.viewfirstjs.test.FinderSteps</param>  
               </stepImplementationClassNames>
               
             </executionConfig>
@@ -95,6 +98,9 @@
           <configuration>
             <stepImplementationClassNames>
               <param>com.technophobia.webdriver.substeps.impl.BaseWebdriverSubStepImplementations</param>
+              <param>com.appagility.viewfirstjs.test.UrlSteps</param> 
+              <param>com.appagility.viewfirstjs.test.SiblingSteps</param>
+              <param>com.appagility.viewfirstjs.test.FinderSteps</param>  
             </stepImplementationClassNames>
 
             <glossaryPublisher implementation="com.technophobia.substeps.glossary.HTMLSubstepsPublisher">

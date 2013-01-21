@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Snippet tests</title>
+    
+    <script type="text/javascript" src="./lib/jquery.js"></script>
+    <script type="text/javascript" src="./lib/underscore.js"></script>
+    <script type="text/javascript" src="./lib/backbone.js"></script>
+    <script type="text/javascript" src="./lib/View.js"></script>
+    <script type="text/javascript" src="./lib/Router.js"></script>
+    <script type="text/javascript" src="./lib/ViewFirst.js"></script>
+    <script type="text/javascript" src="./lib/test/SnippetApp.js"></script>
+        
+  </head>
+  
+  <body>
+
+    <script type="text/view-first-template" name="simplyInvoke">
+      <p data-snippet="simplyInvoke"></p>
+    </script>
+  
+    <script type="text/view-first-template" name="outsideIn">
+      <div id="outerDiv" data-snippet="number">
+        <p>Outer div: <span id="outerSpan"></span></p>
+        <div id="innerDiv" data-snippet="number">
+          <p>Inner div: <span id="innerSpan"></span></p>
+        </div>
+      </div>
+    </script>
+    
+    <script type="text/view-first-template" name="snippetsMakingSnippets">
+      <p><span data-snippet="upToTen" data-starting-from="1"></span></p>
+    </script>    
+
+  </body>
+</html>

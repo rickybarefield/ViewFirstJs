@@ -1,3 +1,5 @@
+Tags: NamedModels
+
 # The idea of named models is that two snippets may want to operate on the same model.
 # For instance, in a application maintaining tasks, one snippet may display a dropdown 
 # list of tasks, whilst another shows details of the selected task. These two snippets 

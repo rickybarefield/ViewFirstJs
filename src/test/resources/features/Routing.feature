@@ -1,3 +1,5 @@
+Tags: Routing
+
 Feature: Routing
 
 Scenario: The view defined as the index should be rendered for the root url
