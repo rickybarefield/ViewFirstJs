@@ -18,7 +18,7 @@ public class SiblingSteps extends AbstractWebDriverSubStepImplementations
 	@Step("There should be no elements before this (.*)")
 	public void checkNoPreviousSibling()
 	{
-		List<WebElement> precedingSiblings = webDriverContext().getCurrentElement().findElements(By.xpath("./preceding-sibling"));
+		List<WebElement> precedingSiblings = webDriverContext().getCurrentElement().findElements(By.xpath("./preceding-sibling::*"));
 
 		if(!precedingSiblings.isEmpty())
 		{
@@ -30,7 +30,7 @@ public class SiblingSteps extends AbstractWebDriverSubStepImplementations
 	@Step("There should be no elements after this (.*)")
 	public void checkNoFollowingSibling()
 	{
-		List<WebElement> nextSiblings = webDriverContext().getCurrentElement().findElements(By.xpath("./following-sibling"));
+		List<WebElement> nextSiblings = webDriverContext().getCurrentElement().findElements(By.xpath("./following-sibling::*"));
 
 		if(!nextSiblings.isEmpty())
 		{
@@ -42,8 +42,8 @@ public class SiblingSteps extends AbstractWebDriverSubStepImplementations
 	@Step("FindNextSibling")
 	public void findNextSibling()
 	{
-		XPATH DOESNT SEEM TO WORK
-		WebElement nextSibling = webDriverContext().getCurrentElement().findElement(By.xpath("./following-sibling"));
+		
+		WebElement nextSibling = webDriverContext().getCurrentElement().findElement(By.xpath("./following-sibling::*"));
 		
 		if(nextSibling == null)
 		{

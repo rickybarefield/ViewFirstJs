@@ -1,2 +1,0 @@
-var featureStatsData = [];
-var scenarioStatsData = [];
