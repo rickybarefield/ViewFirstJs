@@ -15,7 +15,7 @@
     <dependency>
       <groupId>com.technophobia.substeps</groupId>
       <artifactId>substeps-bom</artifactId>
-      <version>1.1.1-SNAPSHOT</version>
+      <version>1.1.0</version>
       <type>pom</type>
       <scope>test</scope>
     </dependency>
@@ -41,7 +41,7 @@
         <groupId>com.technophobia.substeps</groupId>
         <artifactId>substeps-maven-plugin</artifactId>
 
-        <version>1.1.1-SNAPSHOT</version>
+
 
         <executions>
           <execution>
@@ -69,6 +69,7 @@
                 <param>com.appagility.viewfirstjs.test.UrlSteps</param> 
                 <param>com.appagility.viewfirstjs.test.SiblingSteps</param>  
                 <param>com.appagility.viewfirstjs.test.FinderSteps</param>  
+                <param>com.appagility.viewfirstjs.test.AssertionSteps</param>  
               </stepImplementationClassNames>
               
             </executionConfig>
@@ -103,6 +104,7 @@
               <param>com.appagility.viewfirstjs.test.UrlSteps</param> 
               <param>com.appagility.viewfirstjs.test.SiblingSteps</param>
               <param>com.appagility.viewfirstjs.test.FinderSteps</param>  
+              <param>com.appagility.viewfirstjs.test.AssertionSteps</param>  
             </stepImplementationClassNames>
 
             <glossaryPublisher implementation="com.technophobia.substeps.glossary.HTMLSubstepsPublisher">

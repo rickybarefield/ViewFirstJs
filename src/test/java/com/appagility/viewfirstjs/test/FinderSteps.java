@@ -45,5 +45,22 @@ public class FinderSteps extends AbstractWebDriverSubStepImplementations
         Assert.assertNotNull("expecting element with tag " + tag + " and text " + text, matchingElement);
         webDriverContext().setCurrentElement(matchingElement);
     }
-
+    
+    /**
+     * Find an element by xpath relative to the current element
+     * 
+     * @example FindByXpath
+     * @section Location
+     * 
+     * @param xpath
+     *            the xpath
+     */
+    @Step("FindByXpathFromCurrentElement ([^\"]*)")
+    public void findByXpathFromCurrentElement(final String xpath) {
+        final WebElement elem = webDriverContext().getCurrentElement().findElement(By.xpath(xpath));
+        Assert.assertNotNull("expecting an element with xpath " + xpath, elem);
+        webDriverContext().setCurrentElement(elem);
+    }
+    
+    
 }
