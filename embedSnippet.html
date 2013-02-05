@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Embed snippet tests</title>
+    
+    <script type="text/javascript" src="./lib/jquery.js"></script>
+    <script type="text/javascript" src="./lib/underscore.js"></script>
+    <script type="text/javascript" src="./lib/backbone.js"></script>
+    <script type="text/javascript" src="./lib/backbone.localStorage.js"></script>
+    <script type="text/javascript" src="./lib/View.js"></script>
+    <script type="text/javascript" src="./lib/Router.js"></script>
+    <script type="text/javascript" src="./lib/ViewFirst.js"></script>
+    <script type="text/javascript" src="./lib/test/EmbedSnippetApp.js"></script>
+        
+  </head>
+  
+  <body>
+
+    <script type="text/view-first-template" name="main">
+
+      <div id="outerDiv">
+        <span data-snippet="embed" data-template="embedded"></span>
+      </div>
+
+    </script>
+
+    <script type="text/view-first-template" name="embedded">
+
+      <div id="innerDiv">
+        <p>Content within the embedded template</p>
+      </div>
+
+    </script>
+  </body>
+</html>

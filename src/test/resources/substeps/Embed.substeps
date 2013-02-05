@@ -1,0 +1,8 @@
+
+Define: Within this there should be the <DIV_ID>
+        FindByXpathFromCurrentElement .//*
+        AssertCurrentElement attribute="id" value="<DIV_ID>"
+        
+Define: And the innerDiv should contain its original content
+        FindByXpathFromCurrentElement .//*
+		AssertCurrentElement text="Content within the embedded template"	

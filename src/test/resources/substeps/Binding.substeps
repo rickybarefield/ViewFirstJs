@@ -1,0 +1,21 @@
+Define: I should see the hash syntax has been replaced with the properties from the dog model
+        AssertValue id name text = "Alfie"
+        AssertValue id breed text = "Collie"
+        AssertValue id colour text = "Brown"
+        AssertValue id height text = "16 inches"
+        
+Define: If I then update the name of the dog in the model
+        click the "Update Dogs Name" button
+
+Define: I should see that the dogs name has changed in the bound node
+        AssertValue id name text = "Donald"
+        
+Define: If I type "<COLOUR>" into the <INPUT_ID> input
+        ClearAndSendKeys "<COLOUR>" to id <INPUT_ID>
+
+Define: Then tab off of the element
+        SendKey Key.TAB
+
+Define: The <ID> in the table should be update to <COLOUR>
+        AssertValue id <ID> text = "<COLOUR>"
+        

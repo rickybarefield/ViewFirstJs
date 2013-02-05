@@ -18,7 +18,6 @@ Define: Following the binding point there should be the rest of the template-div
 		FindNextSibling
 		AssertCurrentElement attribute="id" value="template-div-content-2"
 
-
 Define: The <ID> which invoked the snippet should no longer be present
         AssertElementNotPresent id="<ID>"
 
