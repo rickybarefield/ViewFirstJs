@@ -9,6 +9,11 @@ Define: If I then update the name of the dog in the model
 
 Define: I should see that the dogs name has changed in the bound node
         AssertValue id name text = "Donald"
+
+Define: The <INPUT_ID> input should contain "<COLOUR>", the original colour of the dog
+        FindById <INPUT_ID>
+        AssertCurrentInput value="<COLOUR>"
+
         
 Define: If I type "<COLOUR>" into the <INPUT_ID> input
         ClearAndSendKeys "<COLOUR>" to id <INPUT_ID>
