@@ -54,7 +54,8 @@ class window.ViewFirst
 
     @currentView = viewId
     view = @findView viewId
-    $('body').html view.render()
+    rendered = view.render()
+    $('body').html rendered
 
   navigate: (viewId) ->
     Backbone.history.navigate viewId, true
@@ -102,7 +103,7 @@ class window.ViewFirst
 
   @_surroundSnippet: (viewFirst, node, argumentMap) =>
 
-    nodes = node.children #This snippet is only interested in child nodes
+    nodes = node.contents() #This snippet is only interested in child nodes
     console.log "_surroundSnippet invoked with #{node}"
 
     surroundingName = argumentMap['with']
@@ -112,7 +113,7 @@ class window.ViewFirst
     unless surroundingView?
       throw "Unable to find surrounding template '#{surroundingName}'"
 
-    surroundingContent = $(surroundingView.getElement()).get()
+    surroundingContent = $(surroundingView.getElement())
 
     if at?
       @_bind(surroundingContent, nodes, at)
@@ -121,20 +122,14 @@ class window.ViewFirst
 
     return surroundingContent
 
-
   @_bindParts: (surroundingContent, nodes) ->
 
-    child = nodes[0]
-    while child?
-
+    for child in nodes
       at = $(child).attr("data-at")
       @_bind(surroundingContent, child.childNodes, at) if at?
 
-      child = child.nextSibling
-
-
   @_bind: (surroundingContent, html, at) ->
-    bindElement = $(surroundingContent).find("[data-bind-name='#{at}']")
+    bindElement = surroundingContent.find("[data-bind-name='#{at}']")
     bindElement.replaceWith(html)
 
 
@@ -146,9 +141,9 @@ class window.ViewFirst
     unless embeddedView?
       throw "Unable to find template to embed '#{templateName}'"
 
-    return $(embeddedView.getElement()).clone().get()
+    return $(embeddedView.getElement()).clone()
 
-
+  ###
   @replaceNode: (parent, nodeToReplace, nodeOrNodeList) ->
 
     #Need to cope with nested arrays
@@ -177,7 +172,7 @@ class window.ViewFirst
     else
       parent.replaceChild(nodeOrNodeList, nodeToReplace)
       return nodeOrNodeList
-
+    ###
 
   @isNodeListOrArray: (nodeOrNodeList) ->
       return nodeOrNodeList.toString() is '[object NodeList]' or nodeOrNodeList instanceof Array
@@ -240,13 +235,13 @@ class window.ViewFirst
           str.match /[^#{}]+/
         nodeText.replace /#\{[^\}]*\}/g, (match) -> model.get(removeSurround(match))
 
-      originalText = node.nodeValue
+      originalText = node.text()
 
       doReplacement = ->
         replacementText = getReplacementText(originalText, model)
-        node.nodeValue = replacementText
+        node.get(0).nodeValue = replacementText
 
-      if node.nodeType is ViewFirst.TEXT_NODE and node.nodeValue.match /#{.*}/
+      if node.get(0).nodeType is ViewFirst.TEXT_NODE and node.text().match /#{.*}/
         @bindNodeToModel(node, model, doReplacement)
         doReplacement()
 
@@ -259,24 +254,22 @@ class window.ViewFirst
 
   bindNodeValues: (node, model) ->
 
-    ViewFirst.doForNodeAndChildren node, (singleNode) =>
-      jQNode = $(singleNode)
-      property = jQNode.attr("data-property")
+    ViewFirst.doForNodeAndChildren node, (aNode) =>
+      property = aNode.attr("data-property")
       if property?
-        @bindNodeToModel singleNode, model, =>
-          jQNode.val(model.get(property))
+        @bindNodeToModel aNode, model, =>
+          aNode.val(model.get(property))
 
-        @addNamedBinding "updateModel", "blur", jQNode, =>
-          model.set(property, jQNode.val())
+        @addNamedBinding "updateModel", "blur", aNode, =>
+          model.set(property, aNode.val())
           model.save()
 
-        jQNode.val(model.get(property))
+        aNode.val(model.get(property))
 
 
   @doForNodeAndChildren: (node, func) ->
 
     func(node)
-    child = node.firstChild
-    while child?
-      @doForNodeAndChildren(child, func)
-      child = child.nextSibling
+    for childNode in node.contents()
+      ViewFirst.doForNodeAndChildren $(childNode), func
+

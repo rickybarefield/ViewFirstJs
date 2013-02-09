@@ -5,61 +5,46 @@ class window.View
   constructor: (@viewFirst, @viewId, @element) ->
 
   render: ->
-    wrapped = document.createElement("div")
-    wrapped.innerHTML = "<div id=\"boom\">#{@element}</div>"
-    @applySnippetsRecursively(wrapped, wrapped.firstChild)
-    return wrapped.firstChild.childNodes
+    nodes = $(@element)
+    applySnippetsCaptured = @applySnippets
+    for element in nodes
+      node = $(element)
+      applySnippetsCaptured(node, node.data())
 
-
-  applySnippetsRecursively: (parent, domNode, attributes = {a: "b"}) ->
-    unless domNode?.nodeType is View.TEXT_NODE
-      @applySnippetsRecursivelyToNonTextNode(parent, domNode, attributes)
-    else
-      domNode
-    
-
-  applySnippetsRecursivelyToChildNodes: (parent, childNodes, attributes) ->
-
-    combinedAttributes = new Object extends attributes
-    parentsData = $(parent).data()
-    combinedAttributes[key]=parentsData[key] for key of parentsData
-
-    if childNodes?
-        for node in childNodes
-          do (node) =>
-            @applySnippetsRecursively(parent, node, combinedAttributes)
+  applySnippets: (node, attributes) =>
   
-  
-  applySnippetsRecursivelyToNonTextNode: (parent, domNode, attributes) ->
-  
-    withSnippetsApplied = @applySnippets(domNode, attributes)
-    
-    if withSnippetsApplied? and domNode != withSnippetsApplied
-      withSnippetsApplied = ViewFirst.replaceNode(parent, domNode, withSnippetsApplied)
-
-      if ViewFirst.isNodeListOrArray(withSnippetsApplied)
-        @applySnippetsRecursivelyToChildNodes(parent, withSnippetsApplied, attributes)
-      else
-        @applySnippetsRecursively(parent, withSnippetsApplied, attributes)
-
-    else
-      @applySnippetsRecursivelyToChildNodes(domNode, domNode?.childNodes, attributes)
-      
-
-  applySnippets: (element, attributes) =>
-  
-    node = $(element)
     snippetName = node.attr('data-snippet')
   
-    return if snippetName?
+    if snippetName?
       console.log "snippet usage found for #{snippetName}"
       snippetFunc = @viewFirst.snippets[snippetName]
       throw "Unable to find snippet '#{snippetName}'" unless snippetFunc?
 
       node.removeAttr("data-snippet") # Otherwise this will be recursively invoked
-      snippetFunc @viewFirst, element, node.data()
+      nodeAfterSnippetApplied = snippetFunc(@viewFirst, node, attributes)
+      if node != nodeAfterSnippetApplied
+        node.replaceWith nodeAfterSnippetApplied
+      node = @applySnippetsToNodesCombiningAttributes(nodeAfterSnippetApplied, attributes)
     else
-      element
-      
+      @applySnippetsToChildNodes(node, attributes)
+
+    return node
+
+  applySnippetsToChildNodes: (node, attributes) =>
+
+    childNodes = node.contents()
+    @applySnippetsToNodesCombiningAttributes(childNodes, attributes)
+    return node
+
+  applySnippetsToNodesCombiningAttributes: (nodes, attributesFromParent) =>
+
+    applySnippetsCaptured = @applySnippets
+    for element in nodes
+      childNode = $(element)
+      combinedAttributes = new Object extends childNode.data()
+      combinedAttributes[key]=attributesFromParent[key] for key of attributesFromParent
+      applySnippetsCaptured(childNode, combinedAttributes)
+    return nodes
+
       
   getElement: () => @element
