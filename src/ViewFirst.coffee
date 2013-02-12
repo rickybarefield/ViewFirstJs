@@ -70,6 +70,8 @@ class BindHelpers
 
   constructor: () ->
 
+  uniqueNumber = -> if @lastNumber? then @lastNumber++ else @lastNumber = 0
+
   bindCollection: (collection, parentNode, func) ->
 
     boundModels = {}
@@ -172,8 +174,6 @@ class ViewFirst extends BindHelpers
     @snippets = {}) ->
     
     TemplatingSnippets.add(this)
-
-  uniqueNumber = -> if @lastNumber? then @lastNumber++ else @lastNumber = 0
 
 
   initialize: ->

@@ -22,9 +22,12 @@ class window.View
 
       node.removeAttr("data-snippet") # Otherwise this will be recursively invoked
       nodeAfterSnippetApplied = snippetFunc(@viewFirst, node, attributes)
-      if node != nodeAfterSnippetApplied
-        node.replaceWith nodeAfterSnippetApplied
-      node = @applySnippetsToNodesCombiningAttributes(nodeAfterSnippetApplied, attributes)
+      if nodeAfterSnippetApplied == null
+        node.detach()
+      else
+        if node != nodeAfterSnippetApplied
+          node.replaceWith nodeAfterSnippetApplied
+        node = @applySnippetsToNodesCombiningAttributes(nodeAfterSnippetApplied, attributes)
     else
       @applySnippetsToChildNodes(node, attributes)
 
