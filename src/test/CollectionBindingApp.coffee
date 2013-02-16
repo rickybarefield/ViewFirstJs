@@ -14,8 +14,8 @@ $ ->
   alsatian.set("breed", "Alsatian")
   alsatian.set("height", "20 inches")
 
-  collie.save()
   alsatian.save()
+  collie.save()
   
   dogs = new DogModels()
   
@@ -42,7 +42,14 @@ $ ->
     
     node
 
+  removeColin = (viewFirst, node, argMap) ->
+  
+    node.click(-> dogs.remove(collie))
+    
+    node
+
   viewFirst.addSnippet("dogRow", dogRow)
   viewFirst.addSnippet("addTerry", addTerry)
+  viewFirst.addSnippet("removeColin", removeColin)
 
   viewFirst.initialize()

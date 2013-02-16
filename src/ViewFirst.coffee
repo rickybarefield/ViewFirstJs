@@ -82,12 +82,12 @@ class BindHelpers
       @bindTextNodes(childNode, modelToAdd)
       @bindNodeValues(childNode, modelToAdd)
       $parent.append(childNode)
-      boundModels[modelToAdd] = childNode
+      boundModels[modelToAdd.get("id")] = childNode
 
     removeChild = (modelToRemove) ->
-      childNode =boundModels[modelToRemove]
+      childNode = boundModels[modelToRemove.get("id")]
       $(childNode).detach()
-      delete boundModels[modelToRemove]
+      delete boundModels[modelToRemove.get("id")]
 
     $parent = $(parentNode)
 
@@ -97,7 +97,7 @@ class BindHelpers
     collection.each (model) -> addChild(model)
 
     collection.on "add", ((newModel) -> addChild(newModel)), context
-    collection.on "destroy", ((removedModel) -> removeChild(removedModel)), context
+    collection.on "remove", ((removedModel) -> removeChild(removedModel)), context
     collection.on "reset", ( =>
       collection.off null, null, context
       @bindCollection(collection, parentNode, func)), context
