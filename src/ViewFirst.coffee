@@ -70,7 +70,7 @@ class BindHelpers
 
   constructor: () ->
 
-  uniqueNumber = -> if @lastNumber? then @lastNumber++ else @lastNumber = 0
+  uniqueNumber = -> if @lastNumber? then @lastNumber++ else @lastNumber = 1
 
   bindCollection: (collection, parentNode, func) ->
 
@@ -110,7 +110,6 @@ class BindHelpers
       #can't easily be removed, may have to override bind
       model.off "change", currentBinding
     node["currentBinding"] = model.on "change", func
-
 
   bindTextNodes: (node, model) ->
 
