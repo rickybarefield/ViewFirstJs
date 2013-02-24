@@ -8,6 +8,7 @@
     <script type="text/javascript" src="./lib/jquery.js"></script>
     <script type="text/javascript" src="./lib/underscore.js"></script>
     <script type="text/javascript" src="./lib/backbone.js"></script>
+    <script type="text/javascript" src="./lib/backbone-relational.js"></script>
     <script type="text/javascript" src="./lib/backbone.localStorage.js"></script>
     <script type="text/javascript" src="./lib/View.js"></script>
     <script type="text/javascript" src="./lib/Router.js"></script>
@@ -43,6 +44,11 @@
       <button id="updateDogsName" data-snippet="updateDogsName">Update Dogs Name</button>
       <br />
       <label for="changeColour">Change colour:</label><input type="input" id="changeColour" placeholder="Change Colour" data-snippet="changeColour" data-property="colour"></input>
+    </script>
+
+    <script type="text/view-first-template" name="nested">
+       <span id="collarColour" data-snippet="dogWithCollar">#{collar.colour}</span>
+       <button data-snippet="changeCollarColour">Set collar to blue</button>
     </script>
   
   </body>

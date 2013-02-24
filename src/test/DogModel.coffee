@@ -1,7 +1,19 @@
-class window.DogModel extends window.ViewFirstModel
+class window.Collar extends Backbone.RelationalModel
+
+  localStorage: new Store("DogModels")  
+  defaults:
+    colour: ""
+  
+
+class window.DogModel extends Backbone.RelationalModel
 
   localStorage: new Store("DogModels")  
   url: "/"
+  relations: [{
+    type: Backbone.HasOne,
+    key: 'collar',
+    relatedModel: 'Collar'
+    }]
   defaults:
     name: ""
     colour: ""

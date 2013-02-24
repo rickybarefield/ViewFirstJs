@@ -103,47 +103,56 @@ class BindHelpers
       collection.off null, null, context
       @bindCollection(collection, parentNode, func)), context
 
-  bindNodeToModel: (node, model, func) ->
-    currentBinding = node.get(0)["currentBinding"]
-    if currentBinding?
-      #TODO There is a slight problem here
-      #Unbinding leaves an unbinder bound! See bind in model, an unbinder is added which
-      #can't easily be removed, may have to override bind
-      model.off "change", currentBinding
-    node.get(0)["currentBinding"] = model.on "change", func
+  bindNodeToResultOfFunction: (node, func) ->
 
+    previouslyBoundModels = node.get(0)["previouslyBoundModels"]
+    previouslyBoundFunction = node.get(0)["previouslyBoundFunction"]
+
+    affectingModels = func()
+
+    (previouslyBoundModel.off("change", currentlyBoundFunction) for previouslyBoundModel in previouslyBoundModels) if  previouslyBoundModels?
+    affectingModel.on("change", func) for affectingModel in affectingModels
+
+    node.get(0)["previouslyBoundModels"] = affectingModels
+    node.get(0)["previouslyBoundFunction"] = func
+	
   bindTextNodes: (node, model) ->
 
     BindHelpers.doForNodeAndChildren node, (node) =>
 
-      getReplacementText = (nodeText, model) ->
+      getReplacementTextAndAffecingModels = (nodeText, model) ->
         removeSurround = (str) ->
           str.match(/[^#{}]+/)[0]
-        nodeText.replace /#\{[^\}]*\}/g, (match) ->
+        affectingModels = []
+        replacementText = nodeText.replace /#\{[^\}]*\}/g, (match) ->
           key = removeSurround(match)
           elements = key.split(".")
           currentModel = model
           for element in elements
+            oldModel = currentModel
             currentModel = currentModel?.get(element)
+          affectingModels.push oldModel
           return currentModel
+        return [replacementText, affectingModels]
 
       originalText = node.text()
 
       doReplacement = ->
-        replacementText = getReplacementText(originalText, model)
+        [replacementText, affectingModels] = getReplacementTextAndAffecingModels(originalText, model)
         node.get(0).nodeValue = replacementText
+        return affectingModels
 
       if node.get(0).nodeType is ViewFirst.TEXT_NODE and node.text().match /#{.*}/
-        @bindNodeToModel(node, model, doReplacement)
-        doReplacement()
+        @bindNodeToResultOfFunction(node, doReplacement)
 
   bindNodeValues: (node, model) ->
 
     BindHelpers.doForNodeAndChildren node, (aNode) =>
       property = aNode.attr("data-property")
       if property?
-        @bindNodeToModel aNode, model, =>
+        @bindNodeToResultOfFunction aNode, =>
           aNode.val(model.get(property))
+          return model
 
         aNode.off("blur.viewFirst")
         aNode.on("blur.viewFirst", =>

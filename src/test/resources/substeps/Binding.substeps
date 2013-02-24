@@ -24,3 +24,8 @@ Define: Then tab off of the element
 Define: The <ID> in the table should be update to <COLOUR>
         AssertValue id <ID> text = "<COLOUR>"
         
+Define: I should see the dogs collar is <COLOUR>
+        AssertValue id collarColour text = "<COLOUR>"
+
+Define: And if I change the collar to blue
+        click the "Set collar to blue" button        
