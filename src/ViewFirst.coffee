@@ -147,7 +147,6 @@ class BindHelpers
 
         @addNamedBinding "updateModel", "blur", aNode, =>
           model.set(property, aNode.val())
-          model.save()
 
         aNode.val(model.get(property))
 
