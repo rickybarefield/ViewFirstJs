@@ -79,15 +79,16 @@ class BindHelpers
     addChild = (modelToAdd) =>
       console.log "adding child"
       childNode = func(modelToAdd)
-      @bindTextNodes(childNode, modelToAdd)
-      @bindNodeValues(childNode, modelToAdd)
-      $parent.append(childNode)
-      boundModels[modelToAdd.get("id")] = childNode
+      if childNode?
+        @bindTextNodes(childNode, modelToAdd)
+        @bindNodeValues(childNode, modelToAdd)
+        $parent.append(childNode)
+        boundModels[modelToAdd["cid"]] = childNode
 
     removeChild = (modelToRemove) ->
-      childNode = boundModels[modelToRemove.get("id")]
+      childNode = boundModels[modelToRemove["cid"]]
       $(childNode).detach()
-      delete boundModels[modelToRemove.get("id")]
+      delete boundModels[modelToRemove["cid"]]
 
     $parent = $(parentNode)
 
@@ -103,13 +104,13 @@ class BindHelpers
       @bindCollection(collection, parentNode, func)), context
 
   bindNodeToModel: (node, model, func) ->
-    currentBinding = node["currentBinding"]
+    currentBinding = node.get(0)["currentBinding"]
     if currentBinding?
       #TODO There is a slight problem here
       #Unbinding leaves an unbinder bound! See bind in model, an unbinder is added which
       #can't easily be removed, may have to override bind
       model.off "change", currentBinding
-    node["currentBinding"] = model.on "change", func
+    node.get(0)["currentBinding"] = model.on "change", func
 
   bindTextNodes: (node, model) ->
 
@@ -117,8 +118,14 @@ class BindHelpers
 
       getReplacementText = (nodeText, model) ->
         removeSurround = (str) ->
-          str.match /[^#{}]+/
-        nodeText.replace /#\{[^\}]*\}/g, (match) -> model.get(removeSurround(match))
+          str.match(/[^#{}]+/)[0]
+        nodeText.replace /#\{[^\}]*\}/g, (match) ->
+          key = removeSurround(match)
+          elements = key.split(".")
+          currentModel = model
+          for element in elements
+            currentModel = currentModel?.get(element)
+          return currentModel
 
       originalText = node.text()
 
@@ -130,13 +137,6 @@ class BindHelpers
         @bindNodeToModel(node, model, doReplacement)
         doReplacement()
 
-
-  addNamedBinding: (name, event, $node, func) ->
-    key = event + "." + name
-    $node.unbind key
-    $node.bind key, func
-
-
   bindNodeValues: (node, model) ->
 
     BindHelpers.doForNodeAndChildren node, (aNode) =>
@@ -145,11 +145,12 @@ class BindHelpers
         @bindNodeToModel aNode, model, =>
           aNode.val(model.get(property))
 
-        @addNamedBinding "updateModel", "blur", aNode, =>
+        aNode.off("blur.viewFirst")
+        aNode.on("blur.viewFirst", =>
           model.set(property, aNode.val())
+          model.save() unless model.isNew())
 
         aNode.val(model.get(property))
-
 
   @doForNodeAndChildren: (node, func) ->
 
