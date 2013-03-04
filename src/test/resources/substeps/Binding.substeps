@@ -28,4 +28,8 @@ Define: I should see the dogs collar is <COLOUR>
         AssertValue id collarColour text = "<COLOUR>"
 
 Define: And if I change the collar to blue
-        click the "Set collar to blue" button        
+        click the "Set collar to blue" button
+        
+Define: I should see the <ATTRIBUTE> of the <ID> element is <COLOUR>
+        FindById <ID>
+        AssertCurrentElement attribute="<ATTRIBUTE>" value="<COLOUR>" 

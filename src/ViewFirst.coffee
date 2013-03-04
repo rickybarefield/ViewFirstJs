@@ -80,7 +80,7 @@ class BindHelpers
       console.log "adding child"
       childNode = func(modelToAdd)
       if childNode?
-        @bindTextNodes(childNode, modelToAdd)
+        @bindNodes(childNode, modelToAdd)
         @bindNodeValues(childNode, modelToAdd)
         $parent.append(childNode)
         boundModels[modelToAdd["cid"]] = childNode
@@ -116,7 +116,7 @@ class BindHelpers
     node.get(0)["previouslyBoundModels"] = affectingModels
     node.get(0)["previouslyBoundFunction"] = func
 	
-  bindTextNodes: (node, model) ->
+  bindNodes: (node, model) ->
 
     BindHelpers.doForNodeAndChildren node, (node) =>
 
@@ -135,14 +135,14 @@ class BindHelpers
           return currentModel
         return [replacementText, affectingModels]
 
-      originalText = node.text()
+      originalText = node.get(0).nodeValue
 
       doReplacement = ->
         [replacementText, affectingModels] = getReplacementTextAndAffecingModels(originalText, model)
         node.get(0).nodeValue = replacementText
         return affectingModels
 
-      if node.get(0).nodeType is ViewFirst.TEXT_NODE and node.text().match /#{.*}/
+      if (node.get(0).nodeType is ViewFirst.TEXT_NODE or node.get(0).nodeType is ViewFirst.ATTR_NODE) and originalText.match /#{.*}/
         @bindNodeToResultOfFunction(node, doReplacement)
 
   bindNodeValues: (node, model) ->
@@ -163,13 +163,22 @@ class BindHelpers
 
   @doForNodeAndChildren: (node, func) ->
 
+	#Apply to node
     func(node)
+
+	#Apply to attributes    
+    attributes = node.get(0).attributes
+    if attributes?
+      func($(attribute)) for attribute in attributes
+    
+    #Apply to children
     for childNode in node.contents()
       BindHelpers.doForNodeAndChildren $(childNode), func
 
 class ViewFirst extends BindHelpers
 
   @TEXT_NODE = 3
+  @ATTR_NODE = 2
 
   ###
     namedModelEventListeners contain a map of namedModel name to array of event handlers

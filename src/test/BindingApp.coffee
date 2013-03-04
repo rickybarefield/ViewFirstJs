@@ -11,7 +11,7 @@ $ ->
   collie.save()
 
   simpleBind = (viewFirst, node, argMap) ->
-    viewFirst.bindTextNodes node, collie
+    viewFirst.bindNodes node, collie
     return node
 
   updateDogsName = (viewFirst, node, argMap) ->
@@ -34,7 +34,7 @@ $ ->
   nestedDog.set("collar", collar)
     
   dogWithCollar = (viewFirst, node, argMap) ->
-    viewFirst.bindTextNodes node, nestedDog
+    viewFirst.bindNodes node, nestedDog
     return node
     
   changeCollarColour = (viewFirst, node, argMap) ->
