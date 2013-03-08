@@ -70,7 +70,9 @@ class BindHelpers
 
   constructor: () ->
 
-  uniqueNumber = -> if @lastNumber? then @lastNumber++ else @lastNumber = 1
+  uniqueNumber = => 
+    if @lastNumber? then @lastNumber++ else @lastNumber = 1
+    return @lastNumber
 
   bindCollection: (collection, parentNode, func) ->
 
