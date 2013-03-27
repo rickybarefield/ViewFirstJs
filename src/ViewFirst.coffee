@@ -147,21 +147,48 @@ class BindHelpers
       if (node.get(0).nodeType is ViewFirst.TEXT_NODE or node.get(0).nodeType is ViewFirst.ATTR_NODE) and originalText.match /#{.*}/
         @bindNodeToResultOfFunction(node, doReplacement)
 
-  bindNodeValues: (node, model) ->
+  bindNodeValues: (node, model, collections = {}) ->
 
     BindHelpers.doForNodeAndChildren node, (aNode) =>
       property = aNode.attr("data-property")
       if property?
-        @bindNodeToResultOfFunction aNode, =>
+      
+        if aNode.is "select"
+          #Select are handled differently to other inputs
+          collectionName = aNode.attr("data-collection")
+          collection = collections[collectionName]
+          throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
+          optionTemplate = aNode.children("option")
+          optionTemplate.detach()
+          optionSelected = false
+          
+          @bindCollection collection, aNode, (modelInCollection) ->
+            optionNode = optionTemplate.clone()
+            optionNode.attr('selected', 'selected') unless optionSelected
+            optionSelected = true
+            optionNode.get(0)["relatedModel"] = modelInCollection
+            aNode.change()
+            return optionNode
+          aNode.off("change.viewFirst")
+          aNode.on("change.viewFirst", ->
+            selectedOption = $(@).find("option:selected").get(0)
+            if selectedOption?
+              model.set(property, selectedOption["relatedModel"])
+            else
+              model.set(property, null))
+          aNode.change()
+          
+        else    
+          @bindNodeToResultOfFunction aNode, =>
+            aNode.val(model.get(property))
+            return model
+
+          aNode.off("blur.viewFirst")
+          aNode.on("blur.viewFirst", =>
+            model.set(property, aNode.val())
+            model.save() unless model.isNew())
+
           aNode.val(model.get(property))
-          return model
-
-        aNode.off("blur.viewFirst")
-        aNode.on("blur.viewFirst", =>
-          model.set(property, aNode.val())
-          model.save() unless model.isNew())
-
-        aNode.val(model.get(property))
 
   @doForNodeAndChildren: (node, func) ->
 
