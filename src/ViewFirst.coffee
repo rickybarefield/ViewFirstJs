@@ -183,6 +183,13 @@ class BindHelpers
             aNode.val(model.get(property))
             return model
 
+          aNode.off("keypress.viewFirst")
+          aNode.on("keypress.viewFirst", (e) ->
+            if ((e.keyCode || e.which) == 13)
+              model.set(property, aNode.val())
+              model.save() unless model.isNew())
+               
+
           aNode.off("blur.viewFirst")
           aNode.on("blur.viewFirst", =>
             model.set(property, aNode.val())

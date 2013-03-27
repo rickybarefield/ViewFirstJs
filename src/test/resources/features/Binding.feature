@@ -29,3 +29,12 @@ Scenario: A bound input node will cause the model to be updated on blur
           If I type "blue" into the changeColour input
           Then tab off of the element
           The colour in the table should be update to blue
+          
+Scenario: A bound input node will cause the model to be updated when the enter key is pressed
+          When I navigate to "/binding.html"
+          I should see the hash syntax has been replaced with the properties from the dog model
+          The changeColour input should contain "Brown", the original colour of the dog
+          If I type "blue" into the changeColour input
+          Then press enter
+          The colour in the table should be update to blue
+            
