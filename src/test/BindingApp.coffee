@@ -50,7 +50,7 @@ $ ->
   
     pinkCollar = new Collar
     pinkCollar.set("colour","pink")
-    $(node).click(-> nestedDog.set("collar", pinkCollar))
+    $(node).click(-> collie.set("collar", pinkCollar))
     return node
 
   viewFirst.addSnippet("simpleBind", simpleBind)

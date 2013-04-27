@@ -33,7 +33,7 @@ Define: And if I change the collar to blue
 Define: And if I remove the collar
         click the "Remove collar" button
 
-Define: Then put a pink one on
+Define: If I then put a pink one on
         click the "Add pink collar" button
 
 Define: I should see the colour of the collar is not shown

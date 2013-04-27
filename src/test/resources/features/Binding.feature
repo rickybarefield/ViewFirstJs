@@ -19,10 +19,9 @@ Scenario: bindNodes should ignore nested models when dot notation is used if the
           I should see the colour of the collar is not shown
 
 Scenario: bindNodes should bind nested models when they become non null
-          When I navigate to "/binding.html#nested"
-          I should see the dogs collar is red
-          And if I remove the collar
-          Then put a pink one on
+          When I navigate to "/binding.html#nestedStartingNull"
+          I should see the colour of the collar is not shown
+          If I then put a pink one on
           I should see the dogs collar is pink
 
 Scenario: bindNodes should also work for element attributes

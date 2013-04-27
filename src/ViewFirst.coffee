@@ -131,9 +131,9 @@ class BindHelpers
           elements = key.split(".")
           currentModel = model
           for element in elements
-            oldModel = currentModel
-            currentModel = currentModel?.get(element)
-            affectingModels.push oldModel
+            if(currentModel?)
+              affectingModels.push currentModel
+              currentModel = currentModel.get(element)
           return if(currentModel?) then currentModel else ""
         return [replacementText, affectingModels]
 
