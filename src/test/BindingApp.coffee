@@ -32,7 +32,7 @@ $ ->
   collar = new Collar
   collar.set("colour", "red")
   nestedDog.set("collar", collar)
-    
+
   dogWithCollar = (viewFirst, node, argMap) ->
     viewFirst.bindNodes node, nestedDog
     return node
@@ -41,7 +41,17 @@ $ ->
     node.click(-> collar.set("colour", "blue"))
     return node
     
+  removeCollar = (viewFirst, node, argMap) ->
 
+    $(node).click(-> nestedDog.set("collar", null))
+    return node
+
+  addPinkCollar = (viewFirst, node, argMap) ->
+  
+    pinkCollar = new Collar
+    pinkCollar.set("colour","pink")
+    $(node).click(-> nestedDog.set("collar", pinkCollar))
+    return node
 
   viewFirst.addSnippet("simpleBind", simpleBind)
   viewFirst.addSnippet("updateDogsName", updateDogsName)
@@ -49,5 +59,7 @@ $ ->
 
   viewFirst.addSnippet("dogWithCollar", dogWithCollar)
   viewFirst.addSnippet("changeCollarColour", changeCollarColour)
+  viewFirst.addSnippet("removeCollar", removeCollar)    
+  viewFirst.addSnippet("addPinkCollar", addPinkCollar)    
 
   viewFirst.initialize()

@@ -133,8 +133,8 @@ class BindHelpers
           for element in elements
             oldModel = currentModel
             currentModel = currentModel?.get(element)
-          affectingModels.push oldModel
-          return currentModel
+            affectingModels.push oldModel
+          return if(currentModel?) then currentModel else ""
         return [replacementText, affectingModels]
 
       originalText = node.get(0).nodeValue
