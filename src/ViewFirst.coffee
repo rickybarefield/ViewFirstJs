@@ -160,12 +160,13 @@ class BindHelpers
           throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
           optionTemplate = aNode.children("option")
           optionTemplate.detach()
-          optionSelected = false
+          
+          modelProperty = model.get(property)
           
           @bindCollection collection, aNode, (modelInCollection) ->
             optionNode = optionTemplate.clone()
-            optionNode.attr('selected', 'selected') unless optionSelected
-            optionSelected = true
+            if modelProperty == modelInCollection
+              optionNode.attr('selected', 'selected')
             optionNode.get(0)["relatedModel"] = modelInCollection
             aNode.change()
             return optionNode

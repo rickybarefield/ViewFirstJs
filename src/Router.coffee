@@ -15,7 +15,9 @@ class window.ViewFirstRouter extends Backbone.Router
       for serializedModel in serializedModels.split("/") when serializedModels? and serializedModels != ""
         do (serializedModel) =>
           serializedParts = serializedModel.split ("!")
-          model = new window[serializedParts[1]]({id: parseInt(serializedParts[2])})
+          clazz = window[serializedParts[1]]
+          id = parseInt(serializedParts[2])
+          model = if clazz.findOrCreate? then clazz.findOrCreate({id: id}) else new clazz({id: id})
           model.fetch
             success: => @viewFirst.setNamedModel(serializedParts[0], model, true)
           console.log model.get("description") + "with id: " + model.get("id")

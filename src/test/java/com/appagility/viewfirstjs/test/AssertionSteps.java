@@ -2,6 +2,7 @@ package com.appagility.viewfirstjs.test;
 
 import java.util.List;
 
+import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -21,5 +22,4 @@ public class AssertionSteps extends AbstractWebDriverSubStepImplementations
 			throw new AssertionError("Found unexpected element with id '" + id + "'");
 		}
 	}
-	
 }
