@@ -12,15 +12,16 @@ class window.ViewFirstRouter extends Backbone.Router
       @viewFirst.namedModels = {}
       @viewFirst.renderView pageName
 
-      for serializedModel in serializedModels.split("/") when serializedModels? and serializedModels != ""
-        do (serializedModel) =>
-          serializedParts = serializedModel.split ("!")
-          clazz = window[serializedParts[1]]
-          id = parseInt(serializedParts[2])
-          model = if clazz.findOrCreate? then clazz.findOrCreate({id: id}) else new clazz({id: id})
-          model.fetch
-            success: => @viewFirst.setNamedModel(serializedParts[0], model, true)
-          console.log model.get("description") + "with id: " + model.get("id")
+      if serializedModels? and serializedModels != ""
+        for serializedModel in serializedModels.split("/")
+          do (serializedModel) =>
+            serializedParts = serializedModel.split ("!")
+            clazz = window[serializedParts[1]]
+            id = parseInt(serializedParts[2])
+            model = if clazz.findOrCreate? then clazz.findOrCreate({id: id}) else new clazz({id: id})
+            model.fetch
+              success: => @viewFirst.setNamedModel(serializedParts[0], model, true)
+            console.log model.get("description") + "with id: " + model.get("id")
           
     console.log "Adding a route to #{pageName}"
 

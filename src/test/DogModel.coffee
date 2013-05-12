@@ -18,7 +18,15 @@ class window.DogModel extends Backbone.RelationalModel
     colour: ""
     breed: ""
     height: ""
-
+    
+  validate: (attrs) ->
+  
+    errors = []
+    if !attrs.age? or attrs.age == ""
+      errors.push {name: 'age', message: 'Age must be set'}
+    
+    return if errors.length > 0 then errors else false
+    
 class window.DogModels extends Backbone.Collection
   model: DogModel
   localStorage: new Store("DogModels")

@@ -16,6 +16,13 @@
     <script type="text/javascript" src="./lib/test/DogModel.js"></script>
     <script type="text/javascript" src="./lib/test/InputBindingApp.js"></script>
         
+    <style>
+      .error {
+      
+        border: 1px solid red;
+      }
+    </style>
+        
   </head>
   
   <body>
@@ -27,6 +34,8 @@
         <input id="name" type="text" data-property="name" />
         <label for="breed">Breed:</label>
         <input id="breed" type="text" data-property="breed" />
+        <label for="age">Age:</label>
+        <input id="age" type="text" data-property="age" data-invalid-class="error" />
       </form>
     </script>
 

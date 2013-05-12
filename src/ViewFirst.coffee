@@ -149,6 +149,19 @@ class BindHelpers
 
   bindNodeValues: (node, model, collections = {}) ->
 
+    addValidationAction = (property, action) ->
+      validations[property] = [] unless validations[property]?
+      validations[property].push(action)
+  
+    validations = {}
+  
+    model.on "invalid", ->
+      console.log "error detected"
+      for error in model.validationError
+        actions = validations[error.name]
+        if actions?
+          action() for action in actions
+
     BindHelpers.doForNodeAndChildren node, (aNode) =>
       property = aNode.attr("data-property")
       if property?
@@ -184,16 +197,20 @@ class BindHelpers
             aNode.val(model.get(property))
             return model
 
+          validationClass = aNode.attr("data-invalid-class")
+          if validationClass?
+            addValidationAction property, -> aNode.addClass(validationClass)            
+          
+
           aNode.off("keypress.viewFirst")
           aNode.on("keypress.viewFirst", (e) ->
             if ((e.keyCode || e.which) == 13)
-              model.set(property, aNode.val())
+              model.set(property, aNode.val(), {validate: true})
               model.save() unless model.isNew())
-               
 
           aNode.off("blur.viewFirst")
           aNode.on("blur.viewFirst", =>
-            model.set(property, aNode.val())
+            model.set(property, aNode.val(), {validate: true})
             model.save() unless model.isNew())
 
           aNode.val(model.get(property))
