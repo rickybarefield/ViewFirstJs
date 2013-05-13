@@ -1,3 +1,13 @@
+Backbone = this.Backbone
+oldValidate = Backbone.Model.prototype._validate
+
+Backbone.Model.prototype._validate = (attrs, options) ->
+
+  result = oldValidate.call(@, attrs, options)
+  if result == true
+    @trigger 'valid'
+  
+
 class ViewFirstModel extends Backbone.Model
 
   @instances: {}
@@ -149,19 +159,25 @@ class BindHelpers
 
   bindNodeValues: (node, model, collections = {}) ->
 
-    addValidationAction = (property, action) ->
+    addValidationAction = (property, action, reverseAction) ->
       validations[property] = [] unless validations[property]?
-      validations[property].push(action)
+      validations[property].push([action, reverseAction])
   
     validations = {}
   
-    model.on "invalid", ->
+    model.on 'invalid', ->
       console.log "error detected"
       for error in model.validationError
         actions = validations[error.name]
         if actions?
-          action() for action in actions
-
+          action[0]() for action in actions
+          
+    model.on 'valid', ->
+    
+      console.log "Went valid"
+      for key,actions of validations    
+        action[1]() for action in actions
+      
     BindHelpers.doForNodeAndChildren node, (aNode) =>
       property = aNode.attr("data-property")
       if property?
@@ -199,7 +215,7 @@ class BindHelpers
 
           validationClass = aNode.attr("data-invalid-class")
           if validationClass?
-            addValidationAction property, -> aNode.addClass(validationClass)            
+            addValidationAction property, (-> aNode.addClass validationClass ), (-> aNode.removeClass validationClass)
           
 
           aNode.off("keypress.viewFirst")
