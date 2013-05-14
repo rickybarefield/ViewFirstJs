@@ -5,18 +5,27 @@
     <meta charset="UTF-8">
     <title>Snippet tests</title>
     
-    <script type="text/javascript" src="./lib/jquery.js"></script>
-    <script type="text/javascript" src="./lib/underscore.js"></script>
-    <script type="text/javascript" src="./lib/backbone.js"></script>
-    <script type="text/javascript" src="./lib/View.js"></script>
-    <script type="text/javascript" src="./lib/Router.js"></script>
-    <script type="text/javascript" src="./lib/ViewFirst.js"></script>
-    <script type="text/javascript" src="./lib/test/SnippetApp.js"></script>
-        
+    <script type="text/javascript" src="./lib/require.js"></script>
+    <script>
+    require.config({
+    	  baseUrl: 'lib',
+    	  shim: {
+    	    underscore: {
+    	      exports: '_'
+    	    },
+    	    backbone: {
+    	      deps: ["underscore", "jquery"],
+    	      exports: "Backbone"
+    	    }
+    	  }
+    	});
+    require(["SnippetApp"]);
+    </script>
+
   </head>
   
   <body>
-
+    Something
     <script type="text/view-first-template" name="simplyInvoke">
       <p data-snippet="simplyInvoke"></p>
     </script>
