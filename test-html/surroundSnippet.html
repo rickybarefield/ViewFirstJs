@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Surround snippet tests</title>
+    <script data-main="../lib/SurroundSnippetApp" type="text/javascript" src="../lib/require.js"></script>
+  </head>
+  
+  <body>
+
+    <script type="text/view-first-template" name="template">
+
+      <div id="template-div">
+
+        <div id="template-div-content-1">
+          First piece of content from template div
+        </div>
+
+        <div id="bind-point" data-bind-name="bind-point"></div>
+
+        <div id="template-div-content-2">
+          Second piece of content from template div
+        </div>
+
+      </div>
+
+    </script>
+
+    <script type="text/view-first-template" name="simpleSurround">
+      <div id="invoking-div" data-snippet="surround" data-with="template" data-at="bind-point">
+        <div id="invoking-divs-content">
+          <p>Simple surrounds content</p>
+        </div>
+      </div>
+    </script>
+
+    <script type="text/view-first-template" name="multiBindTemplate">
+
+      <div id="multi-bind-template-div">
+
+        <div id="bind-point-1" data-bind-name="bind-point-1"></div>
+
+        <div id="multi-bind-template-content-1">
+          Piece of content from the template
+        </div>
+
+        <div id="bind-point-2" data-bind-name="bind-point-2"></div>
+
+        <div id="bind-point-3" data-bind-name="bind-point-3"></div>
+
+      </div>
+
+    </script>
+
+    <script type="text/view-first-template" name="multipleBinds">
+
+      <div id="multi-bind-invoking-div" data-snippet="surround" data-with="multiBindTemplate" >
+
+        <div data-at="bind-point-1"><div id="multi-bind-template-content-1">Bound Content 1</div></div>
+        <div data-at="bind-point-2"><div id="multi-bind-template-content-2">Bound Content 2</div></div>
+        <div data-at="bind-point-3"><div id="multi-bind-template-content-3">Bound Content 3</div></div>
+      </div>
+
+    </script>
+
+  </body>
+</html>

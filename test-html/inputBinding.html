@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Binding tests</title>
+    
+    <script data-main="../lib/InputBindingApp" type="text/javascript" src="../lib/require.js"></script>
+        
+    <style>
+      .error {
+      
+        border: 1px solid red;
+      }
+    </style>
+        
+  </head>
+  
+  <body>
+
+    <script type="text/view-first-template" name="main">
+      <span data-snippet="embed" data-template="viewCollie"></span>
+      <form data-snippet="bindCollieToInputs">
+        <label for="name">Name:</label>
+        <input id="name" type="text" data-property="name" />
+        <label for="breed">Breed:</label>
+        <input id="breed" type="text" data-property="breed" />
+        <label for="age">Age:</label>
+        <input id="age" type="text" data-property="age" data-invalid-class="error" />
+      </form>
+    </script>
+
+    <script type="text/view-first-template" name="withCollars">
+      <span data-snippet="embed" data-template="viewCollie"></span>
+      <form data-snippet="bindCollieToInputs">
+        <label for="name">Name:</label>
+        <input id="name" type="text" data-property="name" />
+        <label for="collars">Collars</label>
+        <select id="collars" data-property="collar" data-collection="collars">
+          <option>#{colour}</option>
+        </select>
+      </form>
+    </script>
+
+
+    <script type="text/view-first-template" name="viewCollie">
+      <div data-snippet="bindCollie">
+        Name: <span id="nameSpan">#{name}</span><br />
+        Breed: <span id="breedSpan">#{breed}</span><br />
+        Collar colour: <span id="collarColourSpan">#{collar.colour}</span>
+      </div>
+    </script>
+
+  </body>
+</html>
