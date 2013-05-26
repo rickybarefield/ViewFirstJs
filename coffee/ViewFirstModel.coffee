@@ -1,22 +1,41 @@
-define ["backbone"], (Backbone) ->
+define ["Property"], (Property) ->
 
-  class ViewFirstModel extends Backbone.Model
+  class Model
     
     @instances: {}
-  
-    constructor: (attributes) ->
+    
+    constructor: (@properties = {}, @isNew = true) ->
+      @createProperty("id")
+    
+    createProperty: (name, relationship) ->
+    
+      @properties[name] = new Property(name, relationship)
 
-      instances = this.constructor.instances
+    get: (name) ->
+    
+      @properties[name].get()
+      
 
-      if attributes?.id?
-        if instances[attributes.id]?
-          console.log "returning an existing instance"
-          model = instances[attributes.id]
-          Backbone.Model.apply(model, arguments)
-          return model
+    set: (name, value) ->
+    
+      @properties[name].set(value)
 
-        instances[attributes.id] = this
+    add: (name, value) ->
+    
+      @properties[name].add(value)
 
-      Backbone.Model.apply(this, arguments)
+    asJson: ->
+    
+      json = {}
+      property.addToJson(json) for key, property of @properties      
+      return json
 
-  return ViewFirstModel
+    preSave: ->
+    
+       property.preSave for property in @properties
+    
+    save: =>
+
+      @preSave
+      json = @asJson()
+      console.log JSON.stringify(json)
