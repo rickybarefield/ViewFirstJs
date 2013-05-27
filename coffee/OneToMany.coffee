@@ -2,7 +2,7 @@ define ->
 
   class OneToMany
   
-    value : []
+    constructor: (@value = []) ->
   
     addToJson: (json) ->
         json[@name] = (model.asJson() for model in @value)
