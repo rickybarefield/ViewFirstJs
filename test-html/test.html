@@ -7,11 +7,6 @@
 <body>
   <div id="mocha"></div>
 
-  <script src="../test-js/mocha.js"></script>
-  <script src="../test-js/expect.js"></script>
-
-  <script>mocha.setup('tdd')</script>
-  
   <script src="../vendor/require.js"></script>
 
   <script>
@@ -20,12 +15,17 @@
 		  shim: {
 		    underscore: {
 		      exports: '_'
+		    },
+		    mocha: {
+		    	exports: 'mocha'
+		    },
+		    expect: {
+		    	exports: 'expect'
 		    }
 	    }
 		});  
 	  
 	  require(["../dist/lib/ModelTests.js"]);
-    mocha.run();
   </script>
 </body>
 </html>

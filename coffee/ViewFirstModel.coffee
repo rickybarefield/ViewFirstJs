@@ -1,4 +1,4 @@
-define ["Property"], (Property) ->
+define ["jquery", "Property"], ($, Property) ->
 
   class Model
     
@@ -36,6 +36,17 @@ define ["Property"], (Property) ->
     
     save: =>
 
-      @preSave
+      @assertUrl()
+      @preSave()
       json = @asJson()
+      $.ajax(@_getPluralUrl(), {type: @_getSaveHttpMethod(), data: json}) 
       console.log JSON.stringify(json)
+
+    _getSaveHttpMethod: ->
+      if @isNew then "POST" else "PUT"
+
+    _getPluralUrl: ->
+      @url + "s"
+      
+    assertUrl: ->
+      throw("url must be defined for model") unless @url?

@@ -1,31 +1,43 @@
-define ["House", "Postman", "Room"], (House, Postman, Room) ->
+define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness"], (House, Postman, Room, expect, mocha, JQueryTestHarness) ->
 
-  fred = new Postman()
-  fred.set "name", "Fred"
+  mocha.setup('tdd')
+  
+  assert = new expect.Assertion
+  
+  suite 'ViewFirst Model Tests', ->
+ 
+    aHouse = new House()
+    kitchen = new Room()
+    bedroom = new Room()
+    fred = new Postman()
+    fred.set "name", "Fred"
+    bedroom.set "colour", "Pink"
+    bedroom.set "size", 4
+    kitchen.set "colour", "White"
+    kitchen.set "size", 12
+    aHouse.set "doorNumber", 23
+    aHouse.set "postman", fred
+    aHouse.add "rooms", bedroom
+    aHouse.add "rooms", kitchen
+    expectedKitchenJson = {"id":null,"colour":"White","size":12}
+    expectedBedroomJson = {"id":null, "colour":"Pink", "size":4}
+    expectedPostmanJson = {"id":null} #ManyToOne relationships should only send the id
+    expectedHouseJson = {"id":null, "doorNumber": 23, "postman": expectedPostmanJson, "rooms":[expectedBedroomJson, expectedKitchenJson]}
 
-  bedroom = new Room()
-  bedroom.set "colour", "Pink"
-  bedroom.set "size", 4
-  
-  kitchen = new Room()
-  kitchen.set "colour", "White"
-  kitchen.set "size", 12
+    suite 'JSON creation', ->
 
-  aHouse = new House()
-  aHouse.set "doorNumber", 23
-  aHouse.set "postman", fred
-  aHouse.add "rooms", bedroom
-  aHouse.add "rooms", kitchen
+      test 'The JSON from a model with only basic properties', ->
   
-  aHouse.save()
-  
-  # Because postman are a ManyTo* relationship and it is not yet persisted
-  # it is persisted first
-  #     POST /postmans {name: "Fred"}
-  # Once that id is back the House can be persisted, rooms are a OneTo* relationship so they are
-  # persisted with the model
-  #     POST /houses {doorNumber: 23,
-  #                   postman: {id: 34}, 
-  #                   rooms: [{size: "4", colour: "Pink"}, {size: 12, colour: "White"}]}
-  
-  
+        expect(kitchen.asJson()).to.eql expectedKitchenJson
+      
+      test 'A more complex model with OneToMany and ManyToOne relationships', ->
+
+        expect(aHouse.asJson()).to.eql expectedHouseJson
+
+    suite 'Saving a new object', ->
+    
+      test 'Saving a model with only basic properties', ->
+      
+        kitchen.save()
+
+    mocha.run()  
