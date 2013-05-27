@@ -17,6 +17,9 @@ define ["underscore"], (_) ->
       @isDirty = true
       @value = value
 
+    setFromJson: (json) ->
+      @set(json)
+
     add: ->
       throw("Cannot call add on a basic property")
 
@@ -24,6 +27,7 @@ define ["underscore"], (_) ->
     preSave: =>
 
     addToJson: (json) =>
-      json[@name] = @value
+      if @value?
+        json[@name] = @value
       
       

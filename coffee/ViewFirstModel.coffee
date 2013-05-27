@@ -36,11 +36,20 @@ define ["jquery", "Property"], ($, Property) ->
     
     save: =>
 
+      onSuccess = (jsonString, successCode, somethingElse) =>
+        @update(jsonString)
+
       @assertUrl()
       @preSave()
       json = @asJson()
-      $.ajax(@_getPluralUrl(), {type: @_getSaveHttpMethod(), data: json}) 
+      $.ajax(@_getPluralUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
       console.log JSON.stringify(json)
+      
+    update: (json) ->
+    
+      jsonObject = JSON.parse(json)
+      for key, value of jsonObject
+        @properties[key].setFromJson(value)
 
     _getSaveHttpMethod: ->
       if @isNew then "POST" else "PUT"
