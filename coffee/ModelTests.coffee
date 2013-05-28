@@ -1,4 +1,5 @@
-define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore"], (House, Postman, Room, expect, mocha, JQueryTestHarness, _) ->
+define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore", "jquery"],
+ (House, Postman, Room, expect, mocha, JQueryTestHarness, _, $) ->
 
   mocha.setup('tdd')
   
@@ -52,7 +53,7 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
 
     suite 'Saving a new object', ->
 
-      ajaxExpectation = (url, httpMethod, data, idToAdd) ->
+      ajaxExpectation = (url, httpMethod, data, jsonToReturn) ->
         
         dataToReturn = ""
         successCallback = -> throw "Attempted to do callback but ajax was not called first"
@@ -64,22 +65,17 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
           expect(options["data"]).to.eql data
           successThis = this
           successCallback = options["success"]
-          
-          dataToReturn = if idToAdd?
-            clonedData = _.extend({}, data)
-            clonedData["id"] = idToAdd
-            JSON.stringify(clonedData)
-          else
-            JSON.stringify(data)
-            
+                      
         doCallback = ->
-          successCallback.call(successThis, dataToReturn, "200")
+          successCallback.call(successThis, jsonToReturn, "200")
           
         return [ajaxMethod, doCallback]
+
+      cloneWithId = (obj, idToAdd) -> $.extend(true, {id: idToAdd}, obj)
     
       test 'Saving a model with only basic properties', ->
 
-        [dummyAjaxFunc, callback] = ajaxExpectation("rooms", "POST", expectedKitchenJson, 13) 
+        [dummyAjaxFunc, callback] = ajaxExpectation("rooms", "POST", expectedKitchenJson, JSON.stringify(cloneWithId(expectedKitchenJson, 13)))
         JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
         kitchen.save()
         callback()
@@ -88,12 +84,28 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
 
       test 'Saving a more complex model with OneToMany and ManyToOne relationships', ->
 
-      TODO Need a way to get all the ids into the dataToReturn
-      
-        [dummyAjaxFunc, callback] = ajaxExpectation("rooms", "POST", expectedHouseJson, 1) 
-        [dummyAjaxFunc, callback] = ajaxExpectation("rooms", "POST", expectedBedroomJson, 2) 
+        clonedHouseJson = cloneWithId(expectedHouseJson, 1)
+        clonedHouseJson.rooms[0].id = 2
+        clonedHouseJson.rooms[1].id = 3
+        
+        #Check our test setup has not changed the original models
+        expect(aHouse.get("id")).to.equal null
+        expect(bedroom.get("id")).to.equal null
+        expect(kitchen.get("id")).to.equal null
+
+        [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(clonedHouseJson)) 
+        JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
+
+        aHouse.save()
+        callback()
+        
+        console.log(JSON.stringify(aHouse.asJson()))
+
+        #Now check the ids have been applied
+        expect(aHouse.get("id")).to.equal 1
+        expect(bedroom.get("id")).to.equal 2
+        expect(kitchen.get("id")).to.equal 3
         
       
-        aHouse.save()
 
     mocha.run()  

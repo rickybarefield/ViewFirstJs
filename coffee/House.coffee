@@ -2,6 +2,8 @@ define ["ViewFirst", "Room", "Postman"], (ViewFirst) ->
 
   class House extends ViewFirst.Model
   
+    url: "house"
+  
     constructor: (attributes) ->
       super()
       @createProperty("doorNumber")

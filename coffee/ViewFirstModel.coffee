@@ -37,7 +37,7 @@ define ["jquery", "Property"], ($, Property) ->
     save: =>
 
       onSuccess = (jsonString, successCode, somethingElse) =>
-        @update(jsonString)
+        @update(JSON.parse(jsonString))
 
       @assertUrl()
       @preSave()
@@ -47,8 +47,7 @@ define ["jquery", "Property"], ($, Property) ->
       
     update: (json) ->
     
-      jsonObject = JSON.parse(json)
-      for key, value of jsonObject
+      for key, value of json
         @properties[key].setFromJson(value)
 
     _getSaveHttpMethod: ->
