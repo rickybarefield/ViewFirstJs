@@ -4,17 +4,21 @@ define ["jquery", "Property"], ($, Property) ->
     
     @instances: {}
     
-    constructor: (@properties = {}, @isNew = true) ->
+    constructor: (@properties = {}) ->
       @createProperty("id")
     
     createProperty: (name, relationship) ->
     
       @properties[name] = new Property(name, relationship)
 
+    isNew: ->
+      !@_getProperty("id").isSet()
+
     get: (name) ->
     
-      @properties[name].get()
+      @_getProperty(name).get()
       
+    _getProperty: (name) -> @properties[name]
 
     set: (name, value) ->
     
@@ -24,10 +28,10 @@ define ["jquery", "Property"], ($, Property) ->
     
       @properties[name].add(value)
 
-    asJson: ->
+    asJson: (includeOnlyDirtyProperties = true) ->
     
       json = {}
-      property.addToJson(json) for key, property of @properties      
+      property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
       return json
 
     preSave: ->
@@ -45,13 +49,13 @@ define ["jquery", "Property"], ($, Property) ->
       $.ajax(@_getPluralUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
       console.log JSON.stringify(json)
       
-    update: (json) ->
+    update: (json, clean = true) ->
     
       for key, value of json
-        @properties[key].setFromJson(value)
+        @properties[key].setFromJson(value, clean = true)
 
     _getSaveHttpMethod: ->
-      if @isNew then "POST" else "PUT"
+      if @isNew() then "POST" else "PUT"
 
     _getPluralUrl: ->
       @url + "s"

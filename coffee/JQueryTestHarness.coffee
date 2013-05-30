@@ -22,7 +22,8 @@ define ["expect", "jquery"], (Expect, $) ->
     @_mockMethod: (methodName, givenArguments) ->
     
       expectations = JQueryTestHarness._expectations[methodName]
-      throw "A call on #{methodName} was not expected" unless expectations? and expectations.length > 0
+      if !expectations? or expectations.length == 0
+        throw "A call on #{methodName} was not expected"
       func = expectations.pop()
       if expectations.length == 0 then delete JQueryTestHarness._expectations[methodName]
       func.apply(@, givenArguments)

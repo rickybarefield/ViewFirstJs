@@ -5,6 +5,7 @@ define ->
     addToJson: (json) ->
       json[@name] = {id: @value.get("id")}
 
-    setFromJson: (json) ->
+    setFromJson: (json, clean) ->
+      @isDirty = !clean
       @value.update(json)
   

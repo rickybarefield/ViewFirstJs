@@ -34,7 +34,35 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
     expectedBedroomJson = {"colour":"Pink", "size":4}
     expectedPostmanJson = {"id":99} #ManyToOne relationships should only send the id
     expectedHouseJson = {"doorNumber": 23, "postman": expectedPostmanJson, "rooms":[expectedBedroomJson, expectedKitchenJson]}
-  
+
+  ajaxExpectation = (url, httpMethod, data, jsonToReturn) ->
+    
+    dataToReturn = ""
+    successCallback = -> throw "Attempted to do callback but ajax was not called first"
+    successThis = null
+    
+    ajaxMethod = (url, options) ->
+      expect(url).to.equal url
+      expect(options["type"]).to.equal httpMethod
+      expect(options["data"]).to.eql data
+      successThis = this
+      successCallback = options["success"]
+                  
+    doCallback = ->
+      successCallback.call(successThis, jsonToReturn, "200")
+    
+    return [ajaxMethod, doCallback]
+
+  cloneWithId = (obj, idToAdd) -> $.extend(true, {id: idToAdd}, obj)
+
+  createHouseJsonReturnedOnSave = ->
+    clonedHouseJson = cloneWithId(expectedHouseJson, 1)
+    clonedHouseJson.rooms[0].id = 2
+    clonedHouseJson.rooms[1].id = 3
+    return clonedHouseJson
+
+      
+    return [ajaxMethod, doCallback]
   
   suite 'ViewFirst Model Tests', ->
 
@@ -51,27 +79,8 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
 
         expect(aHouse.asJson()).to.eql expectedHouseJson
 
+
     suite 'Saving a new object', ->
-
-      ajaxExpectation = (url, httpMethod, data, jsonToReturn) ->
-        
-        dataToReturn = ""
-        successCallback = -> throw "Attempted to do callback but ajax was not called first"
-        successThis = null
-        
-        ajaxMethod = (url, options) ->
-          expect(url).to.equal url
-          expect(options["type"]).to.equal httpMethod
-          expect(options["data"]).to.eql data
-          successThis = this
-          successCallback = options["success"]
-                      
-        doCallback = ->
-          successCallback.call(successThis, jsonToReturn, "200")
-          
-        return [ajaxMethod, doCallback]
-
-      cloneWithId = (obj, idToAdd) -> $.extend(true, {id: idToAdd}, obj)
     
       test 'Saving a model with only basic properties', ->
 
@@ -84,28 +93,49 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
 
       test 'Saving a more complex model with OneToMany and ManyToOne relationships', ->
 
-        clonedHouseJson = cloneWithId(expectedHouseJson, 1)
-        clonedHouseJson.rooms[0].id = 2
-        clonedHouseJson.rooms[1].id = 3
+        jsonForServerToReturn = createHouseJsonReturnedOnSave()
         
         #Check our test setup has not changed the original models
         expect(aHouse.get("id")).to.equal null
         expect(bedroom.get("id")).to.equal null
         expect(kitchen.get("id")).to.equal null
 
-        [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(clonedHouseJson)) 
+        [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturn)) 
         JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
 
         aHouse.save()
         callback()
+        JQueryTestHarness.assertAllExpectationsMet()
         
-        console.log(JSON.stringify(aHouse.asJson()))
-
         #Now check the ids have been applied
         expect(aHouse.get("id")).to.equal 1
         expect(bedroom.get("id")).to.equal 2
         expect(kitchen.get("id")).to.equal 3
+
+
+    suite 'Updating an object and persisting those changes', ->
+
+      initiallySaveTheHouse = ->
+        jsonForServerToReturnOnSave = createHouseJsonReturnedOnSave()
+        [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturnOnSave)) 
+        JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
+        aHouse.save()        
+        callback()
+        JQueryTestHarness.assertAllExpectationsMet()
         
-      
+      test 'Basic changed attributes are sent in a PUT request', ->
+
+        initiallySaveTheHouse()
+        
+        #Make some changes
+        aHouse.set("doorNumber", 99)
+
+        expectedJson = {id: 1, doorNumber: 99}
+        dummyServerResponse = JSON.stringify(aHouse.asJson())
+        [dummyAjaxFunc, callback] = ajaxExpectation("houses/1", "PUT", expectedJson, dummyServerResponse) 
+        JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
+        aHouse.save()
+        callback()
+        JQueryTestHarness.assertAllExpectationsMet()
 
     mocha.run()  

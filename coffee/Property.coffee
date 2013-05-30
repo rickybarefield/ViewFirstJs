@@ -16,9 +16,12 @@ define ["underscore"], (_) ->
     set: (value) ->
       @isDirty = true
       @value = value
+      
+    isSet: -> @value?
 
-    setFromJson: (json) ->
+    setFromJson: (json, clean) ->
       @set(json)
+      @isDirty = !clean
 
     add: ->
       throw("Cannot call add on a basic property")
