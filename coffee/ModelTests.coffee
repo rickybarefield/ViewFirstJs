@@ -35,16 +35,17 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
     expectedPostmanJson = {"id":99} #ManyToOne relationships should only send the id
     expectedHouseJson = {"doorNumber": 23, "postman": expectedPostmanJson, "rooms":[expectedBedroomJson, expectedKitchenJson]}
 
-  ajaxExpectation = (url, httpMethod, data, jsonToReturn) ->
+  ajaxExpectation = (urlExpected, httpMethod, data, jsonToReturn) ->
     
     dataToReturn = ""
     successCallback = -> throw "Attempted to do callback but ajax was not called first"
     successThis = null
     
     ajaxMethod = (url, options) ->
-      expect(url).to.equal url
+      expect(urlExpected).to.equal url
       expect(options["type"]).to.equal httpMethod
-      expect(options["data"]).to.eql data
+      if data?
+        expect(options["data"]).to.eql data
       successThis = this
       successCallback = options["success"]
                   
@@ -113,7 +114,7 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
         expect(kitchen.get("id")).to.equal 3
 
 
-    suite 'Updating an object and persisting those changes', ->
+    suite 'Updating and Deleting an object and persisting those changes', ->
 
       initiallySaveTheHouse = ->
         jsonForServerToReturnOnSave = createHouseJsonReturnedOnSave()
@@ -137,5 +138,16 @@ define ["House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "und
         aHouse.save()
         callback()
         JQueryTestHarness.assertAllExpectationsMet()
+
+      test 'Deleting a model creates a DELETE request', ->
+      
+        initiallySaveTheHouse()
+
+        [dummyAjaxFunc, callback] = ajaxExpectation("houses/1", "DELETE", null, null) 
+        JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
+        aHouse.delete()
+        callback()
+        JQueryTestHarness.assertAllExpectationsMet()
+                        
 
     mocha.run()  

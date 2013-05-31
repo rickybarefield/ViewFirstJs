@@ -34,20 +34,23 @@ define ["jquery", "Property"], ($, Property) ->
       property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
       return json
 
-    preSave: ->
-    
-       property.preSave for property in @properties
-    
     save: =>
 
       onSuccess = (jsonString, successCode, somethingElse) =>
         @update(JSON.parse(jsonString))
 
       @assertUrl()
-      @preSave()
       json = @asJson()
-      $.ajax(@_getPluralUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
+      $.ajax(@_getSaveUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
       console.log JSON.stringify(json)
+
+    delete: =>
+    
+      onSuccess = (jsonString, successCode, somethingElse) =>
+        console.log("TODO will need to trigger an event")
+        
+      $.ajax(@_getSaveUrl(), {type: "DELETE", success: onSuccess}) 
+      
       
     update: (json, clean = true) ->
     
@@ -57,8 +60,8 @@ define ["jquery", "Property"], ($, Property) ->
     _getSaveHttpMethod: ->
       if @isNew() then "POST" else "PUT"
 
-    _getPluralUrl: ->
-      @url + "s"
+    _getSaveUrl: ->
+      @url + "s" + if !@isNew() then "/" + @get("id") else ""
       
     assertUrl: ->
       throw("url must be defined for model") unless @url?

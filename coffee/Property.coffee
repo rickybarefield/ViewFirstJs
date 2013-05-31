@@ -26,9 +26,6 @@ define ["underscore"], (_) ->
     add: ->
       throw("Cannot call add on a basic property")
 
-    #Called before the model is saved
-    preSave: =>
-
     addToJson: (json) =>
       if @value?
         json[@name] = @value
