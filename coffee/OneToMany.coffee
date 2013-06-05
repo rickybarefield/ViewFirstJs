@@ -10,6 +10,9 @@ define ["underscore"], (_) ->
     add: (value) ->
       @value.push value
       
+    removeAll: ->
+      @value.length = 0
+      
     setFromJson: (json, clean) ->
         @isDirty = !clean
         for pair in _.zip(@value, json)

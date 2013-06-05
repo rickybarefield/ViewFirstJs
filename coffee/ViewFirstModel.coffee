@@ -1,25 +1,47 @@
 define ["jquery", "Property"], ($, Property) ->
 
+  class Collection
+
+    constructor: (@currentModels, @instances = []) ->
+      
+      #@modelType.on("created", (model) -> @_modelAdded(model))
+      @_modelAdded(model) for model in currentModels
+
+    getAll: ->
+    
+      @instances.slice(0)
+
+    _modelAdded: (model) ->
+    
+      @instances.push(model)
+    
+    size: -> @instances.length
+    
   class Model
     
-    @instances: {}
+    @instances = {}
+    
+    @getOrCreateInstances: (modelName) ->
+    
+      @instances[modelName] = [] unless @instances[modelName]
+      @instances[modelName]
     
     constructor: (@properties = {}) ->
-      @createProperty("id")
     
+      Model.getOrCreateInstances(@constructor.name).push(@)
+      @createProperty("id")
+      
     createProperty: (name, relationship) ->
     
       @properties[name] = new Property(name, relationship)
 
     isNew: ->
-      !@_getProperty("id").isSet()
+      !@properties["id"].isSet()
 
     get: (name) ->
     
-      @_getProperty(name).get()
+      @properties[name].get()
       
-    _getProperty: (name) -> @properties[name]
-
     set: (name, value) ->
     
       @properties[name].set(value)
@@ -27,6 +49,10 @@ define ["jquery", "Property"], ($, Property) ->
     add: (name, value) ->
     
       @properties[name].add(value)
+
+    removeAll: (name) ->
+    
+      @properties[name].removeAll()
 
     asJson: (includeOnlyDirtyProperties = true) ->
     
@@ -39,7 +65,7 @@ define ["jquery", "Property"], ($, Property) ->
       onSuccess = (jsonString, successCode, somethingElse) =>
         @update(JSON.parse(jsonString))
 
-      @assertUrl()
+      @_assertUrl()
       json = @asJson()
       $.ajax(@_getSaveUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
       console.log JSON.stringify(json)
@@ -57,11 +83,18 @@ define ["jquery", "Property"], ($, Property) ->
       for key, value of json
         @properties[key].setFromJson(value, clean = true)
 
+    @createCollection: () ->
+      new Collection(Model.getOrCreateInstances(@name))
+
     _getSaveHttpMethod: ->
       if @isNew() then "POST" else "PUT"
 
     _getSaveUrl: ->
       @url + "s" + if !@isNew() then "/" + @get("id") else ""
       
-    assertUrl: ->
+    _assertUrl: ->
       throw("url must be defined for model") unless @url?
+      
+
+  
+  return Model

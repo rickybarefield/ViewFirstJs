@@ -26,6 +26,9 @@ define ["underscore"], (_) ->
     add: ->
       throw("Cannot call add on a basic property")
 
+    removeAll: ->
+      throw("Cannot call removeAll on a basic property")
+
     addToJson: (json) =>
       if @value?
         json[@name] = @value
