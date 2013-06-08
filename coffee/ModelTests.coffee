@@ -1,5 +1,5 @@
-define ["ViewFirstModel", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore", "jquery"],
- (ViewFirstModel, House, Postman, Room, expect, mocha, JQueryTestHarness, _, $) ->
+define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore", "jquery"],
+ (ViewFirstModel, ViewFirst, House, Postman, Room, expect, mocha, JQueryTestHarness, _, $) ->
 
   mocha.setup('tdd')
   
@@ -13,6 +13,7 @@ define ["ViewFirstModel", "House", "Postman", "Room", "expect", "mocha", "JQuery
   expectedBedroomJson = {}
   expectedPostmanJson = {}
   expectedHouseJson = {}
+  viewFirst = {}
 
   createHouse = ->
  
@@ -70,6 +71,7 @@ define ["ViewFirstModel", "House", "Postman", "Room", "expect", "mocha", "JQuery
     setup ->
       ViewFirstModel.instances = {}
       createHouse() 
+      viewFirst = new ViewFirst()
 
     suite 'ViewFirst Model Tests', ->
   
@@ -153,29 +155,29 @@ define ["ViewFirstModel", "House", "Postman", "Room", "expect", "mocha", "JQuery
           callback()
           JQueryTestHarness.assertAllExpectationsMet()
           
-        suite 'Events are fired by models', ->
-        
-          test 'When a property changes a change event should be fired with the old and new value of the property', ->
-          
-            changeCalled = false
-          
-            aHouse.onPropertyChange("doorNumber", (oldValue, newValue) -> 
-            
-              expect(oldValue).to.equal 23
-              expect(newValue).to.equal 12
-              changeCalled = true)
-              
-            aHouse.set("postman", new Postman())
-            
-            expect(changeCalled).to.equal false
-            
-            aHouse.set("doorNumber", 12)
-            
-            expect(changeCalled).to.equal true
+      suite 'Events are fired by models', ->
       
+        test 'When a property changes a change event should be fired with the old and new value of the property', ->
+        
+          changeCalled = false
+        
+          aHouse.onPropertyChange("doorNumber", (oldValue, newValue) -> 
+          
+            expect(oldValue).to.equal 23
+            expect(newValue).to.equal 12
+            changeCalled = true)
+            
+          aHouse.set("postman", new Postman())
+          
+          expect(changeCalled).to.equal false
+          
+          aHouse.set("doorNumber", 12)
+          
+          expect(changeCalled).to.equal true
+    
     suite 'Collection Tests', ->
 
-      suite 'Creating collections and modifying its contents', ->
+      suite 'Creating collections and modifying their contents', ->
 
         test 'I can create a collection of houses and it will contain all the house models I have created', ->
         
@@ -189,6 +191,26 @@ define ["ViewFirstModel", "House", "Postman", "Room", "expect", "mocha", "JQuery
           expect(aHouseCollection.size()).to.equal 1
           anotherHouse = new House()
           expect(aHouseCollection.size()).to.equal 2
-          
+    
+    suite 'Binding Tests', ->
+    
+      test 'A text node should be bound using the # syntax', ->
       
+        linkWithTextNode = $('<a>#{doorNumber}</a>')
+        viewFirst.bindTextNodes(linkWithTextNode, aHouse)
+        
+        expect(linkWithTextNode.get(0).outerHTML).to.eql "<a>23</a>"
+        
+        aHouse.set("doorNumber", 98)
+        expect(linkWithTextNode.get(0).outerHTML).to.eql "<a>98</a>"
+        
+        
+      test 'A text node should be bound using the # syntax when there are two # in the same text', ->
+      
+        linkWithTwoBinds = $('<a>#{colour} - #{size}</a>')
+        viewFirst.bindTextNodes(linkWithTwoBinds, bedroom)
+        
+        expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Pink - 4</a>"
+        
+    
     mocha.run()  

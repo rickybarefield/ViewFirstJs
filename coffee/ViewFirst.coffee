@@ -1,6 +1,6 @@
-define ["ViewFirstModel", "OneToMany", "ManyToOne"], (ViewFirstModel, OneToMany, ManyToOne) ->
+define ["ViewFirstModel", "BindHelpers", "OneToMany", "ManyToOne"], (ViewFirstModel, BindHelpers, OneToMany, ManyToOne) ->
   
-  class ViewFirst
+  class ViewFirst extends BindHelpers
     @Model = ViewFirstModel
     @OneToMany = OneToMany
     @ManyToOne = ManyToOne

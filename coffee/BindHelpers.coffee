@@ -10,6 +10,35 @@ define [], () ->
       if @lastNumber? then @lastNumber++ else @lastNumber = 1
       return @lastNumber
   
+    bindTextNodes: (node, model) ->
+  
+      BindHelpers.doForNodeAndChildren node, (node) =>
+  
+        getReplacementTextAndAffecingModels = (nodeText, model) ->
+          removeSurround = (str) ->
+            str.match(/[^#{}]+/)[0]
+          affectingModels = []
+          replacementText = nodeText.replace /#\{[^\}]*\}/g, (match) ->
+            key = removeSurround(match)
+            elements = key.split(".")
+            currentModel = model
+            for element in elements
+              if(currentModel?)
+                affectingModels.push currentModel
+                currentModel = currentModel.get(element)
+            return if(currentModel?) then currentModel else ""
+          return [replacementText, affectingModels]
+  
+        originalText = node.get(0).nodeValue
+  
+        doReplacement = ->
+          [replacementText, affectingModels] = getReplacementTextAndAffecingModels(originalText, model)
+          node.get(0).nodeValue = replacementText
+          return affectingModels
+  
+        if (node.get(0).nodeType is BindHelpers.TEXT_NODE or node.get(0).nodeType is BindHelpers.ATTR_NODE) and originalText.match /#{.*}/
+          @bindNodeToResultOfFunction(node, doReplacement)
+
     bindCollection: (collection, parentNode, func) ->
   
       boundModels = {}
@@ -18,7 +47,7 @@ define [], () ->
         console.log "adding child"
         childNode = func(modelToAdd)
         if childNode?
-          @bindNodes(childNode, modelToAdd)
+          @bindTextNodes(childNode, modelToAdd)
           @bindNodeValues(childNode, modelToAdd)
           $parent.append(childNode)
           boundModels[modelToAdd["cid"]] = childNode
@@ -54,34 +83,6 @@ define [], () ->
       node.get(0)["previouslyBoundModels"] = affectingModels
       node.get(0)["previouslyBoundFunction"] = func
   	
-    bindNodes: (node, model) ->
-  
-      BindHelpers.doForNodeAndChildren node, (node) =>
-  
-        getReplacementTextAndAffecingModels = (nodeText, model) ->
-          removeSurround = (str) ->
-            str.match(/[^#{}]+/)[0]
-          affectingModels = []
-          replacementText = nodeText.replace /#\{[^\}]*\}/g, (match) ->
-            key = removeSurround(match)
-            elements = key.split(".")
-            currentModel = model
-            for element in elements
-              if(currentModel?)
-                affectingModels.push currentModel
-                currentModel = currentModel.get(element)
-            return if(currentModel?) then currentModel else ""
-          return [replacementText, affectingModels]
-  
-        originalText = node.get(0).nodeValue
-  
-        doReplacement = ->
-          [replacementText, affectingModels] = getReplacementTextAndAffecingModels(originalText, model)
-          node.get(0).nodeValue = replacementText
-          return affectingModels
-  
-        if (node.get(0).nodeType is BindHelpers.TEXT_NODE or node.get(0).nodeType is BindHelpers.ATTR_NODE) and originalText.match /#{.*}/
-          @bindNodeToResultOfFunction(node, doReplacement)
   
     bindNodeValues: (node, model, collections = {}) ->
   
