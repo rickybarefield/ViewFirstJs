@@ -152,6 +152,26 @@ define ["ViewFirstModel", "House", "Postman", "Room", "expect", "mocha", "JQuery
           aHouse.delete()
           callback()
           JQueryTestHarness.assertAllExpectationsMet()
+          
+        suite 'Events are fired by models', ->
+        
+          test 'When a property changes a change event should be fired with the old and new value of the property', ->
+          
+            changeCalled = false
+          
+            aHouse.onPropertyChange("doorNumber", (oldValue, newValue) -> 
+            
+              expect(oldValue).to.equal 23
+              expect(newValue).to.equal 12
+              changeCalled = true)
+              
+            aHouse.set("postman", new Postman())
+            
+            expect(changeCalled).to.equal false
+            
+            aHouse.set("doorNumber", 12)
+            
+            expect(changeCalled).to.equal true
       
     suite 'Collection Tests', ->
 

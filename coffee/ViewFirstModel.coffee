@@ -15,7 +15,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
     _modelAdded: (model) ->
     
       @instances.push(model)
-      
     
     size: -> @instances.length
     
@@ -36,27 +35,25 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       
       
     createProperty: (name, relationship) ->
-    
       @properties[name] = new Property(name, relationship)
 
     isNew: ->
       !@properties["id"].isSet()
 
     get: (name) ->
-    
       @properties[name].get()
       
     set: (name, value) ->
-    
       @properties[name].set(value)
 
     add: (name, value) ->
-    
       @properties[name].add(value)
 
     removeAll: (name) ->
-    
       @properties[name].removeAll()
+      
+    onPropertyChange: (propertyName, func) ->
+      @properties[propertyName].on("change", func)
 
     asJson: (includeOnlyDirtyProperties = true) ->
     

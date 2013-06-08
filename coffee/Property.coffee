@@ -1,12 +1,11 @@
-define ["underscore"], (_) ->
+define ["underscore", "ViewFirstEvents"], (_, Events) ->
 
-  class Property
+  class Property extends Events
   
     value: null
     isDirty: true
     
     constructor: (@name, relationship, @type) ->
-    
       if relationship?
         _.extend(@, new relationship())
 
@@ -14,8 +13,10 @@ define ["underscore"], (_) ->
       @value
 
     set: (value) ->
+      oldValue = @value
       @isDirty = true
       @value = value
+      @fire("change", oldValue, @value)
       
     isSet: -> @value?
 

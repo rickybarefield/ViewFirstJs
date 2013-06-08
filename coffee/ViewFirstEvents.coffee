@@ -4,8 +4,6 @@ define ->
   
     @_staticEvents: {}
 
-    _events: {}
-    
     @_getOrCreate: (eventName, from, dflt) ->
     
       from[eventName] = dflt unless from[eventName]?
@@ -25,8 +23,13 @@ define ->
       
     on: (eventName, func) ->
       
+      @_events = [] unless @_events?
       funcs = ViewFirstEvents._getOrCreate(eventName, @_events, [])
       funcs.push(func)
       
+    fire: (eventName, other...) ->
     
+      @_events = [] unless @_events?
+      funcs = ViewFirstEvents._getOrCreate(eventName, @_events, [])
+      func.apply(this, other) for func in funcs    
     
