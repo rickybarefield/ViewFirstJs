@@ -1,10 +1,11 @@
-define ["jquery", "Property"], ($, Property) ->
+define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property, Events) ->
 
   class Collection
+  
 
-    constructor: (@currentModels, @instances = []) ->
+    constructor: (@currentModels, modelType, @instances = []) ->
       
-      #@modelType.on("created", (model) -> @_modelAdded(model))
+      Events.on.call(modelType, "created", (model) => @_modelAdded(model))
       @_modelAdded(model) for model in currentModels
 
     getAll: ->
@@ -14,11 +15,12 @@ define ["jquery", "Property"], ($, Property) ->
     _modelAdded: (model) ->
     
       @instances.push(model)
+      
     
     size: -> @instances.length
     
-  class Model
-    
+  class Model extends Events
+
     @instances = {}
     
     @getOrCreateInstances: (modelName) ->
@@ -27,9 +29,11 @@ define ["jquery", "Property"], ($, Property) ->
       @instances[modelName]
     
     constructor: (@properties = {}) ->
-    
+
       Model.getOrCreateInstances(@constructor.name).push(@)
       @createProperty("id")
+      Events.fire.call(@constructor, "created")
+      
       
     createProperty: (name, relationship) ->
     
@@ -84,7 +88,7 @@ define ["jquery", "Property"], ($, Property) ->
         @properties[key].setFromJson(value, clean = true)
 
     @createCollection: () ->
-      new Collection(Model.getOrCreateInstances(@name))
+      new Collection(Model.getOrCreateInstances(@name), @)
 
     _getSaveHttpMethod: ->
       if @isNew() then "POST" else "PUT"
