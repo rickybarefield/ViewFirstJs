@@ -1,4 +1,4 @@
-define [], () ->
+define ["underscore"], (_) ->
   class BindHelpers
 
     @TEXT_NODE = 3
@@ -10,7 +10,30 @@ define [], () ->
       if @lastNumber? then @lastNumber++ else @lastNumber = 1
       return @lastNumber
   
-    bindTextNodes: (node, model) ->
+    bindTextNodes: (nodes, model) ->
+
+      isBindable = (node) ->
+        nodeType = node.get(0).nodeType
+        return (nodeType is BindHelpers.TEXT_NODE or nodeType is BindHelpers.ATTR_NODE) and node.get(0).nodeValue.match /#{.*}/
+      
+      bindTextNode =  (node) ->
+      
+        replaceKeysInText = (text, keys, properties) ->
+          pairs = _.zip(keys, properties)
+          for [key, property] in pairs
+            text = text.replace new RegExp("#\{${key}\}", 'g'), property.get()
+
+        originalText = node.get(0).nodeValue
+        
+        keys = []
+        properties = []
+        
+        originalText.match /#\{[^\}]*\}/g, (key) ->
+          keys.push key
+          properties.push model.findProperty(key)
+                
+      
+      BindHelpers.doForNodeAndChildren nodes, bindTextNode, isBindable
   
       BindHelpers.doForNodeAndChildren node, (node) =>
   
@@ -158,15 +181,19 @@ define [], () ->
   
             aNode.val(model.get(property))
   
-    @doForNodeAndChildren: (node, func) ->
+    @doForNodeAndChildren: (node, func, filter = -> true) ->
   
   	#Apply to node
-      func(node)
+  	  if(filter(node))
+        func(node)
   
   	#Apply to attributes    
       attributes = node.get(0).attributes
       if attributes?
-        func($(attribute)) for attribute in attributes
+        for attribute in attributes
+          $attribute = $(attribute)
+          if(filter($attribute))
+            func($attribute)
       
       #Apply to children
       for childNode in node.contents()

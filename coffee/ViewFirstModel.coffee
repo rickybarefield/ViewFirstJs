@@ -43,6 +43,12 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
     get: (name) ->
       @properties[name].get()
       
+    findProperty(key) ->
+    
+      elements = key.split(".")
+      Now need to iterate through the properties and find it!
+      
+      
     set: (name, value) ->
       @properties[name].set(value)
 
