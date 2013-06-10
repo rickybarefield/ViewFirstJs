@@ -212,5 +212,13 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
         
         expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Pink - 4</a>"
         
+        bedroom.set("colour", "Orange")
+        
+        expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Orange - 4</a>"
+        
+        bedroom.set("size", 12)
+        
+        expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Orange - 12</a>"
+        
     
     mocha.run()  

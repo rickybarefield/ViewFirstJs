@@ -9,3 +9,5 @@ define ->
       @isDirty = !clean
       @value.update(json)
   
+    getProperty: (name) ->
+      @value.getProperty(name)

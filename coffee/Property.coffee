@@ -12,6 +12,9 @@ define ["underscore", "ViewFirstEvents"], (_, Events) ->
     get: ->
       @value
 
+    getProperty: ->
+      throw "Cannot get a property for this type of relationship"
+
     set: (value) ->
       oldValue = @value
       @isDirty = true

@@ -18,49 +18,32 @@ define ["underscore"], (_) ->
       
       bindTextNode =  (node) ->
       
-        replaceKeysInText = (text, keys, properties) ->
+        replaceKeysInText = (node, originalText, keys, properties) ->
           pairs = _.zip(keys, properties)
+          text = originalText
           for [key, property] in pairs
-            text = text.replace new RegExp("#\{${key}\}", 'g'), property.get()
-
+            text = text.replace new RegExp("#\{#{key}\}", 'g'), property.get()
+          node.get(0).nodeValue = text
+          
         originalText = node.get(0).nodeValue
         
         keys = []
         properties = []
         
-        originalText.match /#\{[^\}]*\}/g, (key) ->
+        removeSurround = (str) ->
+          str.match(/[^#{}]+/)[0]
+        
+        for match in originalText.match /#\{[^\}]*\}/g
+          key = removeSurround(match)
           keys.push key
           properties.push model.findProperty(key)
-                
+        
+        replaceOperation = -> replaceKeysInText(node, originalText, keys, properties)
+        property.on("change", replaceOperation) for property in properties
+        
+        replaceOperation()
       
       BindHelpers.doForNodeAndChildren nodes, bindTextNode, isBindable
-  
-      BindHelpers.doForNodeAndChildren node, (node) =>
-  
-        getReplacementTextAndAffecingModels = (nodeText, model) ->
-          removeSurround = (str) ->
-            str.match(/[^#{}]+/)[0]
-          affectingModels = []
-          replacementText = nodeText.replace /#\{[^\}]*\}/g, (match) ->
-            key = removeSurround(match)
-            elements = key.split(".")
-            currentModel = model
-            for element in elements
-              if(currentModel?)
-                affectingModels.push currentModel
-                currentModel = currentModel.get(element)
-            return if(currentModel?) then currentModel else ""
-          return [replacementText, affectingModels]
-  
-        originalText = node.get(0).nodeValue
-  
-        doReplacement = ->
-          [replacementText, affectingModels] = getReplacementTextAndAffecingModels(originalText, model)
-          node.get(0).nodeValue = replacementText
-          return affectingModels
-  
-        if (node.get(0).nodeType is BindHelpers.TEXT_NODE or node.get(0).nodeType is BindHelpers.ATTR_NODE) and originalText.match /#{.*}/
-          @bindNodeToResultOfFunction(node, doReplacement)
 
     bindCollection: (collection, parentNode, func) ->
   
