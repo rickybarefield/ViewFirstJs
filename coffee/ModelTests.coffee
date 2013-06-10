@@ -194,31 +194,92 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
     
     suite 'Binding Tests', ->
     
-      test 'A text node should be bound using the # syntax', ->
+      suite 'Text Binding', ->
+    
+        test 'A text node should be bound using the # syntax', ->
+        
+          linkWithTextNode = $('<a>#{doorNumber}</a>')
+          viewFirst.bindTextNodes(linkWithTextNode, aHouse)
+          
+          expect(linkWithTextNode.get(0).outerHTML).to.eql "<a>23</a>"
+          
+          aHouse.set("doorNumber", 98)
+          expect(linkWithTextNode.get(0).outerHTML).to.eql "<a>98</a>"
+          
+          
+        test 'A text node should be bound using the # syntax when there are two # in the same text', ->
+        
+          linkWithTwoBinds = $('<a>#{colour} - #{size}</a>')
+          viewFirst.bindTextNodes(linkWithTwoBinds, bedroom)
+          
+          expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Pink - 4</a>"
+          
+          bedroom.set("colour", "Orange")
+          
+          expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Orange - 4</a>"
+          
+          bedroom.set("size", 12)
+          
+          expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Orange - 12</a>"
+          
+        test 'Attributes should be bound', ->
+        
+          spanWithAttribute = $("<span class=\"\#{colour}\">Bedroom</span>")
+          
+          viewFirst.bindTextNodes(spanWithAttribute, bedroom)
+          
+          expect(spanWithAttribute.get(0).outerHTML).to.eql "<span class=\"Pink\">Bedroom</span>"
+          
+        test 'Multiple child text nodes should be bound', -> 
+        
+          complexHtml = $("<span>\#{colour}</span><table><tbody><tr class=\"\#{colour}\"><td>\#{size}</td></tr></tbody></table>")
+          
+          viewFirst.bindTextNodes(complexHtml, bedroom)
+          
+          expect(complexHtml.get(0).outerHTML + complexHtml.get(1).outerHTML).to.eql "<span>Pink</span><table><tbody><tr class=\"Pink\"><td>4</td></tr></tbody></table>"
+        
+      suite 'Input Binding', ->
       
-        linkWithTextNode = $('<a>#{doorNumber}</a>')
-        viewFirst.bindTextNodes(linkWithTextNode, aHouse)
+        test 'An input should be bound when it has a data-property attribute', ->
         
-        expect(linkWithTextNode.get(0).outerHTML).to.eql "<a>23</a>"
+          inputHtml = $("<input type=\"text\" data-property=\"colour\" />")
+          
+          viewFirst.bindInputs(inputHtml, bedroom)
+          
+          expect(inputHtml.val()).to.eql "Pink"
+          
+          inputHtml.val("Blue")
+          expect(bedroom.get("colour")).to.eql "Pink"
+          inputHtml.blur()
+          expect(bedroom.get("colour")).to.eql "Blue"
+          
+          inputHtml.val("Brown")
+          e = $.Event("keypress")
+          e.keyCode = 13
+          expect(bedroom.get("colour")).to.eql "Blue"
+          inputHtml.trigger(e)
+          
+          expect(bedroom.get("colour")).to.eql "Brown"
+          
+        test 'Multiple child inputs should be bound', ->
         
-        aHouse.set("doorNumber", 98)
-        expect(linkWithTextNode.get(0).outerHTML).to.eql "<a>98</a>"
-        
-        
-      test 'A text node should be bound using the # syntax when there are two # in the same text', ->
-      
-        linkWithTwoBinds = $('<a>#{colour} - #{size}</a>')
-        viewFirst.bindTextNodes(linkWithTwoBinds, bedroom)
-        
-        expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Pink - 4</a>"
-        
-        bedroom.set("colour", "Orange")
-        
-        expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Orange - 4</a>"
-        
-        bedroom.set("size", 12)
-        
-        expect(linkWithTwoBinds.get(0).outerHTML).to.eql "<a>Orange - 12</a>"
-        
+          complexHtml = $("<input type=\"text\" data-property=\"colour\" /><span><input id=\"colour-input\" type=\"password\" data-property=\"size\" /></span>")
+          
+          viewFirst.bindInputs(complexHtml, bedroom)
+          
+          sizeInput = complexHtml.find("#colour-input")
+          
+          expect(complexHtml.val()).to.eql "Pink"
+          expect(sizeInput.val()).to.eql "4"
+          
+          complexHtml.val("Green")
+          sizeInput.val("82")
+          
+          complexHtml.blur()
+          sizeInput.blur()
+          
+          expect(complexHtml.val()).to.eql "Green"
+          expect(sizeInput.val()).to.eql "82"
+          
     
     mocha.run()  

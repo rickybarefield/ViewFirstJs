@@ -14,7 +14,7 @@ define ["underscore"], (_) ->
 
       isBindable = (node) ->
         nodeType = node.get(0).nodeType
-        return (nodeType is BindHelpers.TEXT_NODE or nodeType is BindHelpers.ATTR_NODE) and node.get(0).nodeValue.match /#{.*}/
+        return (nodeType is BindHelpers.TEXT_NODE or nodeType is BindHelpers.ATTR_NODE) and node.get(0).nodeValue.match(/#{.*}/)?
       
       bindTextNode =  (node) ->
       
@@ -44,6 +44,29 @@ define ["underscore"], (_) ->
         replaceOperation()
       
       BindHelpers.doForNodeAndChildren nodes, bindTextNode, isBindable
+
+    bindInputs: (nodes, model) ->
+    
+      isBindable = (node) -> node.attr("data-property")?
+      
+      bindInput = (node) ->
+        
+        key = node.attr("data-property")
+        property = model.findProperty(key)
+        
+        #TODO What should happen if the property changes? property.on("change")
+        
+        node.val(property.get())
+        node.off("keypress.viewFirst")
+        node.off("blur.viewFirst")
+
+        node.on "keypress.viewFirst", (e) ->
+          if ((e.keyCode || e.which) == 13)
+            property.set(node.val())
+        node.on "blur.viewFirst", =>
+          property.set(node.val())
+
+      BindHelpers.doForNodeAndChildren nodes, bindInput, isBindable
 
     bindCollection: (collection, parentNode, func) ->
   
@@ -180,5 +203,5 @@ define ["underscore"], (_) ->
       
       #Apply to children
       for childNode in node.contents()
-        BindHelpers.doForNodeAndChildren $(childNode), func
+        BindHelpers.doForNodeAndChildren $(childNode), func, filter
   
