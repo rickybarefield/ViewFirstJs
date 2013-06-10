@@ -1,7 +1,6 @@
 define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property, Events) ->
 
   class Collection
-  
 
     constructor: (@currentModels, modelType, @instances = []) ->
       

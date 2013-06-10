@@ -280,6 +280,27 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           
           expect(complexHtml.val()).to.eql "Green"
           expect(sizeInput.val()).to.eql "82"
-          
+
+      suite 'Collection Binding', ->
+
+        parentNode = {}
+        
+        setup ->
+        
+          parentNode = $("<ul></ul>")
+          nodeConstructionFunction = -> $("<li>\#{colour}</li>")
+          viewFirst.bindCollection(Room.createCollection(), parentNode, nodeConstructionFunction)
+      
+        test 'A collection is bound to a simple html model', ->
+        
+          expect(parentNode.get(0).outerHTML).to.eql "<ul><li>White</li><li>Pink</li></ul>"
+
+        test 'When I add an element to a collection that is reflected in the bound model', ->
+        
+        
+
+        test 'When I remove an element from a collection that is reflected in the bound html', ->
+        
+        
     
     mocha.run()  
