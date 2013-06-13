@@ -74,6 +74,8 @@ define ["underscore"], (_) ->
           node.detach() if removedFrom == collection
     
       addChild(model) for model in collection.getAll()
+      
+      collection.on "add", addChild
   
     @doForNodeAndChildren: (node, func, filter = -> true) ->
   

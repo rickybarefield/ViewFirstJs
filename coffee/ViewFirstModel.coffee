@@ -1,19 +1,20 @@
 define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property, Events) ->
 
-  class Collection
+  class Collection extends Events
 
     constructor: (@currentModels, modelType, @instances = []) ->
       
       Events.on.call(modelType, "created", (model) => @_modelAdded(model))
-      @_modelAdded(model) for model in currentModels
+      @_modelAdded(model, true) for model in currentModels
 
     getAll: ->
     
       @instances.slice(0)
 
-    _modelAdded: (model) ->
+    _modelAdded: (model, silent = false) ->
     
       @instances.push(model)
+      @fire("add", model) unless silent
     
     size: -> @instances.length
     
@@ -30,8 +31,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
       Model.getOrCreateInstances(@constructor.name).push(@)
       @createProperty("id")
-      Events.fire.call(@constructor, "created")
-      
+      Events.fire.call(@constructor, "created", @)
       
     createProperty: (name, relationship) ->
       @properties[name] = new Property(name, relationship)
@@ -72,7 +72,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
       return json
 
-    save: =>
+    save: ->
 
       onSuccess = (jsonString, successCode, somethingElse) =>
         @update(JSON.parse(jsonString))
@@ -82,7 +82,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       $.ajax(@_getSaveUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
       console.log JSON.stringify(json)
 
-    delete: =>
+    delete: ->
     
       onSuccess = (jsonString, successCode, somethingElse) =>
         console.log("TODO will need to trigger an event")
@@ -98,6 +98,26 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
     @createCollection: () ->
       new Collection(Model.getOrCreateInstances(@name), @)
 
+    @extend: (child) =>
+
+      child[key] = this[key] for key of this when _.has(this, key)
+      
+      childOrigPrototype = child.prototype
+      
+      Surrogate = () -> 
+        
+      
+      Surrogate.prototype = this.prototype
+      child.prototype = new Surrogate
+      child.prototype.constructor = child
+    
+      child.prototype[key] = childOrigPrototype[key] for key of childOrigPrototype when _.has(childOrigPrototype, key)
+        
+    
+      child.__super__ = @prototype;
+      
+      return child
+
     _getSaveHttpMethod: ->
       if @isNew() then "POST" else "PUT"
 
@@ -110,3 +130,29 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
   
   return Model
+  
+  ###
+    function(child, parent)
+    {
+      for (var key in parent)
+      {
+        if (__hasProp.call(parent, key))
+        {
+          child[key] = parent[key];
+        }
+      }
+      
+      function ctor()
+      {
+        this.constructor = child;
+      }
+      
+      ctor.prototype = parent.prototype;
+      child.prototype = new ctor();
+      child.__super__ = parent.prototype;
+      
+      return child;
+    };
+   ###
+
+  

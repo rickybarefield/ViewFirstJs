@@ -1,6 +1,6 @@
 define ["ViewFirst"], (ViewFirst) ->
 
-  class Postman extends ViewFirst.Model
+  ViewFirst.Model.extend class Postman
   
     constructor: ->
       super()

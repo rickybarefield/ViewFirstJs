@@ -15,11 +15,11 @@ define ->
       funcs = ViewFirstEvents._getOrCreate(eventName, eventsForClass, [])
       funcs.push(func)
     
-    @fire: (eventName) ->
+    @fire: (eventName, other...) ->
     
       eventsForClass = ViewFirstEvents._getOrCreate(@.name, ViewFirstEvents._staticEvents, {})
       funcs = ViewFirstEvents._getOrCreate(eventName, eventsForClass, [])
-      func() for func in funcs
+      func.apply(this, other) for func in funcs
       
     on: (eventName, func) ->
       

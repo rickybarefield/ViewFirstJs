@@ -296,7 +296,12 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           expect(parentNode.get(0).outerHTML).to.eql "<ul><li>White</li><li>Pink</li></ul>"
 
         test 'When I add an element to a collection that is reflected in the bound model', ->
-        
+
+          diningRoom = new Room()
+          diningRoom.set("colour", "Black")
+          
+          expect(parentNode.get(0).outerHTML).to.eql "<ul><li>White</li><li>Pink</li><li>Black</li></ul>"
+                 
         
 
         test 'When I remove an element from a collection that is reflected in the bound html', ->

@@ -1,10 +1,12 @@
 define ["ViewFirst"], (ViewFirst) ->
   
-  class Room extends ViewFirst.Model
+  ViewFirst.Model.extend class Room
 
     constructor: ->
       super()
       @createProperty("colour")
       @createProperty("size")    
 
-    url: "room"  
+    url: "room"
+   
+  return Room
