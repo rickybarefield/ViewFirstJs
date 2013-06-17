@@ -2,10 +2,10 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
   class Collection extends Events
 
-    constructor: (@currentModels, modelType, @instances = []) ->
+    constructor: (modelType, @instances = []) ->
       
-      Events.on.call(modelType, "created", (model) => @_modelAdded(model))
-      @_modelAdded(model, true) for model in currentModels
+      modelType.on("created", (model) => @_modelAdded(model))
+      @_modelAdded(model, true) for model in modelType.instances
 
     getAll: ->
     
@@ -14,24 +14,17 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
     _modelAdded: (model, silent = false) ->
     
       @instances.push(model)
-      @fire("add", model) unless silent
+      @trigger("add", model) unless silent
     
     size: -> @instances.length
     
   class Model extends Events
 
-    @instances = {}
-    
-    @getOrCreateInstances: (modelName) ->
-    
-      @instances[modelName] = [] unless @instances[modelName]
-      @instances[modelName]
-    
     constructor: (@properties = {}) ->
 
-      Model.getOrCreateInstances(@constructor.name).push(@)
       @createProperty("id")
-      Events.fire.call(@constructor, "created", @)
+      @constructor.instances.push @
+      @constructor.trigger("created", @)
       
     createProperty: (name, relationship) ->
       @properties[name] = new Property(name, relationship)
@@ -52,7 +45,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       for element in elements
         current = @getProperty(element)
       return current
-      
       
     set: (name, value) ->
       @properties[name].set(value)
@@ -95,29 +87,36 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       for key, value of json
         @properties[key].setFromJson(value, clean = true)
 
-    @createCollection: () ->
-      new Collection(Model.getOrCreateInstances(@name), @)
+    addInstances = (Child) ->
+      Child.instances = []
 
-    @extend: (child) =>
+    addCreateCollectionFunction = (Child) ->
+      Child.createCollection = ->
+        new Collection(Child)
 
-      child[key] = this[key] for key of this when _.has(this, key)
+    @extend: (Child) ->
+
+      ChildExtended = ->
+        Model.apply(this, arguments)
+        Child.apply(this, arguments)
+
+      Surrogate = ->
+      Surrogate.prototype = @prototype
+
+      ChildExtended.prototype = new Surrogate
+      ChildExtended.prototype.constructor = ChildExtended
+      #ChildExtended.prototype.constructor.name = Child.constructor.name
       
-      childOrigPrototype = child.prototype
+      _.extend(ChildExtended, new Events)
       
-      Surrogate = () -> 
-        
+      addInstances ChildExtended
+      addCreateCollectionFunction ChildExtended
+
+      ChildExtended.prototype[key] = Child.prototype[key] for key of Child.prototype when Child.prototype.hasOwnProperty(key)
       
-      Surrogate.prototype = this.prototype
-      child.prototype = new Surrogate
-      child.prototype.constructor = child
+      return ChildExtended
+      
     
-      child.prototype[key] = childOrigPrototype[key] for key of childOrigPrototype when _.has(childOrigPrototype, key)
-        
-    
-      child.__super__ = @prototype;
-      
-      return child
-
     _getSaveHttpMethod: ->
       if @isNew() then "POST" else "PUT"
 
@@ -130,29 +129,5 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
   
   return Model
-  
-  ###
-    function(child, parent)
-    {
-      for (var key in parent)
-      {
-        if (__hasProp.call(parent, key))
-        {
-          child[key] = parent[key];
-        }
-      }
-      
-      function ctor()
-      {
-        this.constructor = child;
-      }
-      
-      ctor.prototype = parent.prototype;
-      child.prototype = new ctor();
-      child.__super__ = parent.prototype;
-      
-      return child;
-    };
-   ###
 
   

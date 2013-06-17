@@ -69,7 +69,8 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
   suite 'ViewFirst Tests', ->
     
     setup ->
-      ViewFirstModel.instances = {}
+      House.instances = []
+      Room.instances = []
       createHouse() 
       viewFirst = new ViewFirst()
 

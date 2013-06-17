@@ -1,35 +1,24 @@
 define ->
 
   class ViewFirstEvents
-  
-    @_staticEvents: {}
 
-    @_getOrCreate: (eventName, from, dflt) ->
-    
+    constructor: () ->
+      this.events = []
+
+    getOrCreate = (eventName, from, dflt) ->
+  
       from[eventName] = dflt unless from[eventName]?
       return from[eventName]
-    
-    @on: (eventName, func) ->
-    
-      eventsForClass = ViewFirstEvents._getOrCreate(@.name, ViewFirstEvents._staticEvents, {})
-      funcs = ViewFirstEvents._getOrCreate(eventName, eventsForClass, [])
-      funcs.push(func)
-    
-    @fire: (eventName, other...) ->
-    
-      eventsForClass = ViewFirstEvents._getOrCreate(@.name, ViewFirstEvents._staticEvents, {})
-      funcs = ViewFirstEvents._getOrCreate(eventName, eventsForClass, [])
-      func.apply(this, other) for func in funcs
-      
+  
     on: (eventName, func) ->
-      
+  
       @_events = [] unless @_events?
-      funcs = ViewFirstEvents._getOrCreate(eventName, @_events, [])
+      funcs = getOrCreate(eventName, @_events, [])
       funcs.push(func)
       
-    fire: (eventName, other...) ->
+    trigger: (eventName, other...) ->
     
       @_events = [] unless @_events?
-      funcs = ViewFirstEvents._getOrCreate(eventName, @_events, [])
-      func.apply(this, other) for func in funcs    
-    
+      funcs = getOrCreate(eventName, @_events, [])
+      func.apply(this, other) for func in funcs
+       

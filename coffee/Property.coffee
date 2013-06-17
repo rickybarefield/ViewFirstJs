@@ -19,7 +19,7 @@ define ["underscore", "ViewFirstEvents"], (_, Events) ->
       oldValue = @value
       @isDirty = true
       @value = value
-      @fire("change", oldValue, @value)
+      @trigger("change", oldValue, @value)
       
     isSet: -> @value?
 
