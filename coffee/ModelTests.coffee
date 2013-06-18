@@ -192,6 +192,11 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           expect(aHouseCollection.size()).to.equal 1
           anotherHouse = new House()
           expect(aHouseCollection.size()).to.equal 2
+
+        test 'A filtered collection will only contain matching models', ->
+        
+          #TODO Filtered collections
+          expect(1).to.equal 2
     
     suite 'Binding Tests', ->
     
@@ -303,10 +308,9 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           
           expect(parentNode.get(0).outerHTML).to.eql "<ul><li>White</li><li>Pink</li><li>Black</li></ul>"
                  
-        
-
         test 'When I remove an element from a collection that is reflected in the bound html', ->
-        
-        
+
+           #TODO
+           expect(1).to.equal 2        
     
     mocha.run()  

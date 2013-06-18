@@ -23,8 +23,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
     constructor: (@properties = {}) ->
 
       @createProperty("id")
-      @constructor.instances.push @
-      @constructor.trigger("created", @)
       
     createProperty: (name, relationship) ->
       @properties[name] = new Property(name, relationship)
@@ -99,6 +97,9 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       ChildExtended = ->
         Model.apply(this, arguments)
         Child.apply(this, arguments)
+        @constructor.instances.push @
+        @constructor.trigger("created", @)
+        return this
 
       Surrogate = ->
       Surrogate.prototype = @prototype
