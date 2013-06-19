@@ -6,6 +6,7 @@ define ["underscore", "ViewFirstEvents"], (_, Events) ->
     isDirty: true
     
     constructor: (@name, relationship, @type) ->
+      super
       if relationship?
         _.extend(@, new relationship())
 

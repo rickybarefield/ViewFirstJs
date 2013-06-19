@@ -1,24 +1,31 @@
 define ->
 
   class ViewFirstEvents
-
-    constructor: () ->
-      this.events = []
-
-    getOrCreate = (eventName, from, dflt) ->
   
-      from[eventName] = dflt unless from[eventName]?
-      return from[eventName]
+    lastIdUsed: 0
+
+    constructor: ->  
+      @events = {}
+
+    getNextId = ->
+    
+      @lastIdUsed = @lastIdUsed + 1
+  
+    getFuncsObjectForEvent = (eventName) ->
+    
+      @events[eventName] = {} unless @events[eventName]?
+      @events[eventName]
   
     on: (eventName, func) ->
   
-      @_events = [] unless @_events?
-      funcs = getOrCreate(eventName, @_events, [])
-      funcs.push(func)
+      id = getNextId.call(this)
+      funcs = getFuncsObjectForEvent.call(this, eventName)
+      funcs[id] = func
+      return {off: -> delete funcs[id]}
+      
       
     trigger: (eventName, other...) ->
     
-      @_events = [] unless @_events?
-      funcs = getOrCreate(eventName, @_events, [])
-      func.apply(this, other) for func in funcs
+      funcs = getFuncsObjectForEvent.call(this, eventName)
+      func.apply(this, other) for key, func of funcs
        

@@ -64,18 +64,21 @@ define ["underscore"], (_) ->
 
     bindCollection: (collection, parentNode, modelToNodeFunction) ->
     
+      boundNodes = {}
+    
       addChild = (model) =>
       
         node = modelToNodeFunction(model)
         @bindTextNodes(node, model)
         @bindInputs(node, model)
         parentNode.append(node)
-        model.on "removed", (removedFrom) ->
-          node.detach() if removedFrom == collection
+        boundNodes[model.clientId] = node
     
       addChild(model) for model in collection.getAll()
       
       collection.on "add", addChild
+      collection.on "remove", (model) ->
+        boundNodes[model.clientId].detach()
   
     @doForNodeAndChildren: (node, func, filter = -> true) ->
   

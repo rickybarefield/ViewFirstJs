@@ -2,30 +2,64 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
   class Collection extends Events
 
-    constructor: (modelType, @instances = []) ->
+    constructor: (modelType, @filter = -> true) ->
       
-      modelType.on("created", (model) => @_modelAdded(model))
-      @_modelAdded(model, true) for model in modelType.instances
+      super
+      @instances = {}
+      @changeTriggers = {}
+      modelType.on("created", (model) => modelAdded.call(this, model))
+      modelAdded.call(this, model, true) for model in modelType.instances
 
     getAll: ->
     
-      @instances.slice(0)
+      value for key, value of @instances
 
-    _modelAdded: (model, silent = false) ->
+    removeCurrentChangeTrigger = (model) ->
+
+      currentChangeTrigger = @changeTriggers[model.clientId]
+      currentChangeTrigger.off() if currentChangeTrigger?
     
-      @instances.push(model)
-      @trigger("add", model) unless silent
+
+    modelAdded = (model, silent = false) ->
     
-    size: -> @instances.length
+      if(@filter(model))
+        @instances[model.clientId] = model
+        removeCurrentChangeTrigger.call(this, model)
+        @changeTriggers[model.clientId] = model.on("change", => checkModelStillMatches.call(this, model))
+        @trigger("add", model) unless silent
+      else
+        @changeTriggers[model.clientId] = model.on("change", => modelAdded.call(this, model)) unless @changeTriggers[model.clientId]?
+
+    checkModelStillMatches = (model) ->
+      
+      if(!@filter(model))
+      
+        delete @instances[model.clientId]
+        removeCurrentChangeTrigger.call(this, model)
+        @changeTriggers[model.clientId] = model.on("change", => @modelAdded.call(this, model))
+        @trigger("remove", model)
+
+    size: -> Object.keys(@instances).length
     
   class Model extends Events
 
     constructor: (@properties = {}) ->
 
+      super
+      @clientId = createClientId()
       @createProperty("id")
+
+    lastClientIdUsed = 0
+
+    createClientId = ->
+    
+      lastClientIdUsed = lastClientIdUsed + 1
+
       
     createProperty: (name, relationship) ->
-      @properties[name] = new Property(name, relationship)
+      property = new Property(name, relationship)
+      property.on("change", => @trigger("change"))
+      @properties[name] = property
 
     isNew: ->
       !@properties["id"].isSet()
@@ -89,8 +123,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       Child.instances = []
 
     addCreateCollectionFunction = (Child) ->
-      Child.createCollection = ->
-        new Collection(Child)
+      Child.createCollection = (filter) ->
+        new Collection(Child, filter)
 
     @extend: (Child) ->
 

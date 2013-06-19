@@ -195,8 +195,20 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
         test 'A filtered collection will only contain matching models', ->
         
-          #TODO Filtered collections
-          expect(1).to.equal 2
+          isEvenDoorNumber = (aHouse) ->
+            doorNumber = aHouse.get("doorNumber")
+            return doorNumber? && doorNumber % 2 == 0
+        
+          housesWithEvenDoorNumbers = House.createCollection(isEvenDoorNumber)
+          
+          expect(housesWithEvenDoorNumbers.size()).to.equal 0
+          anotherHouse = new House()
+          expect(housesWithEvenDoorNumbers.size()).to.equal 0
+          anotherHouse.set("doorNumber", 2)
+          expect(housesWithEvenDoorNumbers.size()).to.equal 1
+          aHouse.set("doorNumber", 4)
+          expect(housesWithEvenDoorNumbers.size()).to.equal 2
+
     
     suite 'Binding Tests', ->
     
@@ -290,6 +302,7 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
       suite 'Collection Binding', ->
 
         parentNode = {}
+        nodeConstructionFunction = {}
         
         setup ->
         
@@ -310,7 +323,12 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
                  
         test 'When I remove an element from a collection that is reflected in the bound html', ->
 
-           #TODO
-           expect(1).to.equal 2        
+           pinkParentNode = $("<ul></ul>")
+           pinkRoomCollection = Room.createCollection((model) -> model.get("colour") == "Pink")
+           viewFirst.bindCollection(pinkRoomCollection, pinkParentNode, nodeConstructionFunction)
+           expect(pinkParentNode.get(0).outerHTML).to.eql "<ul><li>Pink</li></ul>"
+           
+           bedroom.set("colour", "Blue")
+           expect(pinkParentNode.get(0).outerHTML).to.eql "<ul></ul>"
     
     mocha.run()  
