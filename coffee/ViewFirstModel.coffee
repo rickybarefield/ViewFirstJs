@@ -140,7 +140,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
       ChildExtended.prototype = new Surrogate
       ChildExtended.prototype.constructor = ChildExtended
-      #ChildExtended.prototype.constructor.name = Child.constructor.name
       
       _.extend(ChildExtended, new Events)
       
