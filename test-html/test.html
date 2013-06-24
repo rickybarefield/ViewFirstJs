@@ -25,7 +25,13 @@
 	    }
 		});  
 	  
-	  require(["../dist/lib/ModelTests.js"]);
+	  require(["../dist/lib/ViewFirstTests.js"]);
   </script>
+  <h4>Test Area</h4>
+  <hr />
+  <div id="testDiv"></div>
+  <script type="text/view-first-template" name="basicView">Here I am</script>
+  <script type="text/view-first-template" name="anotherBasicView">Here I am again!</script>
+  <script type="text/view-first-template" name="viewWithSnippet"><div id="divWithASnippet" data-snippet="aSnippet"></div></script>
 </body>
 </html>

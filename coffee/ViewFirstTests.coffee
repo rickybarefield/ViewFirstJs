@@ -75,8 +75,7 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
       viewFirst = new ViewFirst()
 
     suite 'ViewFirst Model Tests', ->
-  
-  
+
       suite 'JSON creation', ->
   
         test 'The JSON from a model with only basic properties', ->
@@ -330,5 +329,98 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
            
            bedroom.set("colour", "Blue")
            expect(pinkParentNode.get(0).outerHTML).to.eql "<ul></ul>"
-    
+
+    suite 'Named Model Tests', ->
+
+      hasBeenNotified = false
+      oldModel = undefined
+      newModel = undefined
+      testNotify = (givenOldModel, givenNewModel) ->
+        hasBeenNotified = true
+        oldModel = givenOldModel
+        newModel = givenNewModel
+
+      setup ->
+
+        hasBeenNotified = false
+        oldModel = undefined
+        newModel = undefined
+
+
+      test 'When a named model is changed listeners are notified when I register them first', ->
+
+        viewFirst.onNamedModelChange "someName", testNotify
+        expect(hasBeenNotified).to.equal false
+
+        viewFirst.setNamedModel("someName", bedroom)
+        expect(hasBeenNotified).to.equal true
+        expect(oldModel).to.equal undefined
+        expect(newModel).to.equal bedroom
+
+        viewFirst.setNamedModel("someName", kitchen)
+        expect(oldModel).to.equal bedroom
+        expect(newModel).to.equal kitchen
+
+      test 'When a named model is changed listeners are notified even if registered after the named model was initially created', ->
+
+        viewFirst.setNamedModel("someName", bedroom)
+        viewFirst.onNamedModelChange "someName", testNotify
+        viewFirst.setNamedModel("someName", kitchen)
+        expect(oldModel).to.equal bedroom
+        expect(newModel).to.equal kitchen
+
+    suite 'Rendering views and snippets', ->
+
+      setup ->
+
+        viewFirst._target = "#testDiv"
+        $('#testDiv').html("")
+        viewFirst.initialize()
+
+      suite 'Rendering views', ->
+
+        test 'Views are found', ->
+
+          expect(viewFirst.views.basicView).to.eql "Here I am"
+
+        test 'Views which are not found throw an exception', ->
+
+          try
+            viewFirst.render("AViewWhichDoesNotExist")
+            throw "No exception was thrown"
+          catch error
+            expect(error).to.equal "Unable to find view: AViewWhichDoesNotExist"
+
+        test 'A basic view can be rendered into the _targetDiv', ->
+
+          viewFirst.render("basicView")
+          expect($('#testDiv').html()).to.eql "Here I am"
+
+        test 'Views can be changed', ->
+
+          viewFirst.render("basicView")
+          viewFirst.render("anotherBasicView")
+          expect($('#testDiv').html()).to.eql "Here I am again!"
+
+      suite 'The application of snippets', ->
+
+        test 'A simple snippet is invoked', ->
+
+          viewFirst.addSnippet "aSnippet", (node) ->
+            node.html("A Snippet was invoked")
+            return node
+
+          viewFirst.render("viewWithSnippet")
+
+          expect($('#divWithASnippet').html()).to.eql "A Snippet was invoked"
+
+        test 'A node will be replaced if a snippet returns a different node', ->
+
+          viewFirst.addSnippet "aSnippet", (node) -> return $("<h4>An H4 Node</h4>")
+          viewFirst.render("viewWithSnippet")
+          expect($('#testDiv').html()).to.eql "<h4>An H4 Node</h4>"
+
+
+    suite 'Built in snippets', ->
+
     mocha.run()  

@@ -1,5 +1,6 @@
-define ["backbone"], (Backbone) ->
-  class ViewFirstRouter extends Backbone.Router
+define ->
+
+  class ViewFirstRouter
   
     constructor: (@viewFirst) ->
   

@@ -1,6 +1,8 @@
-define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "OneToMany", "ManyToOne"], (ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, OneToMany, ManyToOne) ->
+define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne"], (ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne) ->
   
   class ViewFirst extends BindHelpers
+
+    _target = "body"
 
     @Model = ViewFirstModel
     @OneToMany = OneToMany
@@ -20,17 +22,18 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
         node = $(el)
         console.log "Loading script with id=#{node.attr 'name' }"
         viewName = node.attr("name")
-        @views[viewName] node.html()
-        @router.addRoute viewName, viewName == @indexView
+        @views[viewName] = node.html()
+        #TODO @router.addRoute viewName, viewName == @indexView
 
-      Backbone.history.start()
+      #TODO Backbone.history.start()
 
-    renderView: (viewId) ->
+    render: (viewId) ->
 
       @currentView = viewId
       viewElement = @views[viewId]
+      throw "Unable to find view: #{viewId}" unless viewElement?
       inflated = @inflate(viewElement)
-      $('body').html inflated
+      $(@_target).html inflated
 
     navigate: (viewId) ->
       Backbone.history.navigate viewId, true
@@ -38,13 +41,13 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
     addSnippet: (name, func) ->
       @snippets[name] = func
 
-    setNamedModel: (name, model) ->
+    setNamedModel: (name, model, dontSerialize = false) ->
 
       @namedModels[name] = new ModelContainer() unless @namedModels[name]?
       modelContainer = @namedModels[name]
       modelContainer.set(model)
 
-      @router.updateState() unless dontSerialize
+      #TODO @router.updateState() unless dontSerialize
 
     onNamedModelChange: (name, func) ->
 
