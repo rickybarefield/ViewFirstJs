@@ -426,6 +426,26 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           viewFirst.render("viewWithSnippet")
           expect($('#testDiv').html()).to.eql ""
 
+        test 'Snippets are invoked from the outside in', ->
+
+          expect("Unimplemented").to.equal "Implemented"
+
+        test 'Snippets can return nodes which themselves invoke snippets', ->
+
+          expect("Unimplemented").to.equal "Implemented"
+
+        test 'Data attributes are passed', ->
+
+          expect("Unimplemented").to.equal "Implemented"
+
+        test 'Data attributes are passed from higher in the DOM', ->
+
+          expect("Unimplemented").to.equal "Implemented"
+
     suite 'Built in snippets', ->
+
+      test 'The built in snippets work', ->
+
+        expect("Unimplemented").to.equal "Implemented"
 
     mocha.run()  
