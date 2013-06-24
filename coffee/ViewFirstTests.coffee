@@ -420,6 +420,11 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           viewFirst.render("viewWithSnippet")
           expect($('#testDiv').html()).to.eql "<h4>An H4 Node</h4>"
 
+        test 'A node should be removed if a snippet returns null', ->
+
+          viewFirst.addSnippet "aSnippet", (node) -> return null
+          viewFirst.render("viewWithSnippet")
+          expect($('#testDiv').html()).to.eql ""
 
     suite 'Built in snippets', ->
 

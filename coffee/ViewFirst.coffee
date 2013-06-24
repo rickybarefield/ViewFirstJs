@@ -20,7 +20,6 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
 
       $('script[type="text/view-first-template"]').each (id, el) =>
         node = $(el)
-        console.log "Loading script with id=#{node.attr 'name' }"
         viewName = node.attr("name")
         @views[viewName] = node.html()
         #TODO @router.addRoute viewName, viewName == @indexView
@@ -73,7 +72,6 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
       snippetName = node.attr('data-snippet')
 
       if snippetName?
-        console.log "snippet usage found for #{snippetName}"
         snippetFunc = @snippets[snippetName]
         throw "Unable to find snippet '#{snippetName}'" unless snippetFunc?
 
