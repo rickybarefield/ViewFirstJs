@@ -443,7 +443,20 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
         test 'Snippets can return nodes which themselves invoke snippets', ->
 
-          expect("Unimplemented").to.equal "Implemented"
+          x = 11
+
+          countDown = (node) ->
+            x--
+            if(x == 0)
+              $(document.createTextNode(x))
+            else
+              nodes = $(document.createTextNode(x))
+              nodes.add($('<div data-snippet="aSnippet"></div>'))
+
+
+          viewFirst.addSnippet "aSnippet", countDown
+          viewFirst.render("viewWithSnippet")
+          expect($('#testDiv').html()).to.eql "109876543210"
 
         test 'Data attributes are passed', ->
 
