@@ -428,7 +428,18 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
         test 'Snippets are invoked from the outside in', ->
 
-          expect("Unimplemented").to.equal "Implemented"
+          x = 0
+
+          increaseXAndAddToNode = (node) ->
+            x++
+            node.attr("someAttr", x)
+            return node
+
+          viewFirst.addSnippet("aSnippet", increaseXAndAddToNode)
+          viewFirst.render("nestedSnippetsView")
+
+          expect($('#testDiv #outerDiv').attr("someAttr")).to.eql "1"
+          expect($('#testDiv #innerDiv').attr("someAttr")).to.eql "2"
 
         test 'Snippets can return nodes which themselves invoke snippets', ->
 
