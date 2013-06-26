@@ -34,14 +34,14 @@ define [], () ->
 
       return surroundingContent
 
-    embedSnippet: (html, argumentMap) ->
+    embed: (html, argumentMap) ->
 
-      templateName = argumentMap['template']
-      embeddedView = @findView(templateName)
+      templateName = argumentMap['view']
+      embeddedView = @views[templateName]
 
       unless embeddedView?
         throw "Unable to find template to embed '#{templateName}'"
 
-      return $(embeddedView.getElement()).clone()
+      return $("<div>#{embeddedView}</div>").contents()
 
   return TemplatingSnippets
