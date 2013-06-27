@@ -1,8 +1,7 @@
 ({
-	appDir: "../",
-	baseUrl: "lib",
-	dir: "../dist",
-	mainConfigFile: "../main.js",
+	baseUrl: "../dist/js",
+	mainConfigFile: "main.js",
 	name: "ViewFirst",
-	optimize: "none"
+	optimize: "none",
+	out: "../dist/ViewFirst-0.1.js"
 })

@@ -1,5 +1,5 @@
 require.config({
-  baseUrl: 'lib',
+  baseUrl: 'js',
   shim: {
     underscore: {
       exports: '_'
