@@ -2,7 +2,7 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
   
   class ViewFirst extends BindHelpers
 
-    _target = "body"
+    _target: "body"
 
     @Model = ViewFirstModel
     @OneToMany = OneToMany
