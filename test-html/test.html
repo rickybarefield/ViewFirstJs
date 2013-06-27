@@ -36,7 +36,8 @@
   <script type="text/view-first-template" name="nestedSnippetsView"><div id="outerDiv" data-snippet="aSnippet"><div id="innerDiv" data-snippet="aSnippet"></div></div></div></script>
   <script type="text/view-first-template" name="differentSnippetsView"><div id="outerDiv" data-outer="outer" data-snippet="outerSnippet"><div id="innerDiv" data-snippet="innerSnippet"></div></div></div></script>
   <script type="text/view-first-template" name="embedOfBasicView">Before[<div data-snippet="embed" data-view="basicView"></div>]After</script>
-
+  <script type="text/view-first-template" name="templateView">TemplateStart[<div id="bind-point" data-bind-name="bind-point"></div>]TemplateEnd</script>
+  <script type="text/view-first-template" name="surroundedView"><div data-snippet="surround" data-with="templateView" data-at="bind-point">Surrounded Views Content</div></script>
 
 </body>
 </html>

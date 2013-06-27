@@ -493,9 +493,12 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
             viewFirst.render("embedOfBasicView")
             expect($('#testDiv').html()).to.eql "Before[Here I am]After"
 
-
         suite 'Surround Snippet', ->
 
+          test 'A view can be surrounded', ->
+
+            viewFirst.render("surroundedView")
+            expect($('#testDiv').html()).to.eql "TemplateStart[Surrounded Views Content]TemplateEnd"
 
 
 

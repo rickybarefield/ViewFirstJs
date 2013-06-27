@@ -20,19 +20,19 @@ define [], () ->
 
       surroundingName = argumentMap['with']
       at = argumentMap['at']
-      surroundingView = @findView(surroundingName)
+      surroundingView = @views[surroundingName]
 
       unless surroundingView?
-        throw "Unable to find surrounding template '#{surroundingName}'"
+        throw "Unable to find surrounding view '#{surroundingName}'"
 
-      surroundingContent = $(surroundingView.getElement())
+      surroundingContent = $("<div>#{surroundingView}</div>")
 
       if at?
-        @bind(surroundingContent, nodes, at)
+        bind(surroundingContent, nodes, at)
       else
-        @bindParts(surroundingContent, nodes)
+        bindParts(surroundingContent, nodes)
 
-      return surroundingContent
+      return surroundingContent.contents()
 
     embed: (html, argumentMap) ->
 
