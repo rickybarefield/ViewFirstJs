@@ -1,5 +1,0 @@
-Define: <ANYTHING>click the "<buttonText>" button
-        ClickButton <buttonText>
-        
-Define: Then press enter
-        SendKey Key.RETURN
