@@ -69,13 +69,13 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
     applySnippetsToSingleNodeAndChildren: (node, parentsAttributes) =>
 
       parentsAndNodesAttributes = @combine(parentsAttributes, node.data())
-      snippetName = node.attr('data-snippet')
+      snippetName = node.data('snippet')
 
       if snippetName?
         snippetFunc = @snippets[snippetName]
         throw "Unable to find snippet '#{snippetName}'" unless snippetFunc?
 
-        node.removeAttr("data-snippet") # Otherwise this will be recursively invoked
+        node.data("snippet", null) # Otherwise this will be recursively invoked
 
         nodeAfterSnippetApplied = snippetFunc.call(this, node, parentsAndNodesAttributes)
 
