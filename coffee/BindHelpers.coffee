@@ -29,8 +29,10 @@ define ["underscore"], (_) ->
         
         for match in originalText.match /#\{[^\}]*\}/g
           key = removeSurround(match)
-          keys.push key
-          properties.push model.findProperty(key)
+          property = model.findProperty(key)
+          if property?
+            keys.push key
+            properties.push model.findProperty(key)
         
         replaceOperation = -> replaceKeysInText(node, originalText, keys, properties)
         property.on("change", replaceOperation) for property in properties

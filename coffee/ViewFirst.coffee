@@ -48,6 +48,11 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
 
       #TODO @router.updateState() unless dontSerialize
 
+    getNamedModel: (name) ->
+
+      modelContainer = @namedModels[name]
+      return if modelContainer? then modelContainer.model else null
+
     onNamedModelChange: (name, func) ->
 
       @namedModels[name] = new ModelContainer() unless @namedModels[name]?
