@@ -70,11 +70,38 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
     setup ->
       House.instances = []
+      House.instancesById = {}
       Room.instances = []
+      Room.instancesById = {}
+      Postman.instances = []
+      Postman.instancesById = {}
       createHouse()
       viewFirst = new ViewFirst()
 
     suite 'ViewFirst Model Tests', ->
+
+      suite 'Loading models', ->
+
+        test 'A model with only simple properties can be loaded', ->
+
+          bathroomJson = {colour: "blue", size: 6, id: 74}
+          bathroom = Room.load(bathroomJson)
+
+          expect(bathroom.get("colour")).to.equal "blue"
+          expect(bathroom.get("size")).to.equal 6
+          expect(bathroom.get("id")).to.equal 74
+
+        test 'When a model is loaded which already exists, the existing model should be updated and returned', ->
+
+          bathroomJson = {colour: "blue", size: 6, id: 74}
+          bathroom = Room.load(bathroomJson)
+
+          bathroomChangedJson = {colour: "grey", size: 6, id: 74}
+          bathroomChanged = Room.load(bathroomChangedJson)
+
+          expect(bathroomChanged).to.equal bathroom
+
+          expect(bathroom.get("colour")).to.equal "grey"
 
       suite 'JSON creation', ->
 

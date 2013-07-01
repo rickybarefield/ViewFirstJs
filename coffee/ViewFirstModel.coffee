@@ -18,7 +18,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
       currentChangeTrigger = @changeTriggers[model.clientId]
       currentChangeTrigger.off() if currentChangeTrigger?
-    
 
     modelAdded = (model, silent = false) ->
     
@@ -43,11 +42,17 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
     
   class Model extends Events
 
-    constructor: (@properties = {}) ->
+    constructor: () ->
 
       super
+      @properties = {}
       @clientId = createClientId()
-      @createProperty("id")
+      idProperty = @createProperty("id")
+      idProperty.on "change", (oldValue, newValue) =>
+                                      if oldValue? then throw "Cannot set id as it has already been set"
+                                      if @constructor.instancesById[newValue]? then throw "Cannot set the id to #{newValue} as another object has that id"
+                                      @constructor.instancesById[newValue] = this
+
 
     lastClientIdUsed = 0
 
@@ -60,6 +65,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       property = new Property(name, relationship)
       property.on("change", => @trigger("change"))
       @properties[name] = property
+      return property
 
     isNew: ->
       !@properties["id"].isSet()
@@ -79,6 +85,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       return current
       
     set: (name, value) ->
+
       @properties[name].set(value)
 
     add: (name, value) ->
@@ -121,6 +128,14 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
 
     addInstances = (Child) ->
       Child.instances = []
+      Child.instancesById = {}
+
+    addLoadMethod = (Child) ->
+      Child.load = (json) ->
+        id = json.id
+        childObject = if Child.instancesById[id]? then Child.instancesById[id] else new Child
+        childObject.update(json)
+        return childObject
 
     addCreateCollectionFunction = (Child) ->
       Child.createCollection = (filter) ->
@@ -144,6 +159,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       _.extend(ChildExtended, new Events)
       
       addInstances ChildExtended
+      addLoadMethod ChildExtended
       addCreateCollectionFunction ChildExtended
 
       ChildExtended.prototype[key] = Child.prototype[key] for key of Child.prototype when Child.prototype.hasOwnProperty(key)
@@ -155,7 +171,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       if @isNew() then "POST" else "PUT"
 
     _getSaveUrl: ->
-      @url + "s" + if !@isNew() then "/" + @get("id") else ""
+      @url + if !@isNew() then "/" + @get("id") else ""
       
     _assertUrl: ->
       throw("url must be defined for model") unless @url?
