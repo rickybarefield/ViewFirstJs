@@ -3,6 +3,8 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
   mocha.setup('tdd')
 
+  viewFirst = new ViewFirst()
+
   assert = new expect.Assertion
 
   aHouse = {}
@@ -13,7 +15,6 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
   expectedBedroomJson = {}
   expectedPostmanJson = {}
   expectedHouseJson = {}
-  viewFirst = {}
 
   createHouse = ->
 
@@ -23,6 +24,7 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
     fred = new Postman()
     fred.set "name", "Fred"
     fred.set "id", 99
+    fred.set "dob", new Date(2013, 1, 1)
     bedroom.set "colour", "Pink"
     bedroom.set "size", 4
     kitchen.set "colour", "White"
@@ -76,7 +78,6 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
       Postman.instances = []
       Postman.instancesById = {}
       createHouse()
-      viewFirst = new ViewFirst()
 
     suite 'ViewFirst Model Tests', ->
 
@@ -282,6 +283,14 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
           expect(complexHtml.get(0).outerHTML + complexHtml.get(1).outerHTML).to.eql "<span>Pink</span><table><tbody><tr class=\"Pink\"><td>4</td></tr></tbody></table>"
 
+        test 'toString methods should be used when present on the model', ->
+
+          geoff = new Postman()
+          geoff.set("dob", new Date(1980, 5, 2).getTime())
+          postmanHtml = $("<span>\#{dob}</span>")
+          viewFirst.bindTextNodes(postmanHtml, geoff)
+          expect(postmanHtml.get(0).outerHTML).to.eql "<span>2/6/1980</span>"
+
       suite 'Input Binding', ->
 
         test 'An input should be bound when it has a data-property attribute', ->
@@ -304,6 +313,23 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
           inputHtml.trigger(e)
 
           expect(bedroom.get("colour")).to.eql "Brown"
+
+        test 'Non string fields should be bound as their type', ->
+
+          inputHtml = $("<input type=\"text\" data-property=\"size\" />")
+
+          viewFirst.bindInputs(inputHtml, bedroom)
+
+          expect(bedroom.get("size")).to.equal 4
+
+          expect(inputHtml.val()).to.eql "4"
+          inputHtml.val("7")
+          e = $.Event("keypress")
+          e.keyCode = 13
+          inputHtml.trigger(e)
+
+          expect(bedroom.get("size")).to.equal 7
+
 
         test 'Multiple child inputs should be bound', ->
 

@@ -5,6 +5,6 @@ define ["ViewFirst"], (ViewFirst) ->
     url: "rooms"
 
     constructor: ->
-      @createProperty("colour")
-      @createProperty("size")    
+      @createProperty("colour", String)
+      @createProperty("size", Number)
 

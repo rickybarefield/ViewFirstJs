@@ -1,4 +1,4 @@
-define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne"], (ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne) ->
+define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne", "ViewFirstConverters"], (ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne, ViewFirstConverters) ->
   
   class ViewFirst extends BindHelpers
 
@@ -7,22 +7,25 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
     @Model = ViewFirstModel
     @OneToMany = OneToMany
     @ManyToOne = ManyToOne
+
+    dateFormat: "dd/MM/yyyy"
     
-    constructor: (@indexView) ->
+    constructor: () ->
 
       @views = {}
       @namedModels = {}
       @router = new ViewFirstRouter(this)
       @snippets = {}
       @addSnippet(key, value) for key, value of TemplatingSnippets
-
-    initialize: ->
-
+      ViewFirstConverters(@)
       $('script[type="text/view-first-template"]').each (id, el) =>
         node = $(el)
         viewName = node.attr("name")
         @views[viewName] = node.html()
         #TODO @router.addRoute viewName, viewName == @indexView
+
+    initialize: ->
+
 
       #TODO Backbone.history.start()
 

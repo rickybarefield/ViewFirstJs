@@ -47,7 +47,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       super
       @properties = {}
       @clientId = createClientId()
-      idProperty = @createProperty("id")
+      idProperty = @createProperty("id", Number)
       idProperty.on "change", (oldValue, newValue) =>
                                       if oldValue? then throw "Cannot set id as it has already been set"
                                       if @constructor.instancesById[newValue]? then throw "Cannot set the id to #{newValue} as another object has that id"
@@ -61,8 +61,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       lastClientIdUsed = lastClientIdUsed + 1
 
       
-    createProperty: (name, relationship) ->
-      property = new Property(name, relationship)
+    createProperty: (name, type, relationship) ->
+      property = new Property(name, type, relationship)
       property.on("change", => @trigger("change"))
       @properties[name] = property
       return property

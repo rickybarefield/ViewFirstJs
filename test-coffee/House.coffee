@@ -1,11 +1,11 @@
-define ["ViewFirst", "Room", "Postman"], (ViewFirst) ->
+define ["ViewFirst", "Room", "Postman"], (ViewFirst, Room, Postman) ->
 
    House = ViewFirst.Model.extend class House
   
      url: "houses"
   
      constructor: (attributes) ->
-       @createProperty("doorNumber")
-       @createProperty("rooms", ViewFirst.OneToMany)
-       @createProperty("postman", ViewFirst.ManyToOne)
+       @createProperty("doorNumber", Number)
+       @createProperty("rooms", Room, ViewFirst.OneToMany)
+       @createProperty("postman", Postman, ViewFirst.ManyToOne)
       
