@@ -13,12 +13,18 @@ define ["underscore", "ViewFirstEvents"], (_, Events) ->
     get: ->
       @value
 
+    toString: ->
+
+      return null unless @value?
+      return @value._viewFirstToString() if @value._viewFirstToString?
+      throw "Unable to convert #{@value} to string"
+
     getProperty: ->
       throw "Cannot get a property for this type of relationship"
 
     convert = (value) ->
 
-      if value.constructor == @type
+      if !value? || value.constructor == @type
         value
       else
         converter = @type._viewFirstConvert

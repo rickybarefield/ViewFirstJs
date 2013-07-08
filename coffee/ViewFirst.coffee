@@ -8,7 +8,7 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
     @OneToMany = OneToMany
     @ManyToOne = ManyToOne
 
-    dateFormat: "dd/MM/yyyy"
+    dateFormat: "DD/MM/YYYY"
     
     constructor: () ->
 

@@ -16,7 +16,7 @@ define ["underscore"], (_) ->
           pairs = _.zip(keys, properties)
           text = originalText
           for [key, property] in pairs
-            text = text.replace new RegExp("#\{#{key}\}", 'g'), property.get()
+            text = text.replace new RegExp("#\{#{key}\}", 'g'), property.toString()
           node.get(0).nodeValue = text
           
         originalText = node.get(0).nodeValue
@@ -52,7 +52,7 @@ define ["underscore"], (_) ->
         
         #TODO What should happen if the property changes? property.on("change")
         
-        node.val(property.get())
+        node.val(property.toString())
         node.off("keypress.viewFirst")
         node.off("blur.viewFirst")
 

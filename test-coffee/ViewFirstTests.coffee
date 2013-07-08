@@ -1,9 +1,9 @@
-define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore", "jquery"],
- (ViewFirstModel, ViewFirst, House, Postman, Room, expect, mocha, JQueryTestHarness, _, $) ->
+define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore", "jquery"],
+ (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, JQueryTestHarness, _, $) ->
 
   mocha.setup('tdd')
 
-  viewFirst = new ViewFirst()
+  viewFirst = null
 
   assert = new expect.Assertion
 
@@ -71,6 +71,7 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
   suite 'ViewFirst Tests', ->
 
     setup ->
+      viewFirst = new ViewFirst()
       House.instances = []
       House.instancesById = {}
       Room.instances = []
@@ -80,6 +81,113 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
       createHouse()
 
     suite 'ViewFirst Model Tests', ->
+
+      suite 'Setting properties', ->
+
+        suite 'Setting date properties', ->
+
+          dateProp = null
+
+          setup ->
+
+            dateProp = new Property "someName", Date
+
+          test 'Setting null', ->
+
+            dateProp.set(null)
+            expect(dateProp.get()).to.equal null
+
+          test 'Setting from a date', ->
+
+            date = new Date(1985, 4, 8)
+            dateProp.set(date)
+            expect(dateProp.get()).to.equal date
+
+          test 'Setting from number', ->
+
+            fifthOfMarch2013 = new Date(2013, 2, 5).getTime()
+            dateProp.set(fifthOfMarch2013)
+            retrieved = dateProp.get()
+            expect(retrieved.getTime()).to.equal fifthOfMarch2013
+
+          test 'Setting from a string', ->
+
+            dateProp.set("20/01/2013")
+            expect(dateProp.get().getDate()).to.equal 20
+            expect(dateProp.get().getFullYear()).to.equal 2013
+            expect(dateProp.get().getMonth()).to.equal 0
+
+          test 'Setting from a string after changing the date format', ->
+
+            viewFirst.dateFormat = "YYYY-MM-DD"
+            dateProp.set("2017-05-17")
+            expect(dateProp.get().getDate()).to.equal 17
+            expect(dateProp.get().getFullYear()).to.equal 2017
+            expect(dateProp.get().getMonth()).to.equal 4
+
+          test 'Converting a date to a string', ->
+
+            dateProp.set("20/01/2013")
+            expect(dateProp.get()._viewFirstToString()).to.equal "20/01/2013"
+
+        suite 'Setting number properties', ->
+
+          numberProp = null
+
+          setup ->
+
+            numberProp = new Property "someName", Number
+
+          test 'Setting null', ->
+
+            numberProp.set(null)
+            expect(numberProp.get()).to.equal null
+
+          test 'Setting from a Number', ->
+
+            numberProp.set(34)
+            expect(numberProp.get()).to.equal 34
+
+          test 'Setting from a string', ->
+
+            numberProp.set("098")
+            expect(numberProp.get()).to.equal 98
+
+          test 'A number with decimal places from string', ->
+
+            numberProp.set("6.098")
+            expect(numberProp.get()).to.equal 6.098
+
+
+          test 'Converting to a string', ->
+
+            numberProp.set(43)
+            expect(numberProp.get()._viewFirstToString()).to.equal "43"
+
+        suite 'Setting string properties', ->
+
+          stringProp = null
+
+          setup ->
+
+            stringProp = new Property "propName", String
+
+          test 'Setting null', ->
+
+            stringProp.set(null)
+            expect(stringProp.get()).to.equal null
+
+          test 'Setting', ->
+
+            stringProp.set("Hello")
+            expect(stringProp.get()).to.equal "Hello"
+
+          test 'Converting to a String', ->
+
+            stringProp.set("Hello")
+            expect(stringProp.get()._viewFirstToString()).to.equal "Hello"
+
+
 
       suite 'Loading models', ->
 
@@ -283,13 +391,13 @@ define ["ViewFirstModel", "ViewFirst", "House", "Postman", "Room", "expect", "mo
 
           expect(complexHtml.get(0).outerHTML + complexHtml.get(1).outerHTML).to.eql "<span>Pink</span><table><tbody><tr class=\"Pink\"><td>4</td></tr></tbody></table>"
 
-        test 'toString methods should be used when present on the model', ->
+        test 'conversion methods should be used when present on the model', ->
 
           geoff = new Postman()
           geoff.set("dob", new Date(1980, 5, 2).getTime())
           postmanHtml = $("<span>\#{dob}</span>")
           viewFirst.bindTextNodes(postmanHtml, geoff)
-          expect(postmanHtml.get(0).outerHTML).to.eql "<span>2/6/1980</span>"
+          expect(postmanHtml.get(0).outerHTML).to.eql "<span>02/06/1980</span>"
 
       suite 'Input Binding', ->
 

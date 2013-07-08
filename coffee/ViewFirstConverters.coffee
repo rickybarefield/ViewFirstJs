@@ -1,4 +1,4 @@
-define ->
+define ["moment"], (moment) ->
 
   ViewFirstConverters = (viewFirst) ->
 
@@ -9,6 +9,9 @@ define ->
       else
         value.toString()
 
+
+    String.prototype._viewFirstToString = -> this.toString()
+
     Number._viewFirstConvert = (value) ->
 
       if typeof value == "number" || value instanceof Number
@@ -18,11 +21,22 @@ define ->
       else
         throw "Unable to convert #{value} to a number"
 
+
+    Number.prototype._viewFirstToString = ->
+
+      this.toString()
+
     Date._viewFirstConvert = (value) ->
 
       if value instanceof Date
         value
       else if typeof value == "number" || value instanceof Number
         new Date(value)
+      else if typeof value == "string" || value instanceof String
+        moment(value, viewFirst.dateFormat).toDate()
       else
         throw "Unable to convert #{value} to a Date"
+
+    Date.prototype._viewFirstToString = ->
+
+      moment(this).format(viewFirst.dateFormat)
