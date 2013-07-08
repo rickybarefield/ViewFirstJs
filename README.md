@@ -7,11 +7,17 @@ TODO Yesterday!
 ---------------
 
 * Introduce two levels of collections, server synced and client filtered
+* Add load all method to top level collections
 * Test/Develop Server saving (in example)
 * Consider when a model / collection is persisted, how this works with bound forms
+* Atmosphere integration
 
-TODO Tomorrow!
----------------
+TODO Tomorrow
+--------------
 
 * Validation
+
+TODO The day after tomorrow
+---------------------------
+
 * Pagination
