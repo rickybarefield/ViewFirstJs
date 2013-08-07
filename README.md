@@ -16,6 +16,7 @@ TODO Tomorrow
 --------------
 
 * Validation
+* Investigate HAL http://blog.stateless.co/post/13296666138/json-linking-with-hal
 
 TODO The day after tomorrow
 ---------------------------

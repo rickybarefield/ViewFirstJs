@@ -1,42 +1,62 @@
-define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property, Events) ->
+define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchronization"], (_, $, Property, Events, Sync) ->
 
-  class Collection extends Events
+  class ClientFilteredCollection extends Events
 
-    constructor: (modelType, @filter = -> true) ->
-      
-      super
+    constructor: () ->
+
       @instances = {}
-      @changeTriggers = {}
-      modelType.on("created", (model) => modelAdded.call(this, model))
-      modelAdded.call(this, model, true) for model in modelType.instances
+
+    add: (model, silent = false) ->
+
+      @instances[model.clientId] = model
+      @trigger("add", model) unless silent
+
+  class ServerSynchronisedCollection extends Events
+
+    constructor: (@modelType, @url) ->
+
+      super
+      @url = modelType.url unless @url
+      @filteredCollections = []
+      @instances = {}
+
+    filter: (filter) ->
+
+      filteredCollection = new ClientFilteredCollection
+      filteredCollectionObject = {collection: filteredCollection, filter: filter}
+      @filteredCollections.push filteredCollectionObject
+      filteredCollection.add(model, true) for model in @instances when filter(model)
+
+    activate: =>
+
+      callbackFunctions =
+        create: (json) =>
+          model = @modelType.load(json)
+          @instances[model.clientId] = model
+        update: (json) =>
+          @modelType.load(json)
+        delete: (json) =>
+          @modelType.load(json)
+          throw "delete is not yet implemented"
+        remove: (json) =>
+          model = @modelType.load(json)
+          delete @instances[model.clientId]
+
+      Sync.connectCollection(@url, callbackFunctions)
 
     getAll: ->
     
       value for key, value of @instances
 
-    removeCurrentChangeTrigger = (model) ->
-
-      currentChangeTrigger = @changeTriggers[model.clientId]
-      currentChangeTrigger.off() if currentChangeTrigger?
-
     modelAdded = (model, silent = false) ->
     
-      if(@filter(model))
         @instances[model.clientId] = model
-        removeCurrentChangeTrigger.call(this, model)
-        @changeTriggers[model.clientId] = model.on("change", => checkModelStillMatches.call(this, model))
-        @trigger("add", model) unless silent
-      else
-        @changeTriggers[model.clientId] = model.on("change", => modelAdded.call(this, model)) unless @changeTriggers[model.clientId]?
 
-    checkModelStillMatches = (model) ->
-      
-      if(!@filter(model))
-      
-        delete @instances[model.clientId]
-        removeCurrentChangeTrigger.call(this, model)
-        @changeTriggers[model.clientId] = model.on("change", => @modelAdded.call(this, model))
-        @trigger("remove", model)
+        #TODO Need to consider how to listen for model changes and reevaluate filters, would
+        #TODO be easier to let filtered collections take care of themselves but this would
+        #TODO exclude the idea of a move event, so need to know if a model is in a collection
+
+        @trigger("add", model) unless silent
 
     size: -> Object.keys(@instances).length
     
@@ -138,8 +158,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
         return childObject
 
     addCreateCollectionFunction = (Child) ->
-      Child.createCollection = (filter) ->
-        new Collection(Child, filter)
+      Child.createCollection = (url) ->
+        new ServerSynchronisedCollection(Child, url)
 
     @extend: (Child) ->
 
@@ -157,6 +177,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       ChildExtended.prototype.constructor = ChildExtended
       
       _.extend(ChildExtended, new Events)
+      _.extend(ChildExtended, Child)
       
       addInstances ChildExtended
       addLoadMethod ChildExtended
@@ -175,9 +196,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents"], (_, $, Property,
       
     _assertUrl: ->
       throw("url must be defined for model") unless @url?
-      
 
-  
   return Model
 
   

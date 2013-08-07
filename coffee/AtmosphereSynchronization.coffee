@@ -33,6 +33,8 @@ define ["jquery"], ($) ->
               callbackFunctions['update'](message.entity)
             when "DELETE"
               callbackFunctions['delete'](message.entity)
+            when "REMOVE" #No longer part of the collection
+              callbackFunctions['remove'](message.entity)
             else
               console.error("Unknown event '#{message.event}', silently ignoring")
         else

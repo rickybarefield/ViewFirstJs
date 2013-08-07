@@ -5,7 +5,7 @@
     var House;
     return House = ViewFirst.Model.extend(House = (function() {
 
-      House.prototype.url = "houses";
+      House.url = "/houses";
 
       function House(attributes) {
         this.createProperty("doorNumber", Number);

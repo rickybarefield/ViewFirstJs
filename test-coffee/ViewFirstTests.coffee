@@ -1,7 +1,8 @@
-define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "underscore", "jquery"],
- (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, JQueryTestHarness, _, $) ->
+define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "AtmosphereMock", "underscore", "jquery"],
+ (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, JQueryTestHarness, AtmosphereMock, _, $) ->
 
   mocha.setup('tdd')
+  AtmosphereMock.initialize()
 
   viewFirst = null
 
@@ -311,9 +312,41 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
           expect(changeCalled).to.equal true
 
-    suite 'Collection Tests', ->
+    suite 'Server Synchronised Collection Tests', ->
 
       suite 'Creating collections and modifying their contents', ->
+
+        test 'Creating a collection with no specific url will default to the models url', ->
+
+          houseCollection = House.createCollection()
+          expect(houseCollection.url).to.equal "/houses"
+
+        test 'Calling activate will request models from the server', ->
+
+          houseCollection = House.createCollection()
+          houseCollection.activate()
+          request = AtmosphereMock.lastSubscribe
+          expect(request.url).to.equal "/houses"
+          expect(request.contentType).to.equal "application/json"
+          expect(request.transport).to.equal "websocket"
+
+        test 'When the server returns json, the models are created within the collection', ->
+
+          roomCollection = Room.createCollection()
+          roomCollection.activate()
+          request = AtmosphereMock.lastSubscribe
+          request.onMessage('{"colour":"Orange", "size":12}')
+
+          expect(roomCollection.getAll().size()).to.equal 1
+
+
+        test 'When models are added to the collection they are also added to the model class', ->
+
+          expect("TODO").to.equal "DONE"
+
+        test 'Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', ->
+
+          expect("TODO").to.equal "DONE"
 
         test 'I can create a collection of houses and it will contain all the house models I have created', ->
 

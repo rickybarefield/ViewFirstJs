@@ -26,7 +26,6 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
 
     initialize: ->
 
-
       #TODO Backbone.history.start()
 
     render: (viewId) ->
