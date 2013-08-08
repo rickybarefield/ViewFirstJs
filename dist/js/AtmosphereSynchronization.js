@@ -14,6 +14,9 @@
     AtmosphereSynchronization = {
       connectCollection: function(url, callbackFunctions) {
         var request, subSocket;
+        if ($.atmosphere == null) {
+          throw "The JQuery atmosphere plugin must be loaded";
+        }
         request = {
           url: url,
           contentType: "application/json",

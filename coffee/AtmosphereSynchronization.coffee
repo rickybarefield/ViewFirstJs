@@ -1,6 +1,5 @@
 define ["jquery"], ($) ->
 
-
   ###
 
     This class provides the glue between ViewFirst models and the server, it could be swapped out for another implementation.  It should not have knowledge of the rest of the ViewFirst framework.
@@ -10,10 +9,11 @@ define ["jquery"], ($) ->
   successfulSave = (jsonString, func) ->
     func($.parseJSON(jsonString))
 
-
   AtmosphereSynchronization = 
     
     connectCollection: (url, callbackFunctions) ->
+
+      throw "The JQuery atmosphere plugin must be loaded" unless $.atmosphere?
 
       request =
         url: url,
