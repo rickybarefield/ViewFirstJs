@@ -5,16 +5,32 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   define(["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchronization"], function(_, $, Property, Events, Sync) {
-    var ClientFilteredCollection, Model, ServerSynchronisedCollection;
-    ClientFilteredCollection = (function(_super) {
+    var ClientFilteredCollection, Collection, Model, ServerSynchronisedCollection;
+    Collection = (function(_super) {
 
-      __extends(ClientFilteredCollection, _super);
+      __extends(Collection, _super);
 
-      function ClientFilteredCollection() {
+      function Collection() {
+        Collection.__super__.constructor.apply(this, arguments);
         this.instances = {};
       }
 
-      ClientFilteredCollection.prototype.add = function(model, silent) {
+      Collection.prototype.getAll = function() {
+        var key, value, _ref, _results;
+        _ref = this.instances;
+        _results = [];
+        for (key in _ref) {
+          value = _ref[key];
+          _results.push(value);
+        }
+        return _results;
+      };
+
+      Collection.prototype.size = function() {
+        return Object.keys(this.instances).length;
+      };
+
+      Collection.prototype.add = function(model, silent) {
         if (silent == null) {
           silent = false;
         }
@@ -24,9 +40,20 @@
         }
       };
 
-      return ClientFilteredCollection;
+      return Collection;
 
     })(Events);
+    ClientFilteredCollection = (function(_super) {
+
+      __extends(ClientFilteredCollection, _super);
+
+      function ClientFilteredCollection() {
+        ClientFilteredCollection.__super__.constructor.apply(this, arguments);
+      }
+
+      return ClientFilteredCollection;
+
+    })(Collection);
     ServerSynchronisedCollection = (function(_super) {
       var modelAdded;
 
@@ -42,11 +69,10 @@
           this.url = modelType.url;
         }
         this.filteredCollections = [];
-        this.instances = {};
       }
 
       ServerSynchronisedCollection.prototype.filter = function(filter) {
-        var filteredCollection, filteredCollectionObject, model, _i, _len, _ref, _results;
+        var filteredCollection, filteredCollectionObject, key, model, _ref;
         filteredCollection = new ClientFilteredCollection;
         filteredCollectionObject = {
           collection: filteredCollection,
@@ -54,14 +80,13 @@
         };
         this.filteredCollections.push(filteredCollectionObject);
         _ref = this.instances;
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          model = _ref[_i];
+        for (key in _ref) {
+          model = _ref[key];
           if (filter(model)) {
-            _results.push(filteredCollection.add(model, true));
+            filteredCollection.add(model, true);
           }
         }
-        return _results;
+        return filteredCollection;
       };
 
       ServerSynchronisedCollection.prototype.activate = function() {
@@ -89,34 +114,27 @@
         return Sync.connectCollection(this.url, callbackFunctions);
       };
 
-      ServerSynchronisedCollection.prototype.getAll = function() {
-        var key, value, _ref, _results;
-        _ref = this.instances;
-        _results = [];
-        for (key in _ref) {
-          value = _ref[key];
-          _results.push(value);
-        }
-        return _results;
-      };
-
       modelAdded = function(model, silent) {
+        var filteredCollection, _i, _len, _ref;
         if (silent == null) {
           silent = false;
         }
         this.instances[model.clientId] = model;
+        _ref = this.filteredCollections;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          filteredCollection = _ref[_i];
+          if (filteredCollection.filter(model)) {
+            filteredCollection.instances[model.clientId] = model;
+          }
+        }
         if (!silent) {
           return this.trigger("add", model);
         }
       };
 
-      ServerSynchronisedCollection.prototype.size = function() {
-        return Object.keys(this.instances).length;
-      };
-
       return ServerSynchronisedCollection;
 
-    })(Events);
+    })(Collection);
     Model = (function(_super) {
       var addCreateCollectionFunction, addInstances, addLoadMethod, createClientId, lastClientIdUsed;
 

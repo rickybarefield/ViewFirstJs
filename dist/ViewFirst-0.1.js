@@ -1484,6 +1484,17 @@ define("underscore", (function (global) {
         }
       };
 
+      ClientFilteredCollection.prototype.getAll = function() {
+        var key, value, _ref, _results;
+        _ref = this.instances;
+        _results = [];
+        for (key in _ref) {
+          value = _ref[key];
+          _results.push(value);
+        }
+        return _results;
+      };
+
       return ClientFilteredCollection;
 
     })(Events);
@@ -1506,7 +1517,7 @@ define("underscore", (function (global) {
       }
 
       ServerSynchronisedCollection.prototype.filter = function(filter) {
-        var filteredCollection, filteredCollectionObject, model, _i, _len, _ref, _results;
+        var filteredCollection, filteredCollectionObject, model, _i, _len, _ref;
         filteredCollection = new ClientFilteredCollection;
         filteredCollectionObject = {
           collection: filteredCollection,
@@ -1514,14 +1525,13 @@ define("underscore", (function (global) {
         };
         this.filteredCollections.push(filteredCollectionObject);
         _ref = this.instances;
-        _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           model = _ref[_i];
           if (filter(model)) {
-            _results.push(filteredCollection.add(model, true));
+            filteredCollection.add(model, true);
           }
         }
-        return _results;
+        return filteredCollection;
       };
 
       ServerSynchronisedCollection.prototype.activate = function() {

@@ -301,7 +301,7 @@
         });
       });
       suite('Server Synchronised Collection Tests', function() {
-        return suite('Creating collections and modifying their contents', function() {
+        suite('Creating collections and modifying their contents', function() {
           test('Creating a collection with no specific url will default to the models url', function() {
             var houseCollection;
             houseCollection = House.createCollection();
@@ -321,43 +321,61 @@
             roomCollection = Room.createCollection();
             roomCollection.activate();
             request = AtmosphereMock.lastSubscribe;
-            request.onMessage('{"colour":"Orange", "size":12}');
-            return expect(roomCollection.getAll().size()).to.equal(1);
+            request.onMessage('{"id":92, "colour":"Orange", "size":12}');
+            return expect(roomCollection.getAll().length).to.equal(1);
           });
           test('When models are added to the collection they are also added to the model class', function() {
+            var request, roomCollection;
+            roomCollection = Room.createCollection();
+            roomCollection.activate();
+            request = AtmosphereMock.lastSubscribe;
+            request.onMessage('{"id":92, "colour":"Orange", "size":12}');
+            return expect(Room.instancesById[92].get("colour")).to.equal("Orange");
+          });
+          return test('Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', function() {
+            var request, roomCollection;
+            kitchen.set("id", 101);
+            roomCollection = Room.createCollection();
+            roomCollection.activate();
+            request = AtmosphereMock.lastSubscribe;
+            request.onMessage('{"id":101, "colour":"Purple", "size":65}');
+            return expect(kitchen.get("colour")).to.equal("Purple");
+          });
+        });
+        return suite('Client filtered collections tests', function() {
+          var isEvenDoorNumber;
+          isEvenDoorNumber = function(house) {
+            var doorNumber;
+            doorNumber = house.get("doorNumber");
+            return (doorNumber != null) && doorNumber % 2 === 0;
+          };
+          test('A filtered collection will contain matching elements when first created', function() {
+            var houses;
+            houses = House.createCollection();
+            houses.add(aHouse);
+            expect(houses.filter(isEvenDoorNumber).size()).to.equal(0);
+            aHouse.set("doorNumber", 2);
+            return expect(houses.filter(isEvenDoorNumber).size()).to.equal(1);
+          });
+          test('When new models are added to the server synchronised collection these are added to filtered collections if they match', function() {
             return expect("TODO").to.equal("DONE");
           });
-          test('Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', function() {
-            return expect("TODO").to.equal("DONE");
-          });
-          test('I can create a collection of houses and it will contain all the house models I have created', function() {
-            var aHouseCollection;
-            aHouseCollection = House.createCollection();
-            expect(aHouseCollection.size()).to.equal(1);
-            return expect(aHouseCollection.getAll()[0]).to.equal(aHouse);
-          });
-          test('Creating a new house will add it to an existing collection', function() {
-            var aHouseCollection, anotherHouse;
-            aHouseCollection = House.createCollection();
-            expect(aHouseCollection.size()).to.equal(1);
-            anotherHouse = new House();
-            return expect(aHouseCollection.size()).to.equal(2);
-          });
-          return test('A filtered collection will only contain matching models', function() {
-            var anotherHouse, housesWithEvenDoorNumbers, isEvenDoorNumber;
-            isEvenDoorNumber = function(aHouse) {
-              var doorNumber;
-              doorNumber = aHouse.get("doorNumber");
-              return (doorNumber != null) && doorNumber % 2 === 0;
-            };
-            housesWithEvenDoorNumbers = House.createCollection(isEvenDoorNumber);
+          test('When a model changes it is added to matching filtered collections', function() {
+            var anotherHouse, houses, housesWithEvenDoorNumbers;
+            houses = House.createCollection();
+            houses.add(aHouse);
+            housesWithEvenDoorNumbers = houses.filter(isEvenDoorNumber);
             expect(housesWithEvenDoorNumbers.size()).to.equal(0);
             anotherHouse = new House();
+            houses.add(anotherHouse);
             expect(housesWithEvenDoorNumbers.size()).to.equal(0);
             anotherHouse.set("doorNumber", 2);
             expect(housesWithEvenDoorNumbers.size()).to.equal(1);
             aHouse.set("doorNumber", 4);
             return expect(housesWithEvenDoorNumbers.size()).to.equal(2);
+          });
+          return test('When a model changes it is removed from filtered collections it no longer matches', function() {
+            return expect("TODO").to.equal("DONE");
           });
         });
       });

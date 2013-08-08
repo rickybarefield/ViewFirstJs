@@ -38,7 +38,7 @@ define ["jquery"], ($) ->
             else
               console.error("Unknown event '#{message.event}', silently ignoring")
         else
-          callbackFunctions['create'](message.entity)
+          callbackFunctions['create'](message)
           
       request.onError = (response) ->
         console.error("error: " + response)

@@ -335,48 +335,65 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           roomCollection = Room.createCollection()
           roomCollection.activate()
           request = AtmosphereMock.lastSubscribe
-          request.onMessage('{"colour":"Orange", "size":12}')
+          request.onMessage('{"id":92, "colour":"Orange", "size":12}')
 
-          expect(roomCollection.getAll().size()).to.equal 1
-
+          expect(roomCollection.getAll().length).to.equal 1
 
         test 'When models are added to the collection they are also added to the model class', ->
 
-          expect("TODO").to.equal "DONE"
+          roomCollection = Room.createCollection()
+          roomCollection.activate()
+          request = AtmosphereMock.lastSubscribe
+          request.onMessage('{"id":92, "colour":"Orange", "size":12}')
+
+          expect(Room.instancesById[92].get("colour")).to.equal "Orange"
 
         test 'Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', ->
 
+          kitchen.set("id", 101)
+          roomCollection = Room.createCollection()
+          roomCollection.activate()
+          request = AtmosphereMock.lastSubscribe
+          request.onMessage('{"id":101, "colour":"Purple", "size":65}')
+
+          expect(kitchen.get("colour")).to.equal "Purple"
+
+      suite 'Client filtered collections tests', ->
+
+        isEvenDoorNumber = (house) ->
+          doorNumber = house.get("doorNumber")
+          return doorNumber? && doorNumber % 2 == 0
+
+        test 'A filtered collection will contain matching elements when first created', ->
+
+          houses = House.createCollection()
+          houses.add(aHouse)
+          expect(houses.filter(isEvenDoorNumber).size()).to.equal 0
+          aHouse.set("doorNumber", 2)
+          expect(houses.filter(isEvenDoorNumber).size()).to.equal 1
+
+        test 'When new models are added to the server synchronised collection these are added to filtered collections if they match', ->
+
           expect("TODO").to.equal "DONE"
 
-        test 'I can create a collection of houses and it will contain all the house models I have created', ->
+        test 'When a model changes it is added to matching filtered collections', ->
 
-          aHouseCollection = House.createCollection()
-          expect(aHouseCollection.size()).to.equal 1
-          expect(aHouseCollection.getAll()[0]).to.equal aHouse
-
-        test 'Creating a new house will add it to an existing collection', ->
-
-          aHouseCollection = House.createCollection()
-          expect(aHouseCollection.size()).to.equal 1
-          anotherHouse = new House()
-          expect(aHouseCollection.size()).to.equal 2
-
-        test 'A filtered collection will only contain matching models', ->
-
-          isEvenDoorNumber = (aHouse) ->
-            doorNumber = aHouse.get("doorNumber")
-            return doorNumber? && doorNumber % 2 == 0
-
-          housesWithEvenDoorNumbers = House.createCollection(isEvenDoorNumber)
+          houses = House.createCollection()
+          houses.add(aHouse)
+          housesWithEvenDoorNumbers = houses.filter(isEvenDoorNumber)
 
           expect(housesWithEvenDoorNumbers.size()).to.equal 0
           anotherHouse = new House()
+          houses.add(anotherHouse)
           expect(housesWithEvenDoorNumbers.size()).to.equal 0
           anotherHouse.set("doorNumber", 2)
           expect(housesWithEvenDoorNumbers.size()).to.equal 1
           aHouse.set("doorNumber", 4)
           expect(housesWithEvenDoorNumbers.size()).to.equal 2
 
+        test 'When a model changes it is removed from filtered collections it no longer matches', ->
+
+          expect("TODO").to.equal "DONE"
 
     suite 'Binding Tests', ->
 

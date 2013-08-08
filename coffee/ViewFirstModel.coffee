@@ -1,31 +1,44 @@
 define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchronization"], (_, $, Property, Events, Sync) ->
 
-  class ClientFilteredCollection extends Events
+  class Collection extends Events
 
     constructor: () ->
 
+      super
       @instances = {}
+
+    getAll: ->
+
+      value for key, value of @instances
+
+    size: -> Object.keys(@instances).length
 
     add: (model, silent = false) ->
 
       @instances[model.clientId] = model
       @trigger("add", model) unless silent
 
-  class ServerSynchronisedCollection extends Events
+  class ClientFilteredCollection extends Collection
+
+    constructor: () ->
+
+      super
+
+  class ServerSynchronisedCollection extends Collection
 
     constructor: (@modelType, @url) ->
 
       super
       @url = modelType.url unless @url
       @filteredCollections = []
-      @instances = {}
 
     filter: (filter) ->
 
       filteredCollection = new ClientFilteredCollection
       filteredCollectionObject = {collection: filteredCollection, filter: filter}
       @filteredCollections.push filteredCollectionObject
-      filteredCollection.add(model, true) for model in @instances when filter(model)
+      filteredCollection.add(model, true) for key, model of @instances when filter(model)
+      return filteredCollection
 
     activate: =>
 
@@ -44,13 +57,12 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
       Sync.connectCollection(@url, callbackFunctions)
 
-    getAll: ->
-    
-      value for key, value of @instances
-
     modelAdded = (model, silent = false) ->
     
         @instances[model.clientId] = model
+
+        filteredCollection.instances[model.clientId] = model for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+
 
         #TODO Need to consider how to listen for model changes and reevaluate filters, would
         #TODO be easier to let filtered collections take care of themselves but this would
@@ -58,8 +70,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
         @trigger("add", model) unless silent
 
-    size: -> Object.keys(@instances).length
-    
   class Model extends Events
 
     constructor: () ->

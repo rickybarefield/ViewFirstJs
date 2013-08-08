@@ -40,7 +40,7 @@
                 return console.error("Unknown event '" + message.event + "', silently ignoring");
             }
           } else {
-            return callbackFunctions['create'](message.entity);
+            return callbackFunctions['create'](message);
           }
         };
         request.onError = function(response) {
