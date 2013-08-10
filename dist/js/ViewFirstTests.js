@@ -302,6 +302,13 @@
       });
       suite('Collections', function() {
         suite('Server Synchronised Collections', function() {
+          var createResponseObject;
+          createResponseObject = function(body) {
+            var response;
+            return response = {
+              responseBody: body
+            };
+          };
           test('Creating a collection with no specific url will default to the models url', function() {
             var houseCollection;
             houseCollection = House.createCollection();
@@ -321,7 +328,7 @@
             roomCollection = Room.createCollection();
             roomCollection.activate();
             request = AtmosphereMock.lastSubscribe;
-            request.onMessage('{"id":92, "colour":"Orange", "size":12}');
+            request.onMessage(createResponseObject('{"id":92, "colour":"Orange", "size":12}'));
             return expect(roomCollection.getAll().length).to.equal(1);
           });
           test('When models are added to the collection they are also added to the model class', function() {
@@ -329,7 +336,7 @@
             roomCollection = Room.createCollection();
             roomCollection.activate();
             request = AtmosphereMock.lastSubscribe;
-            request.onMessage('{"id":92, "colour":"Orange", "size":12}');
+            request.onMessage(createResponseObject('{"id":92, "colour":"Orange", "size":12}'));
             return expect(Room.instancesById[92].get("colour")).to.equal("Orange");
           });
           return test('Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', function() {
@@ -338,7 +345,7 @@
             roomCollection = Room.createCollection();
             roomCollection.activate();
             request = AtmosphereMock.lastSubscribe;
-            request.onMessage('{"id":101, "colour":"Purple", "size":65}');
+            request.onMessage(createResponseObject('{"id":101, "colour":"Purple", "size":65}'));
             return expect(kitchen.get("colour")).to.equal("Purple");
           });
         });

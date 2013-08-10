@@ -1393,10 +1393,7 @@ define("underscore", (function (global) {
         This class provides the glue between ViewFirst models and the server, it could be swapped out for another implementation.  It should not have knowledge of the rest of the ViewFirst framework.
     */
 
-    var AtmosphereSynchronization, successfulSave;
-    successfulSave = function(jsonString, func) {
-      return func($.parseJSON(jsonString));
-    };
+    var AtmosphereSynchronization;
     AtmosphereSynchronization = {
       connectCollection: function(url, callbackFunctions) {
         var request, subSocket;
@@ -1410,9 +1407,16 @@ define("underscore", (function (global) {
           transport: 'websocket'
         };
         request.onMessage = function(response) {
-          var message;
-          message = $.parseJSON(response);
-          if (message.event != null) {
+          var message, model, _i, _len, _results;
+          message = $.parseJSON(response.responseBody);
+          if (Array.isArray(message)) {
+            _results = [];
+            for (_i = 0, _len = message.length; _i < _len; _i++) {
+              model = message[_i];
+              _results.push(callbackFunctions['create'](model));
+            }
+            return _results;
+          } else if (message.event != null) {
             switch (message.event) {
               case "CREATE":
                 return callbackFunctions['create'](message.entity);
@@ -1436,20 +1440,18 @@ define("underscore", (function (global) {
       },
       persist: function(url, json, callbackFunctions) {
         return $.ajax(url, {
-          type: 'PUT',
+          type: 'POST',
           data: json,
-          success: function(jsonString) {
-            return successfulSave(jsonString, callbackFunctions['success']);
-          }
+          contentType: "application/json",
+          success: callbackFunctions['success']
         });
       },
       update: function(url, json, callbackFunctions) {
         return $.ajax(url, {
-          type: 'POST',
+          type: 'PUT',
           data: json,
-          success: function(jsonString) {
-            return successfulSave(jsonString, callbackFunctions['success']);
-          }
+          contentType: "application/json",
+          success: callbackFunctions['success']
         });
       }
     };
@@ -1594,7 +1596,7 @@ define("underscore", (function (global) {
           create: function(json) {
             var model;
             model = _this.modelType.load(json);
-            return _this.instances[model.clientId] = model;
+            return _this.add(model);
           },
           update: function(json) {
             return _this.modelType.load(json);
@@ -1606,7 +1608,7 @@ define("underscore", (function (global) {
           remove: function(json) {
             var model;
             model = _this.modelType.load(json);
-            return delete _this.instances[model.clientId];
+            return _this.remove(model);
           }
         };
         return Sync.connectCollection(this.url, callbackFunctions);
@@ -1621,6 +1623,8 @@ define("underscore", (function (global) {
       __extends(Model, _super);
 
       function Model() {
+        this.update = __bind(this.update, this);
+
         var idProperty,
           _this = this;
         Model.__super__.constructor.apply(this, arguments);
@@ -1707,23 +1711,18 @@ define("underscore", (function (global) {
             property.addToJson(json, includeOnlyDirtyProperties);
           }
         }
-        return json;
+        return JSON.stringify(json);
       };
 
       Model.prototype.save = function() {
-        var json, onSuccess,
-          _this = this;
-        onSuccess = function(jsonString, successCode, somethingElse) {
-          return _this.update(JSON.parse(jsonString));
+        var callbackFunctions, json, saveFunction, url;
+        callbackFunctions = {
+          success: this.update
         };
-        this._assertUrl();
+        saveFunction = this.isNew() ? Sync.persist : Sync.update;
+        url = this.isNew() ? this.constructor.url : this.constructor.url + get("id");
         json = this.asJson();
-        $.ajax(this._getSaveUrl(), {
-          type: this._getSaveHttpMethod(),
-          data: json,
-          success: onSuccess
-        });
-        return console.log(JSON.stringify(json));
+        return saveFunction(url, json, callbackFunctions);
       };
 
       Model.prototype["delete"] = function() {
@@ -1796,24 +1795,6 @@ define("underscore", (function (global) {
           }
         }
         return ChildExtended;
-      };
-
-      Model.prototype._getSaveHttpMethod = function() {
-        if (this.isNew()) {
-          return "POST";
-        } else {
-          return "PUT";
-        }
-      };
-
-      Model.prototype._getSaveUrl = function() {
-        return this.url + (!this.isNew() ? "/" + this.get("id") : "");
-      };
-
-      Model.prototype._assertUrl = function() {
-        if (this.url == null) {
-          throw "url must be defined for model";
-        }
       };
 
       return Model;

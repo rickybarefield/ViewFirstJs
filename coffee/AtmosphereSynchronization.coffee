@@ -6,10 +6,7 @@ define ["jquery"], ($) ->
 
   ###
 
-  successfulSave = (jsonString, func) ->
-    func($.parseJSON(jsonString))
-
-  AtmosphereSynchronization = 
+  AtmosphereSynchronization =
     
     connectCollection: (url, callbackFunctions) ->
 
@@ -23,9 +20,11 @@ define ["jquery"], ($) ->
 
       request.onMessage = (response) ->
 
-        message = $.parseJSON(response)
+        message = $.parseJSON(response.responseBody)
 
-        if message.event?
+        if Array.isArray message
+          callbackFunctions['create'](model) for model in message
+        else if message.event?
           switch message.event
             when "CREATE"
               callbackFunctions['create'](message.entity)
@@ -47,11 +46,11 @@ define ["jquery"], ($) ->
     
     persist: (url, json, callbackFunctions) ->
 
-      $.ajax(url, {type: 'PUT', data: json, success: (jsonString) -> successfulSave(jsonString, callbackFunctions['success'])}) 
+      $.ajax(url, {type: 'POST', data: json, contentType : "application/json", success: callbackFunctions['success']})
 
       
     update: (url, json, callbackFunctions) ->
         
-      $.ajax(url, {type: 'POST', data: json, success: (jsonString) -> successfulSave(jsonString, callbackFunctions['success'])}) 
+      $.ajax(url, {type: 'PUT', data: json, contentType : "application/json", success: callbackFunctions['success']})
 
   return AtmosphereSynchronization

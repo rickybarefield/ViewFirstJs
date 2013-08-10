@@ -7,10 +7,7 @@
         This class provides the glue between ViewFirst models and the server, it could be swapped out for another implementation.  It should not have knowledge of the rest of the ViewFirst framework.
     */
 
-    var AtmosphereSynchronization, successfulSave;
-    successfulSave = function(jsonString, func) {
-      return func($.parseJSON(jsonString));
-    };
+    var AtmosphereSynchronization;
     AtmosphereSynchronization = {
       connectCollection: function(url, callbackFunctions) {
         var request, subSocket;
@@ -24,9 +21,16 @@
           transport: 'websocket'
         };
         request.onMessage = function(response) {
-          var message;
-          message = $.parseJSON(response);
-          if (message.event != null) {
+          var message, model, _i, _len, _results;
+          message = $.parseJSON(response.responseBody);
+          if (Array.isArray(message)) {
+            _results = [];
+            for (_i = 0, _len = message.length; _i < _len; _i++) {
+              model = message[_i];
+              _results.push(callbackFunctions['create'](model));
+            }
+            return _results;
+          } else if (message.event != null) {
             switch (message.event) {
               case "CREATE":
                 return callbackFunctions['create'](message.entity);
@@ -50,20 +54,18 @@
       },
       persist: function(url, json, callbackFunctions) {
         return $.ajax(url, {
-          type: 'PUT',
+          type: 'POST',
           data: json,
-          success: function(jsonString) {
-            return successfulSave(jsonString, callbackFunctions['success']);
-          }
+          contentType: "application/json",
+          success: callbackFunctions['success']
         });
       },
       update: function(url, json, callbackFunctions) {
         return $.ajax(url, {
-          type: 'POST',
+          type: 'PUT',
           data: json,
-          success: function(jsonString) {
-            return successfulSave(jsonString, callbackFunctions['success']);
-          }
+          contentType: "application/json",
+          success: callbackFunctions['success']
         });
       }
     };

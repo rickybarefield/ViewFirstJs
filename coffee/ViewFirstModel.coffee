@@ -64,7 +64,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       callbackFunctions =
         create: (json) =>
           model = @modelType.load(json)
-          @instances[model.clientId] = model
+          @add(model)
         update: (json) =>
           @modelType.load(json)
         delete: (json) =>
@@ -72,7 +72,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
           throw "delete is not yet implemented"
         remove: (json) =>
           model = @modelType.load(json)
-          delete @instances[model.clientId]
+          @remove(model)
 
       Sync.connectCollection(@url, callbackFunctions)
 
@@ -137,17 +137,17 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
     
       json = {}
       property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
-      return json
+      return JSON.stringify(json)
 
     save: ->
 
-      onSuccess = (jsonString, successCode, somethingElse) =>
-        @update(JSON.parse(jsonString))
+      callbackFunctions =
+        success : @update
 
-      @_assertUrl()
+      saveFunction = if @isNew() then Sync.persist else Sync.update
+      url = if @isNew() then @.constructor.url else @.constructor.url + get("id")
       json = @asJson()
-      $.ajax(@_getSaveUrl(), {type: @_getSaveHttpMethod(), data: json, success: onSuccess}) 
-      console.log JSON.stringify(json)
+      saveFunction(url, json, callbackFunctions)
 
     delete: ->
     
@@ -157,7 +157,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       $.ajax(@_getSaveUrl(), {type: "DELETE", success: onSuccess}) 
       
       
-    update: (json, clean = true) ->
+    update: (json, clean = true) =>
     
       for key, value of json
         @properties[key].setFromJson(value, clean = true)
@@ -202,16 +202,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       ChildExtended.prototype[key] = Child.prototype[key] for key of Child.prototype when Child.prototype.hasOwnProperty(key)
       
       return ChildExtended
-      
-    
-    _getSaveHttpMethod: ->
-      if @isNew() then "POST" else "PUT"
-
-    _getSaveUrl: ->
-      @url + if !@isNew() then "/" + @get("id") else ""
-      
-    _assertUrl: ->
-      throw("url must be defined for model") unless @url?
 
   return Model
 

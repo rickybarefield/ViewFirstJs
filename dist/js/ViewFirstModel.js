@@ -134,7 +134,7 @@
           create: function(json) {
             var model;
             model = _this.modelType.load(json);
-            return _this.instances[model.clientId] = model;
+            return _this.add(model);
           },
           update: function(json) {
             return _this.modelType.load(json);
@@ -146,7 +146,7 @@
           remove: function(json) {
             var model;
             model = _this.modelType.load(json);
-            return delete _this.instances[model.clientId];
+            return _this.remove(model);
           }
         };
         return Sync.connectCollection(this.url, callbackFunctions);
@@ -161,6 +161,8 @@
       __extends(Model, _super);
 
       function Model() {
+        this.update = __bind(this.update, this);
+
         var idProperty,
           _this = this;
         Model.__super__.constructor.apply(this, arguments);
@@ -247,23 +249,18 @@
             property.addToJson(json, includeOnlyDirtyProperties);
           }
         }
-        return json;
+        return JSON.stringify(json);
       };
 
       Model.prototype.save = function() {
-        var json, onSuccess,
-          _this = this;
-        onSuccess = function(jsonString, successCode, somethingElse) {
-          return _this.update(JSON.parse(jsonString));
+        var callbackFunctions, json, saveFunction, url;
+        callbackFunctions = {
+          success: this.update
         };
-        this._assertUrl();
+        saveFunction = this.isNew() ? Sync.persist : Sync.update;
+        url = this.isNew() ? this.constructor.url : this.constructor.url + get("id");
         json = this.asJson();
-        $.ajax(this._getSaveUrl(), {
-          type: this._getSaveHttpMethod(),
-          data: json,
-          success: onSuccess
-        });
-        return console.log(JSON.stringify(json));
+        return saveFunction(url, json, callbackFunctions);
       };
 
       Model.prototype["delete"] = function() {
@@ -336,24 +333,6 @@
           }
         }
         return ChildExtended;
-      };
-
-      Model.prototype._getSaveHttpMethod = function() {
-        if (this.isNew()) {
-          return "POST";
-        } else {
-          return "PUT";
-        }
-      };
-
-      Model.prototype._getSaveUrl = function() {
-        return this.url + (!this.isNew() ? "/" + this.get("id") : "");
-      };
-
-      Model.prototype._assertUrl = function() {
-        if (this.url == null) {
-          throw "url must be defined for model";
-        }
       };
 
       return Model;

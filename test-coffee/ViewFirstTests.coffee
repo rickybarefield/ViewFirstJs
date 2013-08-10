@@ -316,6 +316,10 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
       suite 'Server Synchronised Collections', ->
 
+        createResponseObject = (body) ->
+          response =
+            responseBody: body
+
         test 'Creating a collection with no specific url will default to the models url', ->
 
           houseCollection = House.createCollection()
@@ -335,7 +339,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           roomCollection = Room.createCollection()
           roomCollection.activate()
           request = AtmosphereMock.lastSubscribe
-          request.onMessage('{"id":92, "colour":"Orange", "size":12}')
+          request.onMessage(createResponseObject ('{"id":92, "colour":"Orange", "size":12}'))
 
           expect(roomCollection.getAll().length).to.equal 1
 
@@ -344,7 +348,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           roomCollection = Room.createCollection()
           roomCollection.activate()
           request = AtmosphereMock.lastSubscribe
-          request.onMessage('{"id":92, "colour":"Orange", "size":12}')
+          request.onMessage(createResponseObject ('{"id":92, "colour":"Orange", "size":12}'))
 
           expect(Room.instancesById[92].get("colour")).to.equal "Orange"
 
@@ -354,7 +358,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           roomCollection = Room.createCollection()
           roomCollection.activate()
           request = AtmosphereMock.lastSubscribe
-          request.onMessage('{"id":101, "colour":"Purple", "size":65}')
+          request.onMessage(createResponseObject ('{"id":101, "colour":"Purple", "size":65}'))
 
           expect(kitchen.get("colour")).to.equal "Purple"
 
