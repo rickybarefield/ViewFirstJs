@@ -1453,6 +1453,12 @@ define("underscore", (function (global) {
           contentType: "application/json",
           success: callbackFunctions['success']
         });
+      },
+      "delete": function(url, callbackFunctions) {
+        return $.ajax(url, {
+          type: 'DELETE',
+          success: callbackFunctions['success']
+        });
       }
     };
     return AtmosphereSynchronization;
@@ -1711,7 +1717,7 @@ define("underscore", (function (global) {
             property.addToJson(json, includeOnlyDirtyProperties);
           }
         }
-        return JSON.stringify(json);
+        return json;
       };
 
       Model.prototype.save = function() {
@@ -1720,21 +1726,19 @@ define("underscore", (function (global) {
           success: this.update
         };
         saveFunction = this.isNew() ? Sync.persist : Sync.update;
-        url = this.isNew() ? this.constructor.url : this.constructor.url + get("id");
-        json = this.asJson();
+        url = this.isNew() ? this.constructor.url : this.constructor.url + "/" + this.get("id");
+        json = JSON.stringify(this.asJson());
         return saveFunction(url, json, callbackFunctions);
       };
 
       Model.prototype["delete"] = function() {
-        var onSuccess,
-          _this = this;
-        onSuccess = function(jsonString, successCode, somethingElse) {
-          return console.log("TODO will need to trigger an event");
+        var callbackFunctions;
+        callbackFunctions = {
+          success: function() {
+            return console.log("TODO will need to trigger an event");
+          }
         };
-        return $.ajax(this._getSaveUrl(), {
-          type: "DELETE",
-          success: onSuccess
-        });
+        return Sync["delete"](this.constructor.url + "/" + this.get("id"), callbackFunctions);
       };
 
       Model.prototype.update = function(json, clean) {

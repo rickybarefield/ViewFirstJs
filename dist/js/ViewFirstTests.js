@@ -75,7 +75,15 @@
       }, obj);
     };
     return suite('ViewFirst Tests', function() {
+      var requests;
+      requests = null;
       setup(function() {
+        var xhr;
+        requests = [];
+        xhr = sinon.useFakeXMLHttpRequest();
+        xhr.onCreate = function(req) {
+          return requests.push(req);
+        };
         viewFirst = new ViewFirst();
         House.instances = [];
         House.instancesById = {};
@@ -208,42 +216,39 @@
         });
         suite('JSON creation', function() {
           test('The JSON from a model with only basic properties', function() {
-            return expect(kitchen.asJson()).to.eql(JSON.stringify(expectedKitchenJson));
+            return expect(kitchen.asJson()).to.eql(expectedKitchenJson);
           });
           return test('A more complex model with OneToMany and ManyToOne relationships', function() {
             return expect(aHouse.asJson()).to.eql(expectedHouseJson);
           });
         });
         suite('Saving a new object', function() {
-          var requests;
-          requests = null;
-          setup(function() {
-            var xhr;
-            requests = [];
-            xhr = sinon.useFakeXMLHttpRequest();
-            return xhr.onCreate = function(req) {
-              return requests.push(req);
-            };
-          });
           test('Saving a model with only basic properties', function() {
             kitchen.save();
             expect(requests.length).to.equal(1);
             expect(requests[0].url).to.equal("/rooms");
             expect(requests[0].requestBody).to.eql(JSON.stringify(expectedKitchenJson));
+            expect(requests[0].method).to.equal("POST");
             requests[0].respond(201, {
               "Content-Type": "application/json"
             }, JSON.stringify(cloneWithId(expectedKitchenJson, 13)));
             return expect(kitchen.get("id")).to.equal(13);
           });
           return test('Saving a more complex model with OneToMany and ManyToOne relationships', function() {
-            var callback, dummyAjaxFunc, jsonForServerToReturn, _ref;
-            jsonForServerToReturn = createHouseJsonReturnedOnSave();
+            var toReturn;
             expect(aHouse.get("id")).to.equal(null);
             expect(bedroom.get("id")).to.equal(null);
             expect(kitchen.get("id")).to.equal(null);
-            _ref = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturn)), dummyAjaxFunc = _ref[0], callback = _ref[1];
             aHouse.save();
-            callback();
+            expect(requests.length).to.equal(1);
+            expect(requests[0].url).to.equal("/houses");
+            expect(JSON.parse(requests[0].requestBody)).to.eql(expectedHouseJson);
+            toReturn = cloneWithId(expectedHouseJson, 1);
+            toReturn.rooms[0].id = 2;
+            toReturn.rooms[1].id = 3;
+            requests[0].respond(201, {
+              "Content-Type": "application/json"
+            }, JSON.stringify(toReturn));
             expect(aHouse.get("id")).to.equal(1);
             expect(bedroom.get("id")).to.equal(2);
             return expect(kitchen.get("id")).to.equal(3);
@@ -252,31 +257,33 @@
         suite('Updating and Deleting an object and persisting those changes', function() {
           var initiallySaveTheHouse;
           initiallySaveTheHouse = function() {
-            var callback, dummyAjaxFunc, jsonForServerToReturnOnSave, _ref;
-            jsonForServerToReturnOnSave = createHouseJsonReturnedOnSave();
-            _ref = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturnOnSave)), dummyAjaxFunc = _ref[0], callback = _ref[1];
+            var toReturn;
+            toReturn = cloneWithId(expectedHouseJson, 1);
+            toReturn.rooms[0].id = 2;
+            toReturn.rooms[1].id = 3;
             aHouse.save();
-            return callback();
+            return requests[0].respond(201, {
+              "Content-Type": "application/json"
+            }, JSON.stringify(toReturn));
           };
           test('Basic changed attributes are sent in a PUT request', function() {
-            var callback, dummyAjaxFunc, dummyServerResponse, expectedJson, _ref;
+            var expectedJson;
             initiallySaveTheHouse();
             aHouse.set("doorNumber", 99);
             expectedJson = {
               id: 1,
               doorNumber: 99
             };
-            dummyServerResponse = JSON.stringify(aHouse.asJson());
-            _ref = ajaxExpectation("houses/1", "PUT", expectedJson, dummyServerResponse), dummyAjaxFunc = _ref[0], callback = _ref[1];
             aHouse.save();
-            return callback();
+            expect(requests[1].url).to.equal("/houses/1");
+            expect(requests[1].method).to.equal("PUT");
+            return expect(JSON.parse(requests[1].requestBody)).to.eql(expectedJson);
           });
           return test('Deleting a model creates a DELETE request', function() {
-            var callback, dummyAjaxFunc, _ref;
             initiallySaveTheHouse();
-            _ref = ajaxExpectation("houses/1", "DELETE", null, null), dummyAjaxFunc = _ref[0], callback = _ref[1];
             aHouse["delete"]();
-            return callback();
+            expect(requests[1].url).to.equal("/houses/1");
+            return expect(requests[1].method).to.equal("DELETE");
           });
         });
         return suite('Events are fired by models', function() {

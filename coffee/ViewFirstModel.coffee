@@ -137,7 +137,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
     
       json = {}
       property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
-      return JSON.stringify(json)
+      return json
 
     save: ->
 
@@ -145,16 +145,17 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
         success : @update
 
       saveFunction = if @isNew() then Sync.persist else Sync.update
-      url = if @isNew() then @.constructor.url else @.constructor.url + get("id")
-      json = @asJson()
+      url = if @isNew() then @.constructor.url else @.constructor.url + "/" + @get("id")
+      json = JSON.stringify(@asJson())
       saveFunction(url, json, callbackFunctions)
 
     delete: ->
-    
-      onSuccess = (jsonString, successCode, somethingElse) =>
-        console.log("TODO will need to trigger an event")
+
+      callbackFunctions =
+        success : ->
+          console.log("TODO will need to trigger an event")
         
-      $.ajax(@_getSaveUrl(), {type: "DELETE", success: onSuccess}) 
+      Sync.delete(@.constructor.url + "/" + @get("id"), callbackFunctions)
       
       
     update: (json, clean = true) =>

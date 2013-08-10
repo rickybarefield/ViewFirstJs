@@ -53,4 +53,9 @@ define ["jquery"], ($) ->
         
       $.ajax(url, {type: 'PUT', data: json, contentType : "application/json", success: callbackFunctions['success']})
 
+    delete: (url, callbackFunctions) ->
+
+      $.ajax(url, {type: 'DELETE', success: callbackFunctions['success']})
+
+
   return AtmosphereSynchronization

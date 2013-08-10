@@ -62,7 +62,13 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
   suite 'ViewFirst Tests', ->
 
+
+    requests = null
+
     setup ->
+      requests = []
+      xhr = sinon.useFakeXMLHttpRequest()
+      xhr.onCreate = (req) -> requests.push(req)
       viewFirst = new ViewFirst()
       House.instances = []
       House.instancesById = {}
@@ -208,7 +214,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
         test 'The JSON from a model with only basic properties', ->
 
-          expect(kitchen.asJson()).to.eql JSON.stringify(expectedKitchenJson)
+          expect(kitchen.asJson()).to.eql expectedKitchenJson
 
         test 'A more complex model with OneToMany and ManyToOne relationships', ->
 
@@ -217,36 +223,33 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
       suite 'Saving a new object', ->
 
-        requests = null
-
-        setup ->
-
-          requests = []
-          xhr = sinon.useFakeXMLHttpRequest()
-          xhr.onCreate = (req) -> requests.push(req)
-
         test 'Saving a model with only basic properties', ->
 
           kitchen.save()
           expect(requests.length).to.equal 1
           expect(requests[0].url).to.equal "/rooms"
           expect(requests[0].requestBody).to.eql JSON.stringify(expectedKitchenJson)
+          expect(requests[0].method).to.equal "POST"
           requests[0].respond 201, {"Content-Type": "application/json"}, JSON.stringify(cloneWithId(expectedKitchenJson, 13))
           expect(kitchen.get("id")).to.equal 13
 
         test 'Saving a more complex model with OneToMany and ManyToOne relationships', ->
-
-          jsonForServerToReturn = createHouseJsonReturnedOnSave()
 
           #Check our test setup has not changed the original models
           expect(aHouse.get("id")).to.equal null
           expect(bedroom.get("id")).to.equal null
           expect(kitchen.get("id")).to.equal null
 
-          [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturn))
-
           aHouse.save()
-          callback()
+          expect(requests.length).to.equal 1
+          expect(requests[0].url).to.equal "/houses"
+          expect(JSON.parse(requests[0].requestBody)).to.eql expectedHouseJson
+
+          toReturn = cloneWithId(expectedHouseJson, 1)
+          toReturn.rooms[0].id = 2
+          toReturn.rooms[1].id = 3
+
+          requests[0].respond 201, {"Content-Type": "application/json"}, JSON.stringify(toReturn)
 
           #Now check the ids have been applied
           expect(aHouse.get("id")).to.equal 1
@@ -257,10 +260,11 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
       suite 'Updating and Deleting an object and persisting those changes', ->
 
         initiallySaveTheHouse = ->
-          jsonForServerToReturnOnSave = createHouseJsonReturnedOnSave()
-          [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturnOnSave))
+          toReturn  = cloneWithId(expectedHouseJson, 1)
+          toReturn.rooms[0].id = 2
+          toReturn.rooms[1].id = 3
           aHouse.save()
-          callback()
+          requests[0].respond 201, {"Content-Type": "application/json"}, JSON.stringify(toReturn)
 
         test 'Basic changed attributes are sent in a PUT request', ->
 
@@ -270,18 +274,18 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           aHouse.set("doorNumber", 99)
 
           expectedJson = {id: 1, doorNumber: 99}
-          dummyServerResponse = JSON.stringify(aHouse.asJson())
-          [dummyAjaxFunc, callback] = ajaxExpectation("houses/1", "PUT", expectedJson, dummyServerResponse)
           aHouse.save()
-          callback()
+          expect(requests[1].url).to.equal "/houses/1"
+          expect(requests[1].method).to.equal "PUT"
+          expect(JSON.parse(requests[1].requestBody)).to.eql expectedJson
 
         test 'Deleting a model creates a DELETE request', ->
 
           initiallySaveTheHouse()
 
-          [dummyAjaxFunc, callback] = ajaxExpectation("houses/1", "DELETE", null, null)
           aHouse.delete()
-          callback()
+          expect(requests[1].url).to.equal "/houses/1"
+          expect(requests[1].method).to.equal "DELETE"
 
       suite 'Events are fired by models', ->
 

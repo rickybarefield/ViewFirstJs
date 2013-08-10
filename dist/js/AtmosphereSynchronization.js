@@ -67,6 +67,12 @@
           contentType: "application/json",
           success: callbackFunctions['success']
         });
+      },
+      "delete": function(url, callbackFunctions) {
+        return $.ajax(url, {
+          type: 'DELETE',
+          success: callbackFunctions['success']
+        });
       }
     };
     return AtmosphereSynchronization;
