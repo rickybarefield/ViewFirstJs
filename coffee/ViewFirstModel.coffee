@@ -18,6 +18,11 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       @instances[model.clientId] = model
       @trigger("add", model) unless silent
 
+    remove: (model) ->
+
+      delete @instances[model.clientId]
+      @trigger("remove", model)
+
   class ClientFilteredCollection extends Collection
 
     constructor: () ->
@@ -40,6 +45,20 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       filteredCollection.add(model, true) for key, model of @instances when filter(model)
       return filteredCollection
 
+    add: (model, silent = false) ->
+
+      super
+      filteredCollection.collection.add(model) for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+
+      model.on "change", =>
+
+        for filteredCollection in @filteredCollections
+
+          matches = filteredCollection.filter(model)
+
+          filteredCollection.collection.add(model, silent) if matches and not filteredCollection.collection.instances[model.clientId]?
+          filteredCollection.collection.remove(model) if not matches and filteredCollection.collection.instances[model.clientId]?
+
     activate: =>
 
       callbackFunctions =
@@ -56,19 +75,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
           delete @instances[model.clientId]
 
       Sync.connectCollection(@url, callbackFunctions)
-
-    modelAdded = (model, silent = false) ->
-    
-        @instances[model.clientId] = model
-
-        filteredCollection.instances[model.clientId] = model for filteredCollection in @filteredCollections when filteredCollection.filter(model)
-
-
-        #TODO Need to consider how to listen for model changes and reevaluate filters, would
-        #TODO be easier to let filtered collections take care of themselves but this would
-        #TODO exclude the idea of a move event, so need to know if a model is in a collection
-
-        @trigger("add", model) unless silent
 
   class Model extends Events
 

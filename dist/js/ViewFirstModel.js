@@ -40,6 +40,11 @@
         }
       };
 
+      Collection.prototype.remove = function(model) {
+        delete this.instances[model.clientId];
+        return this.trigger("remove", model);
+      };
+
       return Collection;
 
     })(Events);
@@ -55,7 +60,6 @@
 
     })(Collection);
     ServerSynchronisedCollection = (function(_super) {
-      var modelAdded;
 
       __extends(ServerSynchronisedCollection, _super);
 
@@ -89,6 +93,40 @@
         return filteredCollection;
       };
 
+      ServerSynchronisedCollection.prototype.add = function(model, silent) {
+        var filteredCollection, _i, _len, _ref,
+          _this = this;
+        if (silent == null) {
+          silent = false;
+        }
+        ServerSynchronisedCollection.__super__.add.apply(this, arguments);
+        _ref = this.filteredCollections;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          filteredCollection = _ref[_i];
+          if (filteredCollection.filter(model)) {
+            filteredCollection.collection.add(model);
+          }
+        }
+        return model.on("change", function() {
+          var matches, _j, _len1, _ref1, _results;
+          _ref1 = _this.filteredCollections;
+          _results = [];
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            filteredCollection = _ref1[_j];
+            matches = filteredCollection.filter(model);
+            if (matches && !(filteredCollection.collection.instances[model.clientId] != null)) {
+              filteredCollection.collection.add(model, silent);
+            }
+            if (!matches && (filteredCollection.collection.instances[model.clientId] != null)) {
+              _results.push(filteredCollection.collection.remove(model));
+            } else {
+              _results.push(void 0);
+            }
+          }
+          return _results;
+        });
+      };
+
       ServerSynchronisedCollection.prototype.activate = function() {
         var callbackFunctions,
           _this = this;
@@ -112,24 +150,6 @@
           }
         };
         return Sync.connectCollection(this.url, callbackFunctions);
-      };
-
-      modelAdded = function(model, silent) {
-        var filteredCollection, _i, _len, _ref;
-        if (silent == null) {
-          silent = false;
-        }
-        this.instances[model.clientId] = model;
-        _ref = this.filteredCollections;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          filteredCollection = _ref[_i];
-          if (filteredCollection.filter(model)) {
-            filteredCollection.instances[model.clientId] = model;
-          }
-        }
-        if (!silent) {
-          return this.trigger("add", model);
-        }
       };
 
       return ServerSynchronisedCollection;

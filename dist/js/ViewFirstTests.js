@@ -300,8 +300,8 @@
           });
         });
       });
-      suite('Server Synchronised Collection Tests', function() {
-        suite('Creating collections and modifying their contents', function() {
+      suite('Collections', function() {
+        suite('Server Synchronised Collections', function() {
           test('Creating a collection with no specific url will default to the models url', function() {
             var houseCollection;
             houseCollection = House.createCollection();
@@ -343,26 +343,32 @@
           });
         });
         return suite('Client filtered collections tests', function() {
-          var isEvenDoorNumber;
+          var houses, isEvenDoorNumber;
+          houses = null;
+          setup(function() {
+            return houses = House.createCollection();
+          });
           isEvenDoorNumber = function(house) {
             var doorNumber;
             doorNumber = house.get("doorNumber");
             return (doorNumber != null) && doorNumber % 2 === 0;
           };
           test('A filtered collection will contain matching elements when first created', function() {
-            var houses;
-            houses = House.createCollection();
             houses.add(aHouse);
             expect(houses.filter(isEvenDoorNumber).size()).to.equal(0);
             aHouse.set("doorNumber", 2);
             return expect(houses.filter(isEvenDoorNumber).size()).to.equal(1);
           });
           test('When new models are added to the server synchronised collection these are added to filtered collections if they match', function() {
-            return expect("TODO").to.equal("DONE");
+            var evenHouses;
+            evenHouses = houses.filter(isEvenDoorNumber);
+            expect(evenHouses.size()).to.equal(0);
+            aHouse.set("doorNumber", 4);
+            houses.add(aHouse);
+            return expect(evenHouses.size()).to.equal(1);
           });
           test('When a model changes it is added to matching filtered collections', function() {
-            var anotherHouse, houses, housesWithEvenDoorNumbers;
-            houses = House.createCollection();
+            var anotherHouse, housesWithEvenDoorNumbers;
             houses.add(aHouse);
             housesWithEvenDoorNumbers = houses.filter(isEvenDoorNumber);
             expect(housesWithEvenDoorNumbers.size()).to.equal(0);
@@ -375,7 +381,13 @@
             return expect(housesWithEvenDoorNumbers.size()).to.equal(2);
           });
           return test('When a model changes it is removed from filtered collections it no longer matches', function() {
-            return expect("TODO").to.equal("DONE");
+            var evenHouses;
+            aHouse.set("doorNumber", 4);
+            evenHouses = houses.filter(isEvenDoorNumber);
+            houses.add(aHouse);
+            expect(evenHouses.size()).to.equal(1);
+            aHouse.set("doorNumber", 3);
+            return expect(evenHouses.size()).to.equal(0);
           });
         });
       });
@@ -465,15 +477,19 @@
           });
         });
         return suite('Collection Binding', function() {
-          var nodeConstructionFunction, parentNode;
+          var nodeConstructionFunction, parentNode, rooms;
+          rooms = null;
           parentNode = {};
           nodeConstructionFunction = {};
           setup(function() {
             parentNode = $("<ul></ul>");
+            rooms = Room.createCollection();
+            rooms.add(kitchen);
+            rooms.add(bedroom);
             nodeConstructionFunction = function() {
               return $("<li>\#{colour}</li>");
             };
-            return viewFirst.bindCollection(Room.createCollection(), parentNode, nodeConstructionFunction);
+            return viewFirst.bindCollection(rooms, parentNode, nodeConstructionFunction);
           });
           test('A collection is bound to a simple html model', function() {
             return expect(parentNode.get(0).outerHTML).to.eql("<ul><li>White</li><li>Pink</li></ul>");
@@ -482,18 +498,12 @@
             var diningRoom;
             diningRoom = new Room();
             diningRoom.set("colour", "Black");
+            rooms.add(diningRoom);
             return expect(parentNode.get(0).outerHTML).to.eql("<ul><li>White</li><li>Pink</li><li>Black</li></ul>");
           });
           return test('When I remove an element from a collection that is reflected in the bound html', function() {
-            var pinkParentNode, pinkRoomCollection;
-            pinkParentNode = $("<ul></ul>");
-            pinkRoomCollection = Room.createCollection(function(model) {
-              return model.get("colour") === "Pink";
-            });
-            viewFirst.bindCollection(pinkRoomCollection, pinkParentNode, nodeConstructionFunction);
-            expect(pinkParentNode.get(0).outerHTML).to.eql("<ul><li>Pink</li></ul>");
-            bedroom.set("colour", "Blue");
-            return expect(pinkParentNode.get(0).outerHTML).to.eql("<ul></ul>");
+            rooms.remove(kitchen);
+            return expect(parentNode.get(0).outerHTML).to.eql("<ul><li>Pink</li></ul>");
           });
         });
       });

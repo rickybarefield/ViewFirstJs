@@ -312,9 +312,9 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
           expect(changeCalled).to.equal true
 
-    suite 'Server Synchronised Collection Tests', ->
+    suite 'Collections', ->
 
-      suite 'Creating collections and modifying their contents', ->
+      suite 'Server Synchronised Collections', ->
 
         test 'Creating a collection with no specific url will default to the models url', ->
 
@@ -360,13 +360,18 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
       suite 'Client filtered collections tests', ->
 
+        houses = null
+
+        setup ->
+
+          houses = House.createCollection()
+
         isEvenDoorNumber = (house) ->
           doorNumber = house.get("doorNumber")
           return doorNumber? && doorNumber % 2 == 0
 
         test 'A filtered collection will contain matching elements when first created', ->
 
-          houses = House.createCollection()
           houses.add(aHouse)
           expect(houses.filter(isEvenDoorNumber).size()).to.equal 0
           aHouse.set("doorNumber", 2)
@@ -374,11 +379,15 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
         test 'When new models are added to the server synchronised collection these are added to filtered collections if they match', ->
 
-          expect("TODO").to.equal "DONE"
+          evenHouses = houses.filter(isEvenDoorNumber)
+          expect(evenHouses.size()).to.equal 0
+          aHouse.set("doorNumber", 4)
+          houses.add(aHouse)
+          expect(evenHouses.size()).to.equal 1
+
 
         test 'When a model changes it is added to matching filtered collections', ->
 
-          houses = House.createCollection()
           houses.add(aHouse)
           housesWithEvenDoorNumbers = houses.filter(isEvenDoorNumber)
 
@@ -393,7 +402,12 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
         test 'When a model changes it is removed from filtered collections it no longer matches', ->
 
-          expect("TODO").to.equal "DONE"
+          aHouse.set("doorNumber", 4)
+          evenHouses = houses.filter(isEvenDoorNumber)
+          houses.add(aHouse)
+          expect(evenHouses.size()).to.equal 1
+          aHouse.set("doorNumber", 3)
+          expect(evenHouses.size()).to.equal 0
 
     suite 'Binding Tests', ->
 
@@ -511,14 +525,19 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
       suite 'Collection Binding', ->
 
+        rooms = null
         parentNode = {}
         nodeConstructionFunction = {}
 
         setup ->
 
           parentNode = $("<ul></ul>")
+          rooms = Room.createCollection()
+          rooms.add(kitchen)
+          rooms.add(bedroom)
           nodeConstructionFunction = -> $("<li>\#{colour}</li>")
-          viewFirst.bindCollection(Room.createCollection(), parentNode, nodeConstructionFunction)
+          viewFirst.bindCollection(rooms, parentNode, nodeConstructionFunction)
+
 
         test 'A collection is bound to a simple html model', ->
 
@@ -528,18 +547,14 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
           diningRoom = new Room()
           diningRoom.set("colour", "Black")
+          rooms.add(diningRoom)
 
           expect(parentNode.get(0).outerHTML).to.eql "<ul><li>White</li><li>Pink</li><li>Black</li></ul>"
 
         test 'When I remove an element from a collection that is reflected in the bound html', ->
 
-           pinkParentNode = $("<ul></ul>")
-           pinkRoomCollection = Room.createCollection((model) -> model.get("colour") == "Pink")
-           viewFirst.bindCollection(pinkRoomCollection, pinkParentNode, nodeConstructionFunction)
-           expect(pinkParentNode.get(0).outerHTML).to.eql "<ul><li>Pink</li></ul>"
-
-           bedroom.set("colour", "Blue")
-           expect(pinkParentNode.get(0).outerHTML).to.eql "<ul></ul>"
+           rooms.remove(kitchen)
+           expect(parentNode.get(0).outerHTML).to.eql "<ul><li>Pink</li></ul>"
 
     suite 'Named Model Tests', ->
 
