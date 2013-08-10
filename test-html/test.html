@@ -12,6 +12,12 @@
   <script>
 	  require.config({
 		  baseUrl: '../dist/js',
+          paths: {
+            "sandbox": "sinon/sandbox",
+            "fake_server": "sinon/util/fake_server",
+            "fake_xml_http_request": "sinon/util/fake_xml_http_request",
+            "event": "sinon/util/event"
+          },
 		  shim: {
 		    underscore: {
 		      exports: '_'
@@ -21,7 +27,21 @@
 		    },
 		    expect: {
 		    	exports: 'expect'
-		    }
+		    },
+            sandbox: {
+              deps: ["fake_server", "fake_xml_http_request", "event"],
+            },
+            sinon: {
+              exports: 'sinon'
+            },
+            fake_xml_http_request: {
+
+              exports: "fake_xml_http_request",
+              init: function() {
+
+                sinon.extend(sinon.FakeXMLHttpRequest, sinon.Event)
+              }
+            }
 	    }
 		});  
 	  

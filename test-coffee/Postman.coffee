@@ -2,6 +2,8 @@ define ["ViewFirst"], (ViewFirst) ->
 
   ViewFirst.Model.extend class Postman
 
+    @url : "/postmen"
+
     constructor: ->
       @createProperty("name", String)
       @createProperty("dob", Date)

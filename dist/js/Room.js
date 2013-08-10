@@ -5,7 +5,7 @@
     var Room;
     return ViewFirst.Model.extend(Room = (function() {
 
-      Room.prototype.url = "rooms";
+      Room.url = "/rooms";
 
       function Room() {
         this.createProperty("colour", String);

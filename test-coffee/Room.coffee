@@ -2,7 +2,7 @@ define ["ViewFirst"], (ViewFirst) ->
   
   ViewFirst.Model.extend class Room
 
-    url: "rooms"
+    @url: "/rooms"
 
     constructor: ->
       @createProperty("colour", String)

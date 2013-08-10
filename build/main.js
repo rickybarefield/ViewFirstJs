@@ -15,6 +15,9 @@ require.config({
     'backbone-relational': {
       deps: ["underscore", "backbone"],
       exports: "Backbone-Relational"
+    },
+    sinon : {
+      exports : "sinon"
     }
   }
 });

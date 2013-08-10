@@ -156,7 +156,7 @@
 
     })(Collection);
     Model = (function(_super) {
-      var addCreateCollectionFunction, addInstances, addLoadMethod, createClientId, lastClientIdUsed;
+      var addCreateCollectionFunction, addInstances, addLoadMethod, createClientId, ensureModelValid, lastClientIdUsed;
 
       __extends(Model, _super);
 
@@ -309,8 +309,15 @@
         };
       };
 
+      ensureModelValid = function(Model) {
+        if (!Model.url) {
+          throw "url must be set as a static property";
+        }
+      };
+
       Model.extend = function(Child) {
         var ChildExtended, Surrogate, key;
+        ensureModelValid(Child);
         ChildExtended = function() {
           Model.apply(this, arguments);
           Child.apply(this, arguments);

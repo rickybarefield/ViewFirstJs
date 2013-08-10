@@ -5,6 +5,8 @@
     var Postman;
     return ViewFirst.Model.extend(Postman = (function() {
 
+      Postman.url = "/postmen";
+
       function Postman() {
         this.createProperty("name", String);
         this.createProperty("dob", Date);

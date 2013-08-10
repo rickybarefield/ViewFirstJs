@@ -8,7 +8,7 @@ coffee -o ../dist/js -c ../coffee
 coffee -o ../dist/js -c ../test-coffee
 
 #Copy vendor files in
-cp ../vendor/* ../dist/js
-cp ../test-vendor/* ../dist/js
+cp -r ../vendor/* ../dist/js
+cp -r ../test-vendor/* ../dist/js
 
 r.js -o app.build.js

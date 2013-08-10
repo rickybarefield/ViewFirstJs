@@ -177,7 +177,14 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       Child.createCollection = (url) ->
         new ServerSynchronisedCollection(Child, url)
 
+
+    ensureModelValid = (Model) ->
+
+      throw "url must be set as a static property" unless Model.url
+
     @extend: (Child) ->
+
+      ensureModelValid(Child)
 
       ChildExtended = ->
         Model.apply(this, arguments)

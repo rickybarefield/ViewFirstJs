@@ -1,5 +1,5 @@
-define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "JQueryTestHarness", "AtmosphereMock", "underscore", "jquery"],
- (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, JQueryTestHarness, AtmosphereMock, _, $) ->
+define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "AtmosphereMock", "underscore", "jquery"],
+ (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, AtmosphereMock, _, $) ->
 
   mocha.setup('tdd')
   AtmosphereMock.initialize()
@@ -59,15 +59,6 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
     return [ajaxMethod, doCallback]
 
   cloneWithId = (obj, idToAdd) -> $.extend(true, {id: idToAdd}, obj)
-
-  createHouseJsonReturnedOnSave = ->
-    clonedHouseJson = cloneWithId(expectedHouseJson, 1)
-    clonedHouseJson.rooms[0].id = 2
-    clonedHouseJson.rooms[1].id = 3
-    return clonedHouseJson
-
-
-    return [ajaxMethod, doCallback]
 
   suite 'ViewFirst Tests', ->
 
@@ -217,7 +208,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
         test 'The JSON from a model with only basic properties', ->
 
-          expect(kitchen.asJson()).to.eql expectedKitchenJson
+          expect(kitchen.asJson()).to.eql JSON.stringify(expectedKitchenJson)
 
         test 'A more complex model with OneToMany and ManyToOne relationships', ->
 
@@ -226,14 +217,22 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
       suite 'Saving a new object', ->
 
+        requests = null
+
+        setup ->
+
+          requests = []
+          xhr = sinon.useFakeXMLHttpRequest()
+          xhr.onCreate = (req) -> requests.push(req)
+
         test 'Saving a model with only basic properties', ->
 
-          [dummyAjaxFunc, callback] = ajaxExpectation("rooms", "POST", expectedKitchenJson, JSON.stringify(cloneWithId(expectedKitchenJson, 13)))
-          JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
           kitchen.save()
-          callback()
-          expect(kitchen.get("id")).to.equal(13)
-          JQueryTestHarness.assertAllExpectationsMet()
+          expect(requests.length).to.equal 1
+          expect(requests[0].url).to.equal "/rooms"
+          expect(requests[0].requestBody).to.eql JSON.stringify(expectedKitchenJson)
+          requests[0].respond 201, {"Content-Type": "application/json"}, JSON.stringify(cloneWithId(expectedKitchenJson, 13))
+          expect(kitchen.get("id")).to.equal 13
 
         test 'Saving a more complex model with OneToMany and ManyToOne relationships', ->
 
@@ -245,11 +244,9 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           expect(kitchen.get("id")).to.equal null
 
           [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturn))
-          JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
 
           aHouse.save()
           callback()
-          JQueryTestHarness.assertAllExpectationsMet()
 
           #Now check the ids have been applied
           expect(aHouse.get("id")).to.equal 1
@@ -262,10 +259,8 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
         initiallySaveTheHouse = ->
           jsonForServerToReturnOnSave = createHouseJsonReturnedOnSave()
           [dummyAjaxFunc, callback] = ajaxExpectation("houses", "POST", expectedHouseJson, JSON.stringify(jsonForServerToReturnOnSave))
-          JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
           aHouse.save()
           callback()
-          JQueryTestHarness.assertAllExpectationsMet()
 
         test 'Basic changed attributes are sent in a PUT request', ->
 
@@ -277,20 +272,16 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           expectedJson = {id: 1, doorNumber: 99}
           dummyServerResponse = JSON.stringify(aHouse.asJson())
           [dummyAjaxFunc, callback] = ajaxExpectation("houses/1", "PUT", expectedJson, dummyServerResponse)
-          JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
           aHouse.save()
           callback()
-          JQueryTestHarness.assertAllExpectationsMet()
 
         test 'Deleting a model creates a DELETE request', ->
 
           initiallySaveTheHouse()
 
           [dummyAjaxFunc, callback] = ajaxExpectation("houses/1", "DELETE", null, null)
-          JQueryTestHarness.addExpectation($, "ajax", dummyAjaxFunc)
           aHouse.delete()
           callback()
-          JQueryTestHarness.assertAllExpectationsMet()
 
       suite 'Events are fired by models', ->
 
