@@ -408,6 +408,27 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           aHouse.set("doorNumber", 3)
           expect(evenHouses.size()).to.equal 0
 
+        test 'Deactivating a collection will remove it from the server collections list', ->
+
+          evenHouses = houses.filter(isEvenDoorNumber)
+          expect(houses.filteredCollections.length).to.equal 1
+          evenHouses.deactivate()
+          expect(houses.filteredCollections.length).to.equal 0
+
+        test 'A collection of filtered collections can be deactivated in one go', ->
+
+          evenHouses = houses.filter(isEvenDoorNumber)
+          oddHouses = houses.filter -> !isEvenDoorNumber
+          expect(houses.filteredCollections.length).to.equal 2
+          houses.removeFilteredCollection([evenHouses, oddHouses])
+          expect(houses.filteredCollections.length).to.equal 0
+          evenHouses = houses.filter(isEvenDoorNumber)
+          oddHouses = houses.filter -> !isEvenDoorNumber
+          expect(houses.filteredCollections.length).to.equal 2
+          houses.removeFilteredCollection(evenHouses, oddHouses)
+          expect(houses.filteredCollections.length).to.equal 0
+
+
     suite 'Binding Tests', ->
 
       suite 'Text Binding', ->

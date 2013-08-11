@@ -25,9 +25,13 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
   class ClientFilteredCollection extends Collection
 
-    constructor: () ->
+    constructor: (@serverSyncCollection) ->
 
       super
+
+    deactivate: =>
+
+      @serverSyncCollection.removeFilteredCollection(@)
 
   class ServerSynchronisedCollection extends Collection
 
@@ -37,13 +41,17 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       @url = modelType.url unless @url
       @filteredCollections = []
 
-    filter: (filter) ->
+    filter: (filter) =>
 
-      filteredCollection = new ClientFilteredCollection
+      filteredCollection = new ClientFilteredCollection(@)
       filteredCollectionObject = {collection: filteredCollection, filter: filter}
       @filteredCollections.push filteredCollectionObject
       filteredCollection.add(model, true) for key, model of @instances when filter(model)
       return filteredCollection
+
+    removeFilteredCollection: (collections...) =>
+
+       @filteredCollections = _.filter(@filteredCollections, (collObj) -> (collObj in collections))
 
     add: (model, silent = false) ->
 

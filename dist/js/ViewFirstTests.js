@@ -389,7 +389,7 @@
             aHouse.set("doorNumber", 4);
             return expect(housesWithEvenDoorNumbers.size()).to.equal(2);
           });
-          return test('When a model changes it is removed from filtered collections it no longer matches', function() {
+          test('When a model changes it is removed from filtered collections it no longer matches', function() {
             var evenHouses;
             aHouse.set("doorNumber", 4);
             evenHouses = houses.filter(isEvenDoorNumber);
@@ -397,6 +397,30 @@
             expect(evenHouses.size()).to.equal(1);
             aHouse.set("doorNumber", 3);
             return expect(evenHouses.size()).to.equal(0);
+          });
+          test('Deactivating a collection will remove it from the server collections list', function() {
+            var evenHouses;
+            evenHouses = houses.filter(isEvenDoorNumber);
+            expect(houses.filteredCollections.length).to.equal(1);
+            evenHouses.deactivate();
+            return expect(houses.filteredCollections.length).to.equal(0);
+          });
+          return test('A collection of filtered collections can be deactivated in one go', function() {
+            var evenHouses, oddHouses;
+            evenHouses = houses.filter(isEvenDoorNumber);
+            oddHouses = houses.filter(function() {
+              return !isEvenDoorNumber;
+            });
+            expect(houses.filteredCollections.length).to.equal(2);
+            houses.removeFilteredCollection([evenHouses, oddHouses]);
+            expect(houses.filteredCollections.length).to.equal(0);
+            evenHouses = houses.filter(isEvenDoorNumber);
+            oddHouses = houses.filter(function() {
+              return !isEvenDoorNumber;
+            });
+            expect(houses.filteredCollections.length).to.equal(2);
+            houses.removeFilteredCollection(evenHouses, oddHouses);
+            return expect(houses.filteredCollections.length).to.equal(0);
           });
         });
       });

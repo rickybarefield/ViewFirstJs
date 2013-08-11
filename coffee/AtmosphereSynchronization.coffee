@@ -48,7 +48,6 @@ define ["jquery"], ($) ->
 
       $.ajax(url, {type: 'POST', data: json, contentType : "application/json", success: callbackFunctions['success']})
 
-      
     update: (url, json, callbackFunctions) ->
         
       $.ajax(url, {type: 'PUT', data: json, contentType : "application/json", success: callbackFunctions['success']})

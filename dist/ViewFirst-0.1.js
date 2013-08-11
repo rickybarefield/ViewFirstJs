@@ -1470,7 +1470,9 @@ define("underscore", (function (global) {
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __slice = [].slice,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   define('ViewFirstModel',["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchronization"], function(_, $, Property, Events, Sync) {
     var ClientFilteredCollection, Collection, Model, ServerSynchronisedCollection;
@@ -1520,9 +1522,16 @@ define("underscore", (function (global) {
 
       __extends(ClientFilteredCollection, _super);
 
-      function ClientFilteredCollection() {
+      function ClientFilteredCollection(serverSyncCollection) {
+        this.serverSyncCollection = serverSyncCollection;
+        this.deactivate = __bind(this.deactivate, this);
+
         ClientFilteredCollection.__super__.constructor.apply(this, arguments);
       }
+
+      ClientFilteredCollection.prototype.deactivate = function() {
+        return this.serverSyncCollection.removeFilteredCollection(this);
+      };
 
       return ClientFilteredCollection;
 
@@ -1536,6 +1545,10 @@ define("underscore", (function (global) {
         this.url = url;
         this.activate = __bind(this.activate, this);
 
+        this.removeFilteredCollection = __bind(this.removeFilteredCollection, this);
+
+        this.filter = __bind(this.filter, this);
+
         ServerSynchronisedCollection.__super__.constructor.apply(this, arguments);
         if (!this.url) {
           this.url = modelType.url;
@@ -1545,7 +1558,7 @@ define("underscore", (function (global) {
 
       ServerSynchronisedCollection.prototype.filter = function(filter) {
         var filteredCollection, filteredCollectionObject, key, model, _ref;
-        filteredCollection = new ClientFilteredCollection;
+        filteredCollection = new ClientFilteredCollection(this);
         filteredCollectionObject = {
           collection: filteredCollection,
           filter: filter
@@ -1559,6 +1572,14 @@ define("underscore", (function (global) {
           }
         }
         return filteredCollection;
+      };
+
+      ServerSynchronisedCollection.prototype.removeFilteredCollection = function() {
+        var collections;
+        collections = 1 <= arguments.length ? __slice.call(arguments, 0) : [];
+        return this.filteredCollections = _.filter(this.filteredCollections, function(collObj) {
+          return __indexOf.call(collections, collObj) >= 0;
+        });
       };
 
       ServerSynchronisedCollection.prototype.add = function(model, silent) {
