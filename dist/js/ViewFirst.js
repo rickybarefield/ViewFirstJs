@@ -46,7 +46,9 @@
         });
       }
 
-      ViewFirst.prototype.initialize = function() {};
+      ViewFirst.prototype.initialize = function(initialView) {
+        return this.render(initialView);
+      };
 
       ViewFirst.prototype.render = function(viewId) {
         var inflated, viewElement;
@@ -56,11 +58,8 @@
           throw "Unable to find view: " + viewId;
         }
         inflated = this.inflate(viewElement);
+        this.router.update();
         return $(this._target).html(inflated);
-      };
-
-      ViewFirst.prototype.navigate = function(viewId) {
-        return Backbone.history.navigate(viewId, true);
       };
 
       ViewFirst.prototype.addSnippet = function(name, func) {
@@ -76,7 +75,8 @@
           this.namedModels[name] = new ModelContainer();
         }
         modelContainer = this.namedModels[name];
-        return modelContainer.set(model);
+        modelContainer.set(model);
+        return this.router.update();
       };
 
       ViewFirst.prototype.getNamedModel = function(name) {

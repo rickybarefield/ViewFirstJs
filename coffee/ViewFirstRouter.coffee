@@ -1,9 +1,23 @@
 define ->
 
   class ViewFirstRouter
-  
+
     constructor: (@viewFirst) ->
-  
+
+      @baseUrl = location.protocol + '//' + location.host + location.pathname
+
+    deriveNamedModelString = (namedModels) ->
+
+      namedModelStrings = "#{name}=#{container.model.get("id")}" for name, container of namedModels when container.model.isPersisted
+
+    update: ->
+
+      namedModelString = deriveNamedModelString(@viewFirst.namedModels)
+
+      history.pushState(null, null, "#{@baseUrl}##{@viewFirst.currentView}")
+
+    ###
+
     addRoute: (pageName, index = false) =>
   
       createRegex = (pageName) -> new RegExp("^#{pageName}/?([/A-Za-z!0-9]*)$")
@@ -41,3 +55,5 @@ define ->
   
       url = @currentPage + modelsSerialized.join("")
       @navigate url
+
+    ###

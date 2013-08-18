@@ -111,8 +111,10 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       @properties[name] = property
       return property
 
-    isNew: ->
-      !@properties["id"].isSet()
+    isNew: -> !(@isPersisted)
+
+    isPersisted: ->
+      @properties["id"].isSet()
 
     get: (name) ->
       @properties[name].get()
@@ -202,6 +204,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
         @constructor.trigger("created", @)
         return this
 
+      ChildExtended.name = Child.name
+
       Surrogate = ->
       Surrogate.prototype = @prototype
 
@@ -210,12 +214,14 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       
       _.extend(ChildExtended, new Events)
       _.extend(ChildExtended, Child)
-      
+      _.extend(ChildExtended.prototype, Child.prototype)
+
       addInstances ChildExtended
       addLoadMethod ChildExtended
       addCreateCollectionFunction ChildExtended
 
-      ChildExtended.prototype[key] = Child.prototype[key] for key of Child.prototype when Child.prototype.hasOwnProperty(key)
+
+      #ChildExtended.prototype[key] = Child.prototype[key] for key of Child.prototype when Child.prototype.hasOwnProperty(key)
       
       return ChildExtended
 

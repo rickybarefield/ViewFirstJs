@@ -24,9 +24,9 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
         @views[viewName] = node.html()
         #TODO @router.addRoute viewName, viewName == @indexView
 
-    initialize: ->
+    initialize: (initialView) ->
 
-      #TODO Backbone.history.start()
+      @render(initialView)
 
     render: (viewId) ->
 
@@ -34,10 +34,8 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
       viewElement = @views[viewId]
       throw "Unable to find view: #{viewId}" unless viewElement?
       inflated = @inflate(viewElement)
+      @router.update()
       $(@_target).html inflated
-
-    navigate: (viewId) ->
-      Backbone.history.navigate viewId, true
 
     addSnippet: (name, func) ->
       @snippets[name] = func
@@ -48,7 +46,7 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
       modelContainer = @namedModels[name]
       modelContainer.set(model)
 
-      #TODO @router.updateState() unless dontSerialize
+      @router.update()
 
     getNamedModel: (name) ->
 

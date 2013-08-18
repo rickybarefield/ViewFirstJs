@@ -219,7 +219,11 @@
       };
 
       Model.prototype.isNew = function() {
-        return !this.properties["id"].isSet();
+        return !this.isPersisted;
+      };
+
+      Model.prototype.isPersisted = function() {
+        return this.properties["id"].isSet();
       };
 
       Model.prototype.get = function(name) {
@@ -335,7 +339,7 @@
       };
 
       Model.extend = function(Child) {
-        var ChildExtended, Surrogate, key;
+        var ChildExtended, Surrogate;
         ensureModelValid(Child);
         ChildExtended = function() {
           Model.apply(this, arguments);
@@ -344,20 +348,17 @@
           this.constructor.trigger("created", this);
           return this;
         };
+        ChildExtended.name = Child.name;
         Surrogate = function() {};
         Surrogate.prototype = this.prototype;
         ChildExtended.prototype = new Surrogate;
         ChildExtended.prototype.constructor = ChildExtended;
         _.extend(ChildExtended, new Events);
         _.extend(ChildExtended, Child);
+        _.extend(ChildExtended.prototype, Child.prototype);
         addInstances(ChildExtended);
         addLoadMethod(ChildExtended);
         addCreateCollectionFunction(ChildExtended);
-        for (key in Child.prototype) {
-          if (Child.prototype.hasOwnProperty(key)) {
-            ChildExtended.prototype[key] = Child.prototype[key];
-          }
-        }
         return ChildExtended;
       };
 

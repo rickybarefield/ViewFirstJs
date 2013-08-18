@@ -91,7 +91,10 @@
         Room.instancesById = {};
         Postman.instances = [];
         Postman.instancesById = {};
-        return createHouse();
+        createHouse();
+        viewFirst._target = "#testDiv";
+        $('#testDiv').html("");
+        return viewFirst.initialize("basicView");
       });
       suite('ViewFirst Model Tests', function() {
         suite('Setting properties', function() {
@@ -575,11 +578,6 @@
         });
       });
       suite('Rendering views and snippets', function() {
-        setup(function() {
-          viewFirst._target = "#testDiv";
-          $('#testDiv').html("");
-          return viewFirst.initialize();
-        });
         suite('Rendering views', function() {
           test('Views are found', function() {
             return expect(viewFirst.views.basicView).to.eql("Here I am");
@@ -679,7 +677,7 @@
             return expect(attributeValue).to.equal("outer");
           });
         });
-        return suite('Built in snippets', function() {
+        suite('Built in snippets', function() {
           suite('Embed Snippet', function() {
             return test('A view can be embedded', function() {
               viewFirst.render("embedOfBasicView");
@@ -690,6 +688,42 @@
             return test('A view can be surrounded', function() {
               viewFirst.render("surroundedView");
               return expect($('#testDiv').html()).to.eql("TemplateStart[Surrounded Views Content]TemplateEnd");
+            });
+          });
+        });
+        return suite('Routing', function() {
+          suite('Default', function() {
+            return test('When the root url is hit the user should be taken to the view supplied in the initialize method', function() {
+              expect($('#testDiv').html()).to.eql("Here I am");
+              return expect(window.location.href).to.contain("basicView");
+            });
+          });
+          suite('Named Models', function() {
+            test('Setting a named model adds it to the location when it has an id', function() {
+              bedroom.set("id", 5);
+              viewFirst.setNamedModel("someName", bedroom);
+              return expect(window.location.href).to.contain("|someName=Bedroom!5");
+            });
+            test('Setting a named model does not add it to the location when it does not have an id', function() {
+              return expect("TODO").to.eql("DONE");
+            });
+            test('The url is modified when a named model changed', function() {
+              return expect("TODO").to.eql("DONE");
+            });
+            test('Multiple named models can exist', function() {
+              return expect("TODO").to.eql("DONE");
+            });
+            test('Using the back button reverts named model changes', function() {
+              return expect("TODO").to.eql("DONE");
+            });
+            return test('Entering named models in the location bar directly will set the named models', function() {});
+          });
+          return suite('Moving between views', function() {
+            test('If a different view is selected the location is updated and the new view is displayed', function() {
+              return expect("TODO").to.eql("DONE");
+            });
+            return test('If the back button is used the location bar is reverted and the previous view is displayed', function() {
+              return expect("TODO").to.eql("DONE");
             });
           });
         });

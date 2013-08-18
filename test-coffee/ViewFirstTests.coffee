@@ -62,7 +62,6 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
   suite 'ViewFirst Tests', ->
 
-
     requests = null
 
     setup ->
@@ -77,6 +76,9 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
       Postman.instances = []
       Postman.instancesById = {}
       createHouse()
+      viewFirst._target = "#testDiv"
+      $('#testDiv').html("")
+      viewFirst.initialize("basicView")
 
     suite 'ViewFirst Model Tests', ->
 
@@ -617,12 +619,6 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
     suite 'Rendering views and snippets', ->
 
-      setup ->
-
-        viewFirst._target = "#testDiv"
-        $('#testDiv').html("")
-        viewFirst.initialize()
-
       suite 'Rendering views', ->
 
         test 'Views are found', ->
@@ -746,6 +742,49 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
             viewFirst.render("surroundedView")
             expect($('#testDiv').html()).to.eql "TemplateStart[Surrounded Views Content]TemplateEnd"
 
+      suite 'Routing', ->
 
+        suite 'Default', ->
+
+          test 'When the root url is hit the user should be taken to the view supplied in the initialize method', ->
+
+            expect($('#testDiv').html()).to.eql "Here I am"
+            expect(window.location.href).to.contain "basicView"
+
+        suite 'Named Models', ->
+
+          test 'Setting a named model adds it to the location when it has an id', ->
+
+            bedroom.set("id", 5)
+            viewFirst.setNamedModel("someName", bedroom)
+            expect(window.location.href).to.contain "|someName=Bedroom!5"
+
+          test 'Setting a named model does not add it to the location when it does not have an id', ->
+
+            expect("TODO").to.eql "DONE"
+
+          test 'The url is modified when a named model changed', ->
+
+            expect("TODO").to.eql "DONE"
+
+          test 'Multiple named models can exist', ->
+
+            expect("TODO").to.eql "DONE"
+
+          test 'Using the back button reverts named model changes', ->
+
+            expect("TODO").to.eql "DONE"
+
+          test 'Entering named models in the location bar directly will set the named models', ->
+
+        suite 'Moving between views', ->
+
+          test 'If a different view is selected the location is updated and the new view is displayed', ->
+
+            expect("TODO").to.eql "DONE"
+
+          test 'If the back button is used the location bar is reverted and the previous view is displayed', ->
+
+            expect("TODO").to.eql "DONE"
 
     mocha.run()
