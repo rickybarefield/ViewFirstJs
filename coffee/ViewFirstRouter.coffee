@@ -1,4 +1,4 @@
-define ->
+define ["ViewFirstModel"], (ViewFirstModel) ->
 
   class ViewFirstRouter
 
@@ -6,15 +6,25 @@ define ->
 
       @baseUrl = location.protocol + '//' + location.host + location.pathname
 
+    handleBackButton = (state) ->
+
+      alert(state)
+
+    initialize: ->
+
+      window.addEventListener "popstate", handleBackButton
+
     deriveNamedModelString = (namedModels) ->
 
-      namedModelStrings = "#{name}=#{container.model.get("id")}" for name, container of namedModels when container.model.isPersisted
+      namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when container.model.isPersisted())
+      return namedModelStrings.join("|") if namedModelStrings?
 
     update: ->
 
       namedModelString = deriveNamedModelString(@viewFirst.namedModels)
+      namedModelString = "|" + namedModelString if namedModelString?
 
-      history.pushState(null, null, "#{@baseUrl}##{@viewFirst.currentView}")
+      history.pushState(null, null, "#{@baseUrl}##{@viewFirst.currentView}#{namedModelString}")
 
     ###
 

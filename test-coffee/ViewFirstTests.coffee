@@ -757,19 +757,28 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
             bedroom.set("id", 5)
             viewFirst.setNamedModel("someName", bedroom)
-            expect(window.location.href).to.contain "|someName=Bedroom!5"
+            expect(window.location.href).to.contain "|someName=Room!5"
 
           test 'Setting a named model does not add it to the location when it does not have an id', ->
 
-            expect("TODO").to.eql "DONE"
+            viewFirst.setNamedModel("someName", bedroom)
+            expect(window.location.href).to.not.contain "Room"
 
-          test 'The url is modified when a named model changed', ->
+          test 'The url is modified when a named model changes', ->
 
-            expect("TODO").to.eql "DONE"
+            bedroom.set("id", 5)
+            viewFirst.setNamedModel("someName", bedroom)
+            expect(window.location.href).to.contain "|someName=Room!5"
+            viewFirst.setNamedModel("someName", fred)
+            expect(window.location.href).to.contain "|someName=Postman!99"
 
           test 'Multiple named models can exist', ->
 
-            expect("TODO").to.eql "DONE"
+            bedroom.set("id", 5)
+            viewFirst.setNamedModel("someName", bedroom)
+            viewFirst.setNamedModel("bestPostman", fred)
+            expect(window.location.href).to.contain "|someName=Room!5"
+            expect(window.location.href).to.contain "|bestPostman=Postman!99"
 
           test 'Using the back button reverts named model changes', ->
 

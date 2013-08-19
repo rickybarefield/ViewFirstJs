@@ -86,6 +86,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
   class Model extends Events
 
+    @models = {}
+
     constructor: () ->
 
       super
@@ -96,7 +98,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
                                       if oldValue? then throw "Cannot set id as it has already been set"
                                       if @constructor.instancesById[newValue]? then throw "Cannot set the id to #{newValue} as another object has that id"
                                       @constructor.instancesById[newValue] = this
-
 
     lastClientIdUsed = 0
 
@@ -188,7 +189,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       Child.createCollection = (url) ->
         new ServerSynchronisedCollection(Child, url)
 
-
     ensureModelValid = (Model) ->
 
       throw "url must be set as a static property" unless Model.url
@@ -204,7 +204,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
         @constructor.trigger("created", @)
         return this
 
-      ChildExtended.name = Child.name
+      ChildExtended.modelName = Child.name
+      @models[Child.name] = ChildExtended
 
       Surrogate = ->
       Surrogate.prototype = @prototype
@@ -220,9 +221,6 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       addLoadMethod ChildExtended
       addCreateCollectionFunction ChildExtended
 
-
-      #ChildExtended.prototype[key] = Child.prototype[key] for key of Child.prototype when Child.prototype.hasOwnProperty(key)
-      
       return ChildExtended
 
   return Model

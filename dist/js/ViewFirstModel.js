@@ -181,6 +181,8 @@
 
       __extends(Model, _super);
 
+      Model.models = {};
+
       function Model() {
         this.update = __bind(this.update, this);
 
@@ -348,7 +350,8 @@
           this.constructor.trigger("created", this);
           return this;
         };
-        ChildExtended.name = Child.name;
+        ChildExtended.modelName = Child.name;
+        this.models[Child.name] = ChildExtended;
         Surrogate = function() {};
         Surrogate.prototype = this.prototype;
         ChildExtended.prototype = new Surrogate;

@@ -47,6 +47,7 @@
       }
 
       ViewFirst.prototype.initialize = function(initialView) {
+        this.router.initialize();
         return this.render(initialView);
       };
 

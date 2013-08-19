@@ -702,16 +702,25 @@
             test('Setting a named model adds it to the location when it has an id', function() {
               bedroom.set("id", 5);
               viewFirst.setNamedModel("someName", bedroom);
-              return expect(window.location.href).to.contain("|someName=Bedroom!5");
+              return expect(window.location.href).to.contain("|someName=Room!5");
             });
             test('Setting a named model does not add it to the location when it does not have an id', function() {
-              return expect("TODO").to.eql("DONE");
+              viewFirst.setNamedModel("someName", bedroom);
+              return expect(window.location.href).to.not.contain("Room");
             });
-            test('The url is modified when a named model changed', function() {
-              return expect("TODO").to.eql("DONE");
+            test('The url is modified when a named model changes', function() {
+              bedroom.set("id", 5);
+              viewFirst.setNamedModel("someName", bedroom);
+              expect(window.location.href).to.contain("|someName=Room!5");
+              viewFirst.setNamedModel("someName", fred);
+              return expect(window.location.href).to.contain("|someName=Postman!99");
             });
             test('Multiple named models can exist', function() {
-              return expect("TODO").to.eql("DONE");
+              bedroom.set("id", 5);
+              viewFirst.setNamedModel("someName", bedroom);
+              viewFirst.setNamedModel("bestPostman", fred);
+              expect(window.location.href).to.contain("|someName=Room!5");
+              return expect(window.location.href).to.contain("|bestPostman=Postman!99");
             });
             test('Using the back button reverts named model changes', function() {
               return expect("TODO").to.eql("DONE");
