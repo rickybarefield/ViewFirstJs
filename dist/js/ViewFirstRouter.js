@@ -13,6 +13,8 @@
 
         this.initialize = __bind(this.initialize, this);
 
+        this.refresh = __bind(this.refresh, this);
+
         this.baseUrl = location.protocol + '//' + location.host + location.pathname;
       }
 
@@ -27,7 +29,7 @@
         namedModelStrings = matches[2];
         if (viewName != null) {
           this.viewFirst.render(viewName);
-          if (namedModelStrings != null) {
+          if ((namedModelStrings != null) && namedModelStrings !== "") {
             _ref = namedModelStrings.split("|");
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -41,6 +43,10 @@
             return _results;
           }
         }
+      };
+
+      ViewFirstRouter.prototype.refresh = function() {
+        return handleBackButton.call(this);
       };
 
       ViewFirstRouter.prototype.initialize = function() {
@@ -62,7 +68,7 @@
           _results = [];
           for (name in namedModels) {
             container = namedModels[name];
-            if (container.model.isPersisted()) {
+            if ((container.model != null) && container.model.isPersisted()) {
               _results.push("" + name + "=" + container.model.constructor.modelName + "!" + (container.model.get("id")));
             }
           }

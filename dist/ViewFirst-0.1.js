@@ -1441,6 +1441,7 @@ define("underscore", (function (global) {
       persist: function(url, json, callbackFunctions) {
         return $.ajax(url, {
           type: 'POST',
+          async: false,
           data: json,
           contentType: "application/json",
           success: callbackFunctions['success']
@@ -1449,6 +1450,7 @@ define("underscore", (function (global) {
       update: function(url, json, callbackFunctions) {
         return $.ajax(url, {
           type: 'PUT',
+          async: false,
           data: json,
           contentType: "application/json",
           success: callbackFunctions['success']
@@ -1457,6 +1459,7 @@ define("underscore", (function (global) {
       "delete": function(url, callbackFunctions) {
         return $.ajax(url, {
           type: 'DELETE',
+          async: false,
           success: callbackFunctions['success']
         });
       }
@@ -1649,6 +1652,8 @@ define("underscore", (function (global) {
 
       __extends(Model, _super);
 
+      Model.models = {};
+
       function Model() {
         this.update = __bind(this.update, this);
 
@@ -1687,7 +1692,11 @@ define("underscore", (function (global) {
       };
 
       Model.prototype.isNew = function() {
-        return !this.properties["id"].isSet();
+        return !(this.isPersisted());
+      };
+
+      Model.prototype.isPersisted = function() {
+        return this.properties["id"].isSet();
       };
 
       Model.prototype.get = function(name) {
@@ -1802,8 +1811,12 @@ define("underscore", (function (global) {
         }
       };
 
+      Model.find = function(modelType, id) {
+        return this.models[modelType].instancesById[id];
+      };
+
       Model.extend = function(Child) {
-        var ChildExtended, Surrogate, key;
+        var ChildExtended, Surrogate;
         ensureModelValid(Child);
         ChildExtended = function() {
           Model.apply(this, arguments);
@@ -1812,20 +1825,18 @@ define("underscore", (function (global) {
           this.constructor.trigger("created", this);
           return this;
         };
+        ChildExtended.modelName = Child.name;
+        this.models[Child.name] = ChildExtended;
         Surrogate = function() {};
         Surrogate.prototype = this.prototype;
         ChildExtended.prototype = new Surrogate;
         ChildExtended.prototype.constructor = ChildExtended;
         _.extend(ChildExtended, new Events);
         _.extend(ChildExtended, Child);
+        _.extend(ChildExtended.prototype, Child.prototype);
         addInstances(ChildExtended);
         addLoadMethod(ChildExtended);
         addCreateCollectionFunction(ChildExtended);
-        for (key in Child.prototype) {
-          if (Child.prototype.hasOwnProperty(key)) {
-            ChildExtended.prototype[key] = Child.prototype[key];
-          }
-        }
         return ChildExtended;
       };
 
@@ -1841,86 +1852,88 @@ define("underscore", (function (global) {
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  define('ViewFirstRouter',[],function() {
+  define('ViewFirstRouter',["ViewFirstModel", "underscore"], function(ViewFirstModel, _) {
     var ViewFirstRouter;
     return ViewFirstRouter = (function() {
+      var deriveNamedModelString, handleBackButton, locationRegex, namedModelRegex;
 
       function ViewFirstRouter(viewFirst) {
         this.viewFirst = viewFirst;
-        this.updateState = __bind(this.updateState, this);
+        this.destroy = __bind(this.destroy, this);
 
-        this.addRoute = __bind(this.addRoute, this);
+        this.initialize = __bind(this.initialize, this);
 
+        this.refresh = __bind(this.refresh, this);
+
+        this.baseUrl = location.protocol + '//' + location.host + location.pathname;
       }
 
-      ViewFirstRouter.prototype.addRoute = function(pageName, index) {
-        var createRegex, routingFunction,
-          _this = this;
-        if (index == null) {
-          index = false;
-        }
-        createRegex = function(pageName) {
-          return new RegExp("^" + pageName + "/?([/A-Za-z!0-9]*)$");
-        };
-        routingFunction = function(serializedModels) {
-          var serializedModel, _i, _len, _ref, _results;
-          console.log("Routing to " + pageName);
-          _this.currentPage = pageName;
-          _this.viewFirst.namedModels = {};
-          _this.viewFirst.renderView(pageName);
-          if ((serializedModels != null) && serializedModels !== "") {
-            _ref = serializedModels.split("/");
+      locationRegex = /#([^|]*)\|?(.*)/;
+
+      namedModelRegex = /([^=]*)=([^!]*)!(.*)/;
+
+      handleBackButton = function(event) {
+        var matches, modelId, modelName, modelType, namedModelString, namedModelStrings, parsedString, viewName, _i, _len, _ref, _results;
+        matches = locationRegex.exec(location.hash);
+        viewName = matches[1];
+        namedModelStrings = matches[2];
+        if (viewName != null) {
+          this.viewFirst.render(viewName);
+          if ((namedModelStrings != null) && namedModelStrings !== "") {
+            _ref = namedModelStrings.split("|");
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              serializedModel = _ref[_i];
-              _results.push((function(serializedModel) {
-                var clazz, id, model, serializedParts;
-                serializedParts = serializedModel.split("!");
-                clazz = window[serializedParts[1]];
-                id = parseInt(serializedParts[2]);
-                model = clazz.findOrCreate != null ? clazz.findOrCreate({
-                  id: id
-                }) : new clazz({
-                  id: id
-                });
-                model.fetch({
-                  success: function() {
-                    return _this.viewFirst.setNamedModel(serializedParts[0], model, true);
-                  }
-                });
-                return console.log(model.get("description") + "with id: " + model.get("id"));
-              })(serializedModel));
+              namedModelString = _ref[_i];
+              parsedString = namedModelRegex.exec(namedModelString);
+              modelName = parsedString[1];
+              modelType = parsedString[2];
+              modelId = parsedString[3];
+              _results.push(this.viewFirst.setNamedModel(modelName, ViewFirstModel.find(modelType, modelId)));
             }
             return _results;
           }
-        };
-        console.log("Adding a route to " + pageName);
-        this.route(createRegex(pageName), pageName, routingFunction);
-        if (index) {
-          return this.route("", "index", function() {
-            console.log("navy");
-            return _this.navigate(pageName, true);
-          });
         }
       };
 
-      ViewFirstRouter.prototype.updateState = function() {
-        var key, modelsSerialized, namedModels, url;
-        namedModels = this.viewFirst.namedModels;
-        modelsSerialized = (function() {
+      ViewFirstRouter.prototype.refresh = function() {
+        return handleBackButton.call(this);
+      };
+
+      ViewFirstRouter.prototype.initialize = function() {
+        var _this = this;
+        this.backButtonCallback = function() {
+          return handleBackButton.call(_this);
+        };
+        return window.addEventListener("popstate", this.backButtonCallback);
+      };
+
+      ViewFirstRouter.prototype.destroy = function() {
+        return window.removeEventListener("popstate", this.backButtonCallback);
+      };
+
+      deriveNamedModelString = function(namedModels) {
+        var container, name, namedModelStrings;
+        namedModelStrings = (function() {
           var _results;
           _results = [];
-          for (key in namedModels) {
-            if (namedModels[key].id != null) {
-              _results.push((function(key) {
-                return "/" + key + "!" + namedModels[key].constructor.name + "!" + namedModels[key].id;
-              })(key));
+          for (name in namedModels) {
+            container = namedModels[name];
+            if ((container.model != null) && container.model.isPersisted()) {
+              _results.push("" + name + "=" + container.model.constructor.modelName + "!" + (container.model.get("id")));
             }
           }
           return _results;
         })();
-        url = this.currentPage + modelsSerialized.join("");
-        return this.navigate(url);
+        return namedModelStrings.join("|");
+      };
+
+      ViewFirstRouter.prototype.update = function() {
+        var namedModelString;
+        namedModelString = deriveNamedModelString(this.viewFirst.namedModels);
+        if (namedModelString !== "") {
+          namedModelString = "|" + namedModelString;
+        }
+        return history.pushState(null, null, "" + this.baseUrl + "#" + this.viewFirst.currentView + namedModelString);
       };
 
       return ViewFirstRouter;
@@ -2160,7 +2173,6 @@ define("underscore", (function (global) {
       surround: function(node, argumentMap) {
         var at, nodes, surroundingContent, surroundingName, surroundingView;
         nodes = node.contents();
-        console.log("_surroundSnippet invoked with " + node);
         surroundingName = argumentMap['with'];
         at = argumentMap['at'];
         surroundingView = this.views[surroundingName];
@@ -4030,7 +4042,14 @@ define("underscore", (function (global) {
         });
       }
 
-      ViewFirst.prototype.initialize = function() {};
+      ViewFirst.prototype.initialize = function(initialView) {
+        this.router.initialize();
+        return this.render(initialView);
+      };
+
+      ViewFirst.prototype.destroy = function() {
+        return this.router.destroy();
+      };
 
       ViewFirst.prototype.render = function(viewId) {
         var inflated, viewElement;
@@ -4040,11 +4059,12 @@ define("underscore", (function (global) {
           throw "Unable to find view: " + viewId;
         }
         inflated = this.inflate(viewElement);
+        this.router.update();
         return $(this._target).html(inflated);
       };
 
-      ViewFirst.prototype.navigate = function(viewId) {
-        return Backbone.history.navigate(viewId, true);
+      ViewFirst.prototype.refresh = function() {
+        return this.router.refresh();
       };
 
       ViewFirst.prototype.addSnippet = function(name, func) {
@@ -4060,7 +4080,8 @@ define("underscore", (function (global) {
           this.namedModels[name] = new ModelContainer();
         }
         modelContainer = this.namedModels[name];
-        return modelContainer.set(model);
+        modelContainer.set(model);
+        return this.router.update();
       };
 
       ViewFirst.prototype.getNamedModel = function(name) {

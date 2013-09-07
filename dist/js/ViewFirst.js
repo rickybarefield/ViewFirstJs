@@ -67,6 +67,10 @@
         return $(this._target).html(inflated);
       };
 
+      ViewFirst.prototype.refresh = function() {
+        return this.router.refresh();
+      };
+
       ViewFirst.prototype.addSnippet = function(name, func) {
         return this.snippets[name] = func;
       };

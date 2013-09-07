@@ -19,7 +19,7 @@ define ["ViewFirstModel", "underscore"], (ViewFirstModel, _) ->
       if viewName?
         @viewFirst.render(viewName)
 
-        if namedModelStrings?
+        if namedModelStrings? && namedModelStrings != ""
 
           for namedModelString in namedModelStrings.split("|")
             parsedString = namedModelRegex.exec(namedModelString)
@@ -28,6 +28,8 @@ define ["ViewFirstModel", "underscore"], (ViewFirstModel, _) ->
             modelId = parsedString[3]
 
             @viewFirst.setNamedModel(modelName, ViewFirstModel.find(modelType, modelId))
+
+    refresh: => handleBackButton.call(@)
 
     initialize: =>
 
@@ -41,7 +43,7 @@ define ["ViewFirstModel", "underscore"], (ViewFirstModel, _) ->
 
     deriveNamedModelString = (namedModels) ->
 
-      namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when container.model.isPersisted())
+      namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when (container.model? && container.model.isPersisted()))
       return namedModelStrings.join("|")
 
     update: ->

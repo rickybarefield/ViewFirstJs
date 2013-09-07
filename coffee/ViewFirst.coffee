@@ -42,6 +42,8 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
       @router.update()
       $(@_target).html inflated
 
+    refresh: -> @router.refresh()
+
     addSnippet: (name, func) ->
       @snippets[name] = func
 
