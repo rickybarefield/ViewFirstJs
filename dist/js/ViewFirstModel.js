@@ -221,7 +221,7 @@
       };
 
       Model.prototype.isNew = function() {
-        return !this.isPersisted;
+        return !(this.isPersisted());
       };
 
       Model.prototype.isPersisted = function() {
@@ -338,6 +338,10 @@
         if (!Model.url) {
           throw "url must be set as a static property";
         }
+      };
+
+      Model.find = function(modelType, id) {
+        return this.models[modelType].instancesById[id];
       };
 
       Model.extend = function(Child) {

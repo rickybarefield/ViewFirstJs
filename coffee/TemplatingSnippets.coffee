@@ -16,7 +16,7 @@ define [], () ->
     surround: (node, argumentMap) ->
 
       nodes = node.contents() #This snippet is only interested in child nodes
-      console.log "_surroundSnippet invoked with #{node}"
+      #console.log "_surroundSnippet invoked with #{node}"
 
       surroundingName = argumentMap['with']
       at = argumentMap['at']

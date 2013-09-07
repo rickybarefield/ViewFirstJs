@@ -29,6 +29,10 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
       @router.initialize()
       @render(initialView)
 
+    destroy: () ->
+
+      @router.destroy()
+
     render: (viewId) ->
 
       @currentView = viewId

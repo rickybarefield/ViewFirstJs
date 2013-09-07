@@ -112,7 +112,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       @properties[name] = property
       return property
 
-    isNew: -> !(@isPersisted)
+    isNew: -> !(@isPersisted())
 
     isPersisted: ->
       @properties["id"].isSet()
@@ -192,6 +192,8 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
     ensureModelValid = (Model) ->
 
       throw "url must be set as a static property" unless Model.url
+
+    @find: (modelType, id) -> @models[modelType].instancesById[id]
 
     @extend: (Child) ->
 

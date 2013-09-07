@@ -51,6 +51,10 @@
         return this.render(initialView);
       };
 
+      ViewFirst.prototype.destroy = function() {
+        return this.router.destroy();
+      };
+
       ViewFirst.prototype.render = function(viewId) {
         var inflated, viewElement;
         this.currentView = viewId;

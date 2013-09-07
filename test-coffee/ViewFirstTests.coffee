@@ -80,6 +80,10 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
       $('#testDiv').html("")
       viewFirst.initialize("basicView")
 
+    teardown ->
+
+      viewFirst.destroy()
+
     suite 'ViewFirst Model Tests', ->
 
       suite 'Setting properties', ->
@@ -782,7 +786,14 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
           test 'Using the back button reverts named model changes', ->
 
-            expect("TODO").to.eql "DONE"
+            bedroom.set("id", 5)
+            viewFirst.setNamedModel("theRoom", bedroom)
+            expect(viewFirst.getNamedModel("theRoom")).to.equal bedroom
+            viewFirst.setNamedModel("theRoom", kitchen)
+            expect(viewFirst.getNamedModel("theRoom")).to.equal kitchen
+            history.back()
+            expect(viewFirst.getNamedModel("theRoom")).to.equal bedroom
+
 
           test 'Entering named models in the location bar directly will set the named models', ->
 
@@ -790,10 +801,20 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
           test 'If a different view is selected the location is updated and the new view is displayed', ->
 
-            expect("TODO").to.eql "DONE"
+            viewFirst.render("basicView")
+            expect(location.hash).to.equal "#basicView"
+            viewFirst.render("anotherBasicView")
+            expect(location.hash).to.equal "#anotherBasicView"
+
 
           test 'If the back button is used the location bar is reverted and the previous view is displayed', ->
 
-            expect("TODO").to.eql "DONE"
+            viewFirst.render("basicView")
+            expect($('#testDiv').html()).to.eql "Here I am"
+            viewFirst.render("anotherBasicView")
+            expect($('#testDiv').html()).to.eql "Here I am again!"
+            history.back()
+            expect($('#testDiv').html()).to.eql "Here I am"
+
 
     mocha.run()

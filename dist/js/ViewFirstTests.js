@@ -96,6 +96,9 @@
         $('#testDiv').html("");
         return viewFirst.initialize("basicView");
       });
+      teardown(function() {
+        return viewFirst.destroy();
+      });
       suite('ViewFirst Model Tests', function() {
         suite('Setting properties', function() {
           suite('Setting date properties', function() {
@@ -723,16 +726,30 @@
               return expect(window.location.href).to.contain("|bestPostman=Postman!99");
             });
             test('Using the back button reverts named model changes', function() {
-              return expect("TODO").to.eql("DONE");
+              bedroom.set("id", 5);
+              viewFirst.setNamedModel("theRoom", bedroom);
+              expect(viewFirst.getNamedModel("theRoom")).to.equal(bedroom);
+              viewFirst.setNamedModel("theRoom", kitchen);
+              expect(viewFirst.getNamedModel("theRoom")).to.equal(kitchen);
+              history.back();
+              return expect(viewFirst.getNamedModel("theRoom")).to.equal(bedroom);
             });
             return test('Entering named models in the location bar directly will set the named models', function() {});
           });
           return suite('Moving between views', function() {
             test('If a different view is selected the location is updated and the new view is displayed', function() {
-              return expect("TODO").to.eql("DONE");
+              viewFirst.render("basicView");
+              expect(location.hash).to.equal("#basicView");
+              viewFirst.render("anotherBasicView");
+              return expect(location.hash).to.equal("#anotherBasicView");
             });
             return test('If the back button is used the location bar is reverted and the previous view is displayed', function() {
-              return expect("TODO").to.eql("DONE");
+              viewFirst.render("basicView");
+              expect($('#testDiv').html()).to.eql("Here I am");
+              viewFirst.render("anotherBasicView");
+              expect($('#testDiv').html()).to.eql("Here I am again!");
+              history.back();
+              return expect($('#testDiv').html()).to.eql("Here I am");
             });
           });
         });

@@ -26,7 +26,6 @@
       surround: function(node, argumentMap) {
         var at, nodes, surroundingContent, surroundingName, surroundingView;
         nodes = node.contents();
-        console.log("_surroundSnippet invoked with " + node);
         surroundingName = argumentMap['with'];
         at = argumentMap['at'];
         surroundingView = this.views[surroundingName];
