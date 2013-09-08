@@ -45,13 +45,13 @@ define ["underscore"], (_) ->
     
       isBindable = (node) -> node.attr("data-property")?
       
-      bindInput = (node) ->
+      bindInput = (node) =>
         
         key = node.attr("data-property")
         property = model.findProperty(key)
-        collectionName = aNode.attr("data-collection")
+        collectionName = node.attr("data-collection")
 
-        bindSimpleInput ->
+        bindSimpleInput = ->
           node.val(property.toString())
           node.off("keypress.viewFirst")
           node.off("blur.viewFirst")
@@ -62,11 +62,11 @@ define ["underscore"], (_) ->
           node.on "blur.viewFirst", =>
             property.set(node.val())
 
-        bindOptions ->
+        bindOptions = ->
 
-          collection = collections[collectionName]
+          collection = namedCollections[collectionName]
           throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
-          optionTemplate = aNode.children("option")
+          optionTemplate = node.children("option")
           throw "Unable to find option template under #{node}" unless optionTemplate
           optionTemplate.detach()
 
@@ -77,18 +77,18 @@ define ["underscore"], (_) ->
             optionNode.get(0)["relatedModel"] = modelInCollection
             node.change()
             return optionNode
-          node.off("change.viewFirst")
-          node.on("change.viewFirst", ->
+          node.off "change.viewFirst"
+          node.on "change.viewFirst", ->
             selectedOption = $(@).find("option:selected").get(0)
             if selectedOption?
-              model.set(property, selectedOption["relatedModel"])
+              property.set(selectedOption["relatedModel"])
             else
-              model.set(property, null))
+              property.set(null)
           node.change()
 
 
         if collectionName?
-          bindOptions()
+          bindOptions.call(@)
         else
           bindSimpleInput()
 

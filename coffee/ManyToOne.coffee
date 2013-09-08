@@ -3,11 +3,17 @@ define ->
   class ManyToOne
   
     addToJson: (json) ->
-      json[@name] = {id: @value.get("id")}
+      if @value?
+        json[@name] = {id: @value.get("id")}
+      else
+        json[@name] = null
 
     setFromJson: (json, clean) ->
       @isDirty = !clean
-      @value.update(json)
+      if json?
+        @value = @type.load(json)
+      else
+        @value = null
   
     getProperty: (name) ->
       @value.getProperty(name)

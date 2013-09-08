@@ -2041,16 +2041,17 @@ define("underscore", (function (global) {
       };
 
       BindHelpers.prototype.bindInputs = function(nodes, model, namedCollections) {
-        var bindInput, isBindable;
+        var bindInput, isBindable,
+          _this = this;
         isBindable = function(node) {
           return node.attr("data-property") != null;
         };
         bindInput = function(node) {
-          var collectionName, key, property;
+          var bindOptions, bindSimpleInput, collectionName, key, property;
           key = node.attr("data-property");
           property = model.findProperty(key);
-          collectionName = aNode.attr("data-collection");
-          bindSimpleInput(function() {
+          collectionName = node.attr("data-collection");
+          bindSimpleInput = function() {
             var _this = this;
             node.val(property.toString());
             node.off("keypress.viewFirst");
@@ -2063,14 +2064,14 @@ define("underscore", (function (global) {
             return node.on("blur.viewFirst", function() {
               return property.set(node.val());
             });
-          });
-          bindOptions(function() {
+          };
+          bindOptions = function() {
             var collection, optionTemplate;
-            collection = collections[collectionName];
+            collection = namedCollections[collectionName];
             if (collection == null) {
               throw "Unable to find collection when binding node values of select element, failed to find " + property;
             }
-            optionTemplate = aNode.children("option");
+            optionTemplate = node.children("option");
             if (!optionTemplate) {
               throw "Unable to find option template under " + node;
             }
@@ -2090,15 +2091,15 @@ define("underscore", (function (global) {
               var selectedOption;
               selectedOption = $(this).find("option:selected").get(0);
               if (selectedOption != null) {
-                return model.set(property, selectedOption["relatedModel"]);
+                return property.set(selectedOption["relatedModel"]);
               } else {
-                return model.set(property, null);
+                return property.set(null);
               }
             });
             return node.change();
-          });
+          };
           if (collectionName != null) {
-            return bindOptions();
+            return bindOptions.call(_this);
           } else {
             return bindSimpleInput();
           }
@@ -2284,14 +2285,22 @@ define("underscore", (function (global) {
       function ManyToOne() {}
 
       ManyToOne.prototype.addToJson = function(json) {
-        return json[this.name] = {
-          id: this.value.get("id")
-        };
+        if (this.value != null) {
+          return json[this.name] = {
+            id: this.value.get("id")
+          };
+        } else {
+          return json[this.name] = null;
+        }
       };
 
       ManyToOne.prototype.setFromJson = function(json, clean) {
         this.isDirty = !clean;
-        return this.value.update(json);
+        if (json != null) {
+          return this.value = this.type.load(json);
+        } else {
+          return this.value = null;
+        }
       };
 
       ManyToOne.prototype.getProperty = function(name) {
