@@ -15,8 +15,10 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
     add: (model, silent = false) ->
 
+      if(@instances[model.clientId]?) then return false
       @instances[model.clientId] = model
       @trigger("add", model) unless silent
+      return true
 
     remove: (model) ->
 
@@ -55,8 +57,11 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
     add: (model, silent = false) ->
 
-      super
-      filteredCollection.collection.add(model) for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+      if(super)
+        filteredCollection.collection.add(model) for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+        return true
+      else
+        return false
 
       model.on "change", =>
 

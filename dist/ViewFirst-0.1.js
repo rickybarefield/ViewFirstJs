@@ -1507,10 +1507,14 @@ define("underscore", (function (global) {
         if (silent == null) {
           silent = false;
         }
+        if ((this.instances[model.clientId] != null)) {
+          return false;
+        }
         this.instances[model.clientId] = model;
         if (!silent) {
-          return this.trigger("add", model);
+          this.trigger("add", model);
         }
+        return true;
       };
 
       Collection.prototype.remove = function(model) {
@@ -1591,13 +1595,17 @@ define("underscore", (function (global) {
         if (silent == null) {
           silent = false;
         }
-        ServerSynchronisedCollection.__super__.add.apply(this, arguments);
-        _ref = this.filteredCollections;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          filteredCollection = _ref[_i];
-          if (filteredCollection.filter(model)) {
-            filteredCollection.collection.add(model);
+        if (ServerSynchronisedCollection.__super__.add.apply(this, arguments)) {
+          _ref = this.filteredCollections;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            filteredCollection = _ref[_i];
+            if (filteredCollection.filter(model)) {
+              filteredCollection.collection.add(model);
+            }
           }
+          return true;
+        } else {
+          return false;
         }
         return model.on("change", function() {
           var matches, _j, _len1, _ref1, _results;
@@ -2032,27 +2040,68 @@ define("underscore", (function (global) {
         return BindHelpers.doForNodeAndChildren(nodes, bindTextNode, isBindable);
       };
 
-      BindHelpers.prototype.bindInputs = function(nodes, model) {
+      BindHelpers.prototype.bindInputs = function(nodes, model, namedCollections) {
         var bindInput, isBindable;
         isBindable = function(node) {
           return node.attr("data-property") != null;
         };
         bindInput = function(node) {
-          var key, property,
-            _this = this;
+          var collectionName, key, property;
           key = node.attr("data-property");
           property = model.findProperty(key);
-          node.val(property.toString());
-          node.off("keypress.viewFirst");
-          node.off("blur.viewFirst");
-          node.on("keypress.viewFirst", function(e) {
-            if ((e.keyCode || e.which) === 13) {
+          collectionName = aNode.attr("data-collection");
+          bindSimpleInput(function() {
+            var _this = this;
+            node.val(property.toString());
+            node.off("keypress.viewFirst");
+            node.off("blur.viewFirst");
+            node.on("keypress.viewFirst", function(e) {
+              if ((e.keyCode || e.which) === 13) {
+                return property.set(node.val());
+              }
+            });
+            return node.on("blur.viewFirst", function() {
               return property.set(node.val());
+            });
+          });
+          bindOptions(function() {
+            var collection, optionTemplate;
+            collection = collections[collectionName];
+            if (collection == null) {
+              throw "Unable to find collection when binding node values of select element, failed to find " + property;
             }
+            optionTemplate = aNode.children("option");
+            if (!optionTemplate) {
+              throw "Unable to find option template under " + node;
+            }
+            optionTemplate.detach();
+            this.bindCollection(collection, node, function(modelInCollection) {
+              var optionNode;
+              optionNode = optionTemplate.clone();
+              if (property === modelInCollection) {
+                optionNode.attr('selected', 'selected');
+              }
+              optionNode.get(0)["relatedModel"] = modelInCollection;
+              node.change();
+              return optionNode;
+            });
+            node.off("change.viewFirst");
+            node.on("change.viewFirst", function() {
+              var selectedOption;
+              selectedOption = $(this).find("option:selected").get(0);
+              if (selectedOption != null) {
+                return model.set(property, selectedOption["relatedModel"]);
+              } else {
+                return model.set(property, null);
+              }
+            });
+            return node.change();
           });
-          return node.on("blur.viewFirst", function() {
-            return property.set(node.val());
-          });
+          if (collectionName != null) {
+            return bindOptions();
+          } else {
+            return bindSimpleInput();
+          }
         };
         return BindHelpers.doForNodeAndChildren(nodes, bindInput, isBindable);
       };
@@ -2112,35 +2161,6 @@ define("underscore", (function (global) {
       return BindHelpers;
 
     })();
-    /* TODO Add select functionality to bindInputs
-    
-      if aNode.is "select"
-        #Select are handled differently to other inputs
-        collectionName = aNode.attr("data-collection")
-        collection = collections[collectionName]
-        throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
-        optionTemplate = aNode.children("option")
-        optionTemplate.detach()
-        
-        modelProperty = model.get(property)
-        
-        @bindCollection collection, aNode, (modelInCollection) ->
-          optionNode = optionTemplate.clone()
-          if modelProperty == modelInCollection
-            optionNode.attr('selected', 'selected')
-          optionNode.get(0)["relatedModel"] = modelInCollection
-          aNode.change()
-          return optionNode
-        aNode.off("change.viewFirst")
-        aNode.on("change.viewFirst", ->
-          selectedOption = $(@).find("option:selected").get(0)
-          if selectedOption?
-            model.set(property, selectedOption["relatedModel"])
-          else
-            model.set(property, null))
-        aNode.change()
-    */
-
   });
 
 }).call(this);
@@ -4131,6 +4151,7 @@ define("underscore", (function (global) {
             throw "Unable to find snippet '" + snippetName + "'";
           }
           node.data("snippet", null);
+          node.attr("data-snippet", null);
           nodeAfterSnippetApplied = snippetFunc.call(this, node, parentsAndNodesAttributes);
           if (nodeAfterSnippetApplied === null) {
             return node.detach();

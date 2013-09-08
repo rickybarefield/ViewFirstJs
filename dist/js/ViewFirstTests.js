@@ -347,7 +347,7 @@
             request.onMessage(createResponseObject('{"id":92, "colour":"Orange", "size":12}'));
             return expect(Room.instancesById[92].get("colour")).to.equal("Orange");
           });
-          return test('Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', function() {
+          test('Models added to the collection which are already contained in the model class are updated but two models with the same id are not created', function() {
             var request, roomCollection;
             kitchen.set("id", 101);
             roomCollection = Room.createCollection();
@@ -355,6 +355,28 @@
             request = AtmosphereMock.lastSubscribe;
             request.onMessage(createResponseObject('{"id":101, "colour":"Purple", "size":65}'));
             return expect(kitchen.get("colour")).to.equal("Purple");
+          });
+          test('When a model is added to a collection the \'add\' event is fired', function() {
+            var addCalled, roomCollection;
+            addCalled = false;
+            kitchen.set("id", 101);
+            roomCollection = Room.createCollection();
+            roomCollection.on("add", function() {
+              return addCalled = true;
+            });
+            roomCollection.add(kitchen);
+            return expect(addCalled).to.equal(true);
+          });
+          return test('When a model is added to a collection where it already exists no event is fired', function() {
+            var addCalled, roomCollection;
+            roomCollection = Room.createCollection();
+            roomCollection.add(kitchen);
+            addCalled = false;
+            roomCollection.on("add", function() {
+              return addCalled = true;
+            });
+            roomCollection.add(kitchen);
+            return expect(addCalled).to.equal(false);
           });
         });
         return suite('Client filtered collections tests', function() {

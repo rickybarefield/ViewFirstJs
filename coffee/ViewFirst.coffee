@@ -87,7 +87,8 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
         snippetFunc = @snippets[snippetName]
         throw "Unable to find snippet '#{snippetName}'" unless snippetFunc?
 
-        node.data("snippet", null) # Otherwise this will be recursively invoked
+        node.data("snippet", null)
+        node.attr("data-snippet", null) # Otherwise this will be recursively invoked
 
         nodeAfterSnippetApplied = snippetFunc.call(this, node, parentsAndNodesAttributes)
 

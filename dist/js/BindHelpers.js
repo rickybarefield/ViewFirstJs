@@ -58,27 +58,68 @@
         return BindHelpers.doForNodeAndChildren(nodes, bindTextNode, isBindable);
       };
 
-      BindHelpers.prototype.bindInputs = function(nodes, model) {
+      BindHelpers.prototype.bindInputs = function(nodes, model, namedCollections) {
         var bindInput, isBindable;
         isBindable = function(node) {
           return node.attr("data-property") != null;
         };
         bindInput = function(node) {
-          var key, property,
-            _this = this;
+          var collectionName, key, property;
           key = node.attr("data-property");
           property = model.findProperty(key);
-          node.val(property.toString());
-          node.off("keypress.viewFirst");
-          node.off("blur.viewFirst");
-          node.on("keypress.viewFirst", function(e) {
-            if ((e.keyCode || e.which) === 13) {
+          collectionName = aNode.attr("data-collection");
+          bindSimpleInput(function() {
+            var _this = this;
+            node.val(property.toString());
+            node.off("keypress.viewFirst");
+            node.off("blur.viewFirst");
+            node.on("keypress.viewFirst", function(e) {
+              if ((e.keyCode || e.which) === 13) {
+                return property.set(node.val());
+              }
+            });
+            return node.on("blur.viewFirst", function() {
               return property.set(node.val());
+            });
+          });
+          bindOptions(function() {
+            var collection, optionTemplate;
+            collection = collections[collectionName];
+            if (collection == null) {
+              throw "Unable to find collection when binding node values of select element, failed to find " + property;
             }
+            optionTemplate = aNode.children("option");
+            if (!optionTemplate) {
+              throw "Unable to find option template under " + node;
+            }
+            optionTemplate.detach();
+            this.bindCollection(collection, node, function(modelInCollection) {
+              var optionNode;
+              optionNode = optionTemplate.clone();
+              if (property === modelInCollection) {
+                optionNode.attr('selected', 'selected');
+              }
+              optionNode.get(0)["relatedModel"] = modelInCollection;
+              node.change();
+              return optionNode;
+            });
+            node.off("change.viewFirst");
+            node.on("change.viewFirst", function() {
+              var selectedOption;
+              selectedOption = $(this).find("option:selected").get(0);
+              if (selectedOption != null) {
+                return model.set(property, selectedOption["relatedModel"]);
+              } else {
+                return model.set(property, null);
+              }
+            });
+            return node.change();
           });
-          return node.on("blur.viewFirst", function() {
-            return property.set(node.val());
-          });
+          if (collectionName != null) {
+            return bindOptions();
+          } else {
+            return bindSimpleInput();
+          }
         };
         return BindHelpers.doForNodeAndChildren(nodes, bindInput, isBindable);
       };
@@ -138,35 +179,6 @@
       return BindHelpers;
 
     })();
-    /* TODO Add select functionality to bindInputs
-    
-      if aNode.is "select"
-        #Select are handled differently to other inputs
-        collectionName = aNode.attr("data-collection")
-        collection = collections[collectionName]
-        throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
-        optionTemplate = aNode.children("option")
-        optionTemplate.detach()
-        
-        modelProperty = model.get(property)
-        
-        @bindCollection collection, aNode, (modelInCollection) ->
-          optionNode = optionTemplate.clone()
-          if modelProperty == modelInCollection
-            optionNode.attr('selected', 'selected')
-          optionNode.get(0)["relatedModel"] = modelInCollection
-          aNode.change()
-          return optionNode
-        aNode.off("change.viewFirst")
-        aNode.on("change.viewFirst", ->
-          selectedOption = $(@).find("option:selected").get(0)
-          if selectedOption?
-            model.set(property, selectedOption["relatedModel"])
-          else
-            model.set(property, null))
-        aNode.change()
-    */
-
   });
 
 }).call(this);

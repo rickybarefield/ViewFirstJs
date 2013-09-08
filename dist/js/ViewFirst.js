@@ -135,6 +135,7 @@
             throw "Unable to find snippet '" + snippetName + "'";
           }
           node.data("snippet", null);
+          node.attr("data-snippet", null);
           nodeAfterSnippetApplied = snippetFunc.call(this, node, parentsAndNodesAttributes);
           if (nodeAfterSnippetApplied === null) {
             return node.detach();

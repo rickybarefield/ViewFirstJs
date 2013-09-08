@@ -36,10 +36,14 @@
         if (silent == null) {
           silent = false;
         }
+        if ((this.instances[model.clientId] != null)) {
+          return false;
+        }
         this.instances[model.clientId] = model;
         if (!silent) {
-          return this.trigger("add", model);
+          this.trigger("add", model);
         }
+        return true;
       };
 
       Collection.prototype.remove = function(model) {
@@ -120,13 +124,17 @@
         if (silent == null) {
           silent = false;
         }
-        ServerSynchronisedCollection.__super__.add.apply(this, arguments);
-        _ref = this.filteredCollections;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          filteredCollection = _ref[_i];
-          if (filteredCollection.filter(model)) {
-            filteredCollection.collection.add(model);
+        if (ServerSynchronisedCollection.__super__.add.apply(this, arguments)) {
+          _ref = this.filteredCollections;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            filteredCollection = _ref[_i];
+            if (filteredCollection.filter(model)) {
+              filteredCollection.collection.add(model);
+            }
           }
+          return true;
+        } else {
+          return false;
         }
         return model.on("change", function() {
           var matches, _j, _len1, _ref1, _results;

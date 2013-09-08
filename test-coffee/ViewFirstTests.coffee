@@ -363,6 +363,25 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
           expect(kitchen.get("colour")).to.equal "Purple"
 
+        test 'When a model is added to a collection the \'add\' event is fired', ->
+
+          addCalled = false
+          kitchen.set("id", 101)
+          roomCollection = Room.createCollection()
+          roomCollection.on("add", -> addCalled = true)
+          roomCollection.add(kitchen)
+          expect(addCalled).to.equal true
+
+        test 'When a model is added to a collection where it already exists no event is fired', ->
+
+          roomCollection = Room.createCollection()
+          roomCollection.add(kitchen)
+          addCalled = false
+          roomCollection.on("add", -> addCalled = true)
+          roomCollection.add(kitchen)
+          expect(addCalled).to.equal false
+
+
       suite 'Client filtered collections tests', ->
 
         houses = null

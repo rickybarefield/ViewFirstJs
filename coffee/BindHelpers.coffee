@@ -41,7 +41,7 @@ define ["underscore"], (_) ->
       
       BindHelpers.doForNodeAndChildren nodes, bindTextNode, isBindable
 
-    bindInputs: (nodes, model) ->
+    bindInputs: (nodes, model, namedCollections) ->
     
       isBindable = (node) -> node.attr("data-property")?
       
@@ -49,18 +49,49 @@ define ["underscore"], (_) ->
         
         key = node.attr("data-property")
         property = model.findProperty(key)
-        
-        #TODO What should happen if the property changes? property.on("change")
-        
-        node.val(property.toString())
-        node.off("keypress.viewFirst")
-        node.off("blur.viewFirst")
+        collectionName = aNode.attr("data-collection")
 
-        node.on "keypress.viewFirst", (e) ->
-          if ((e.keyCode || e.which) == 13)
+        bindSimpleInput ->
+          node.val(property.toString())
+          node.off("keypress.viewFirst")
+          node.off("blur.viewFirst")
+
+          node.on "keypress.viewFirst", (e) ->
+            if ((e.keyCode || e.which) == 13)
+              property.set(node.val())
+          node.on "blur.viewFirst", =>
             property.set(node.val())
-        node.on "blur.viewFirst", =>
-          property.set(node.val())
+
+        bindOptions ->
+
+          collection = collections[collectionName]
+          throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
+          optionTemplate = aNode.children("option")
+          throw "Unable to find option template under #{node}" unless optionTemplate
+          optionTemplate.detach()
+
+          @bindCollection collection, node, (modelInCollection) ->
+            optionNode = optionTemplate.clone()
+            if property == modelInCollection
+              optionNode.attr('selected', 'selected')
+            optionNode.get(0)["relatedModel"] = modelInCollection
+            node.change()
+            return optionNode
+          node.off("change.viewFirst")
+          node.on("change.viewFirst", ->
+            selectedOption = $(@).find("option:selected").get(0)
+            if selectedOption?
+              model.set(property, selectedOption["relatedModel"])
+            else
+              model.set(property, null))
+          node.change()
+
+
+        if collectionName?
+          bindOptions()
+        else
+          bindSimpleInput()
+
 
       BindHelpers.doForNodeAndChildren nodes, bindInput, isBindable
 
@@ -99,33 +130,3 @@ define ["underscore"], (_) ->
       #Apply to children
       for childNode in node.contents()
         BindHelpers.doForNodeAndChildren $(childNode), func, filter
-
-  ### TODO Add select functionality to bindInputs
-
-    if aNode.is "select"
-      #Select are handled differently to other inputs
-      collectionName = aNode.attr("data-collection")
-      collection = collections[collectionName]
-      throw "Unable to find collection when binding node values of select element, failed to find #{property}" unless collection?
-      optionTemplate = aNode.children("option")
-      optionTemplate.detach()
-      
-      modelProperty = model.get(property)
-      
-      @bindCollection collection, aNode, (modelInCollection) ->
-        optionNode = optionTemplate.clone()
-        if modelProperty == modelInCollection
-          optionNode.attr('selected', 'selected')
-        optionNode.get(0)["relatedModel"] = modelInCollection
-        aNode.change()
-        return optionNode
-      aNode.off("change.viewFirst")
-      aNode.on("change.viewFirst", ->
-        selectedOption = $(@).find("option:selected").get(0)
-        if selectedOption?
-          model.set(property, selectedOption["relatedModel"])
-        else
-          model.set(property, null))
-      aNode.change()
-   ###         
-        
