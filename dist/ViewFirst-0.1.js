@@ -1441,7 +1441,6 @@ define("underscore", (function (global) {
       persist: function(url, json, callbackFunctions) {
         return $.ajax(url, {
           type: 'POST',
-          async: false,
           data: json,
           contentType: "application/json",
           success: callbackFunctions['success']
@@ -1450,7 +1449,6 @@ define("underscore", (function (global) {
       update: function(url, json, callbackFunctions) {
         return $.ajax(url, {
           type: 'PUT',
-          async: false,
           data: json,
           contentType: "application/json",
           success: callbackFunctions['success']
@@ -1459,7 +1457,6 @@ define("underscore", (function (global) {
       "delete": function(url, callbackFunctions) {
         return $.ajax(url, {
           type: 'DELETE',
-          async: false,
           success: callbackFunctions['success']
         });
       }
@@ -1603,28 +1600,28 @@ define("underscore", (function (global) {
               filteredCollection.collection.add(model);
             }
           }
+          model.on("change", function() {
+            var matches, _j, _len1, _ref1, _results;
+            _ref1 = _this.filteredCollections;
+            _results = [];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              filteredCollection = _ref1[_j];
+              matches = filteredCollection.filter(model);
+              if (matches && !(filteredCollection.collection.instances[model.clientId] != null)) {
+                filteredCollection.collection.add(model, silent);
+              }
+              if (!matches && (filteredCollection.collection.instances[model.clientId] != null)) {
+                _results.push(filteredCollection.collection.remove(model));
+              } else {
+                _results.push(void 0);
+              }
+            }
+            return _results;
+          });
           return true;
         } else {
           return false;
         }
-        return model.on("change", function() {
-          var matches, _j, _len1, _ref1, _results;
-          _ref1 = _this.filteredCollections;
-          _results = [];
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            filteredCollection = _ref1[_j];
-            matches = filteredCollection.filter(model);
-            if (matches && !(filteredCollection.collection.instances[model.clientId] != null)) {
-              filteredCollection.collection.add(model, silent);
-            }
-            if (!matches && (filteredCollection.collection.instances[model.clientId] != null)) {
-              _results.push(filteredCollection.collection.remove(model));
-            } else {
-              _results.push(void 0);
-            }
-          }
-          return _results;
-        });
       };
 
       ServerSynchronisedCollection.prototype.activate = function() {

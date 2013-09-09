@@ -1,7 +1,7 @@
 define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "AtmosphereMock", "underscore", "jquery"],
  (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, AtmosphereMock, _, $) ->
 
-  mocha.setup('tdd')
+  mocha.setup('tdd', {globals: ['toString', 'getInterface']})
   AtmosphereMock.initialize()
 
   viewFirst = null

@@ -3,7 +3,9 @@
 
   define(["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "AtmosphereMock", "underscore", "jquery"], function(ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, AtmosphereMock, _, $) {
     var aHouse, ajaxExpectation, assert, bedroom, cloneWithId, createHouse, expectedBedroomJson, expectedHouseJson, expectedKitchenJson, expectedPostmanJson, fred, kitchen, viewFirst;
-    mocha.setup('tdd');
+    mocha.setup('tdd', {
+      globals: ['toString', 'getInterface']
+    });
     AtmosphereMock.initialize();
     viewFirst = null;
     assert = new expect.Assertion;

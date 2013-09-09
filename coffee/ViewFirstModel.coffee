@@ -59,18 +59,18 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
       if(super)
         filteredCollection.collection.add(model) for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+
+        model.on "change", =>
+
+          for filteredCollection in @filteredCollections
+
+            matches = filteredCollection.filter(model)
+
+            filteredCollection.collection.add(model, silent) if matches and not filteredCollection.collection.instances[model.clientId]?
+            filteredCollection.collection.remove(model) if not matches and filteredCollection.collection.instances[model.clientId]?
         return true
       else
         return false
-
-      model.on "change", =>
-
-        for filteredCollection in @filteredCollections
-
-          matches = filteredCollection.filter(model)
-
-          filteredCollection.collection.add(model, silent) if matches and not filteredCollection.collection.instances[model.clientId]?
-          filteredCollection.collection.remove(model) if not matches and filteredCollection.collection.instances[model.clientId]?
 
     activate: =>
 

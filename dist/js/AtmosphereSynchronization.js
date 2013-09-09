@@ -55,7 +55,6 @@
       persist: function(url, json, callbackFunctions) {
         return $.ajax(url, {
           type: 'POST',
-          async: false,
           data: json,
           contentType: "application/json",
           success: callbackFunctions['success']
@@ -64,7 +63,6 @@
       update: function(url, json, callbackFunctions) {
         return $.ajax(url, {
           type: 'PUT',
-          async: false,
           data: json,
           contentType: "application/json",
           success: callbackFunctions['success']
@@ -73,7 +71,6 @@
       "delete": function(url, callbackFunctions) {
         return $.ajax(url, {
           type: 'DELETE',
-          async: false,
           success: callbackFunctions['success']
         });
       }

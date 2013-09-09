@@ -46,15 +46,15 @@ define ["jquery"], ($) ->
     
     persist: (url, json, callbackFunctions) ->
 
-      $.ajax(url, {type: 'POST', async: false, data: json, contentType : "application/json", success: callbackFunctions['success']})
+      $.ajax(url, {type: 'POST', data: json, contentType : "application/json", success: callbackFunctions['success']})
 
     update: (url, json, callbackFunctions) ->
         
-      $.ajax(url, {type: 'PUT', async: false, data: json, contentType : "application/json", success: callbackFunctions['success']})
+      $.ajax(url, {type: 'PUT', data: json, contentType : "application/json", success: callbackFunctions['success']})
 
     delete: (url, callbackFunctions) ->
 
-      $.ajax(url, {type: 'DELETE', async: false, success: callbackFunctions['success']})
+      $.ajax(url, {type: 'DELETE', success: callbackFunctions['success']})
 
 
   return AtmosphereSynchronization
