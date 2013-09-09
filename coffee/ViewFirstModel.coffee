@@ -155,7 +155,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
       return json
 
-    save: ->
+    save: (additionalAjaxOptions) ->
 
       callbackFunctions =
         success : @update
@@ -163,7 +163,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       saveFunction = if @isNew() then Sync.persist else Sync.update
       url = if @isNew() then @.constructor.url else @.constructor.url + "/" + @get("id")
       json = JSON.stringify(@asJson())
-      saveFunction(url, json, callbackFunctions)
+      saveFunction(url, json, callbackFunctions, additionalAjaxOptions)
 
     delete: ->
 

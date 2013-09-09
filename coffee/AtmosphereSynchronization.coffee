@@ -1,10 +1,16 @@
-define ["jquery"], ($) ->
+define ["jquery", "underscore"], ($, _) ->
 
   ###
 
     This class provides the glue between ViewFirst models and the server, it could be swapped out for another implementation.  It should not have knowledge of the rest of the ViewFirst framework.
 
   ###
+
+  ajaxCall = (url, json, callbackFunctions, method, additionalAjaxOptions) ->
+
+    ajaxOptions = type: method, data: json, contentType : "application/json", success: callbackFunctions['success']
+    if additionalAjaxOptions? then _.extend ajaxOptions, additionalAjaxOptions
+    $.ajax(url, ajaxOptions)
 
   AtmosphereSynchronization =
     
@@ -43,18 +49,11 @@ define ["jquery"], ($) ->
         console.error("error: " + response)
 
       subSocket = $.atmosphere.subscribe(request)
-    
-    persist: (url, json, callbackFunctions) ->
 
-      $.ajax(url, {type: 'POST', data: json, contentType : "application/json", success: callbackFunctions['success']})
+    persist: (url, json, callbackFunctions, additionalAjaxOptions) -> ajaxCall(url, json, callbackFunctions, 'POST', additionalAjaxOptions)
 
-    update: (url, json, callbackFunctions) ->
-        
-      $.ajax(url, {type: 'PUT', data: json, contentType : "application/json", success: callbackFunctions['success']})
+    update: (url, json, callbackFunctions, additionalAjaxOptions) -> ajaxCall(url, json, callbackFunctions, 'PUT', additionalAjaxOptions)
 
-    delete: (url, callbackFunctions) ->
-
-      $.ajax(url, {type: 'DELETE', success: callbackFunctions['success']})
-
+    delete: (url, callbackFunctions) -> $.ajax(url, {type: 'DELETE', success: callbackFunctions['success']})
 
   return AtmosphereSynchronization

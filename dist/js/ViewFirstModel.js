@@ -287,7 +287,7 @@
         return json;
       };
 
-      Model.prototype.save = function() {
+      Model.prototype.save = function(additionalAjaxOptions) {
         var callbackFunctions, json, saveFunction, url;
         callbackFunctions = {
           success: this.update
@@ -295,7 +295,7 @@
         saveFunction = this.isNew() ? Sync.persist : Sync.update;
         url = this.isNew() ? this.constructor.url : this.constructor.url + "/" + this.get("id");
         json = JSON.stringify(this.asJson());
-        return saveFunction(url, json, callbackFunctions);
+        return saveFunction(url, json, callbackFunctions, additionalAjaxOptions);
       };
 
       Model.prototype["delete"] = function() {

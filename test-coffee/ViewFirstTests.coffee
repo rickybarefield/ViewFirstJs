@@ -1,7 +1,7 @@
 define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "AtmosphereMock", "underscore", "jquery"],
  (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, AtmosphereMock, _, $) ->
 
-  mocha.setup('tdd', {globals: ['toString', 'getInterface']})
+  mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
   AtmosphereMock.initialize()
 
   viewFirst = null
@@ -38,25 +38,6 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
     expectedBedroomJson = {"colour":"Pink", "size":4}
     expectedPostmanJson = {"id":99} #ManyToOne relationships should only send the id
     expectedHouseJson = {"doorNumber": 23, "postman": expectedPostmanJson, "rooms":[expectedBedroomJson, expectedKitchenJson]}
-
-  ajaxExpectation = (urlExpected, httpMethod, data, jsonToReturn) ->
-
-    dataToReturn = ""
-    successCallback = -> throw "Attempted to do callback but ajax was not called first"
-    successThis = null
-
-    ajaxMethod = (url, options) ->
-      expect(urlExpected).to.equal url
-      expect(options["type"]).to.equal httpMethod
-      if data?
-        expect(options["data"]).to.eql data
-      successThis = this
-      successCallback = options["success"]
-
-    doCallback = ->
-      successCallback.call(successThis, jsonToReturn, "200")
-
-    return [ajaxMethod, doCallback]
 
   cloneWithId = (obj, idToAdd) -> $.extend(true, {id: idToAdd}, obj)
 
@@ -191,8 +172,6 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
             stringProp.set("Hello")
             expect(stringProp.get()._viewFirstToString()).to.equal "Hello"
 
-
-
       suite 'Loading models', ->
 
         test 'A model with only simple properties can be loaded', ->
@@ -262,6 +241,10 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           expect(bedroom.get("id")).to.equal 2
           expect(kitchen.get("id")).to.equal 3
 
+        test 'Additional properties should be passed through to AJAX invocation', ->
+
+          kitchen.save({async: false})
+          expect(requests[0].async).to.equal false
 
       suite 'Updating and Deleting an object and persisting those changes', ->
 
@@ -284,6 +267,11 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           expect(requests[1].url).to.equal "/houses/1"
           expect(requests[1].method).to.equal "PUT"
           expect(JSON.parse(requests[1].requestBody)).to.eql expectedJson
+
+        test 'Additional properties should be passed through to AJAX invocation', ->
+
+          kitchen.save({async: false})
+          expect(requests[0].async).to.equal false
 
         test 'Deleting a model creates a DELETE request', ->
 

@@ -2,8 +2,9 @@
 (function() {
 
   define(["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "AtmosphereMock", "underscore", "jquery"], function(ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, AtmosphereMock, _, $) {
-    var aHouse, ajaxExpectation, assert, bedroom, cloneWithId, createHouse, expectedBedroomJson, expectedHouseJson, expectedKitchenJson, expectedPostmanJson, fred, kitchen, viewFirst;
-    mocha.setup('tdd', {
+    var aHouse, assert, bedroom, cloneWithId, createHouse, expectedBedroomJson, expectedHouseJson, expectedKitchenJson, expectedPostmanJson, fred, kitchen, viewFirst;
+    mocha.setup({
+      ui: 'tdd',
       globals: ['toString', 'getInterface']
     });
     AtmosphereMock.initialize();
@@ -49,27 +50,6 @@
         "postman": expectedPostmanJson,
         "rooms": [expectedBedroomJson, expectedKitchenJson]
       };
-    };
-    ajaxExpectation = function(urlExpected, httpMethod, data, jsonToReturn) {
-      var ajaxMethod, dataToReturn, doCallback, successCallback, successThis;
-      dataToReturn = "";
-      successCallback = function() {
-        throw "Attempted to do callback but ajax was not called first";
-      };
-      successThis = null;
-      ajaxMethod = function(url, options) {
-        expect(urlExpected).to.equal(url);
-        expect(options["type"]).to.equal(httpMethod);
-        if (data != null) {
-          expect(options["data"]).to.eql(data);
-        }
-        successThis = this;
-        return successCallback = options["success"];
-      };
-      doCallback = function() {
-        return successCallback.call(successThis, jsonToReturn, "200");
-      };
-      return [ajaxMethod, doCallback];
     };
     cloneWithId = function(obj, idToAdd) {
       return $.extend(true, {
@@ -242,7 +222,7 @@
             }, JSON.stringify(cloneWithId(expectedKitchenJson, 13)));
             return expect(kitchen.get("id")).to.equal(13);
           });
-          return test('Saving a more complex model with OneToMany and ManyToOne relationships', function() {
+          test('Saving a more complex model with OneToMany and ManyToOne relationships', function() {
             var toReturn;
             expect(aHouse.get("id")).to.equal(null);
             expect(bedroom.get("id")).to.equal(null);
@@ -260,6 +240,12 @@
             expect(aHouse.get("id")).to.equal(1);
             expect(bedroom.get("id")).to.equal(2);
             return expect(kitchen.get("id")).to.equal(3);
+          });
+          return test('Additional properties should be passed through to AJAX invocation', function() {
+            kitchen.save({
+              async: false
+            });
+            return expect(requests[0].async).to.equal(false);
           });
         });
         suite('Updating and Deleting an object and persisting those changes', function() {
@@ -286,6 +272,12 @@
             expect(requests[1].url).to.equal("/houses/1");
             expect(requests[1].method).to.equal("PUT");
             return expect(JSON.parse(requests[1].requestBody)).to.eql(expectedJson);
+          });
+          test('Additional properties should be passed through to AJAX invocation', function() {
+            kitchen.save({
+              async: false
+            });
+            return expect(requests[0].async).to.equal(false);
           });
           return test('Deleting a model creates a DELETE request', function() {
             initiallySaveTheHouse();
