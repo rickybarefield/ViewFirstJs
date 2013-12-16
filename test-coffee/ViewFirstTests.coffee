@@ -1,8 +1,7 @@
-define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "AtmosphereMock", "underscore", "jquery"],
- (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, AtmosphereMock, _, $) ->
+define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "underscore", "jquery"],
+ (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, _, $) ->
 
   mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
-  AtmosphereMock.initialize()
 
   viewFirst = null
 
@@ -59,7 +58,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
       createHouse()
       viewFirst._target = "#testDiv"
       $('#testDiv').html("")
-      viewFirst.initialize("basicView")
+      viewFirst.initialize("ws://server.websocket.address", "basicView")
 
     teardown ->
 
@@ -314,7 +313,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
           houseCollection = House.createCollection()
           expect(houseCollection.url).to.equal "/houses"
 
-        test 'Calling activate will request models from the server', ->
+        test 'Calling activate will create a subscription with the server', ->
 
           houseCollection = House.createCollection()
           houseCollection.activate()

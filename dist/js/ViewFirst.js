@@ -27,6 +27,8 @@
 
         this.applySnippets = __bind(this.applySnippets, this);
 
+        this.initialize = __bind(this.initialize, this);
+
         var key, value,
           _this = this;
         this.views = {};
@@ -46,9 +48,10 @@
         });
       }
 
-      ViewFirst.prototype.initialize = function(initialView) {
+      ViewFirst.prototype.initialize = function(url, initialView) {
         this.router.initialize();
-        return this.render(initialView);
+        this.render(initialView);
+        return this.sync = new Sync(url);
       };
 
       ViewFirst.prototype.destroy = function() {

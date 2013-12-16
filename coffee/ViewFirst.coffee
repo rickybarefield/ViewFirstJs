@@ -24,10 +24,11 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
         @views[viewName] = node.html()
         #TODO @router.addRoute viewName, viewName == @indexView
 
-    initialize: (initialView) ->
+    initialize: (url, initialView) =>
 
       @router.initialize()
       @render(initialView)
+      @sync = new Sync(url)
 
     destroy: () ->
 

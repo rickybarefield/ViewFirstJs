@@ -1,5 +1,3 @@
-
-
 suite 'Existing entities', ->
 
   test 'If there are no existing models on the server the collection size should be 0', ->
@@ -42,13 +40,13 @@ suite 'Existing entities', ->
 
 suite 'Created entities', ->
 
-  test 'Entities are crea
-  allHouses = House.createCollection()
-  allHouses.activate()
-  #Send response with no existing entities
-  expect(allHouses.size()).to.equal 0
+  test 'Entities are created', ->
+    allHouses = House.createCollection()
+    allHouses.activate()
+    #Send response with no existing entities
+    expect(allHouses.size()).to.equal 0
 
-  #Send a created message
-  expect(allHouses.size()).to.equal 1
+    #Send a created message
+    expect(allHouses.size()).to.equal 1
 
 

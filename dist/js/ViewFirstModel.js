@@ -6,7 +6,7 @@
     __slice = [].slice,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  define(["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchronization"], function(_, $, Property, Events, Sync) {
+  define(["underscore", "jquery", "Property", "ViewFirstEvents", "ScrudSync"], function(_, $, Property, Events, Sync) {
     var ClientFilteredCollection, Collection, Model, ServerSynchronisedCollection;
     Collection = (function(_super) {
 
@@ -76,9 +76,8 @@
 
       __extends(ServerSynchronisedCollection, _super);
 
-      function ServerSynchronisedCollection(modelType, url) {
+      function ServerSynchronisedCollection(modelType) {
         this.modelType = modelType;
-        this.url = url;
         this.activate = __bind(this.activate, this);
 
         this.removeFilteredCollection = __bind(this.removeFilteredCollection, this);
@@ -86,9 +85,6 @@
         this.filter = __bind(this.filter, this);
 
         ServerSynchronisedCollection.__super__.constructor.apply(this, arguments);
-        if (!this.url) {
-          this.url = modelType.url;
-        }
         this.filteredCollections = [];
       }
 
@@ -178,7 +174,7 @@
             return _this.remove(model);
           }
         };
-        return Sync.connectCollection(this.url, callbackFunctions);
+        return Sync.connectCollection(this.modelType.type, callbackFunctions);
       };
 
       return ServerSynchronisedCollection;
@@ -287,15 +283,14 @@
         return json;
       };
 
-      Model.prototype.save = function(additionalAjaxOptions) {
-        var callbackFunctions, json, saveFunction, url;
+      Model.prototype.save = function() {
+        var callbackFunctions, json, saveFunction;
         callbackFunctions = {
           success: this.update
         };
         saveFunction = this.isNew() ? Sync.persist : Sync.update;
-        url = this.isNew() ? this.constructor.url : this.constructor.url + "/" + this.get("id");
         json = JSON.stringify(this.asJson());
-        return saveFunction(url, json, callbackFunctions, additionalAjaxOptions);
+        return saveFunction(json, callbackFunctions);
       };
 
       Model.prototype["delete"] = function() {
@@ -305,7 +300,7 @@
             return console.log("TODO will need to trigger an event");
           }
         };
-        return Sync["delete"](this.constructor.url + "/" + this.get("id"), callbackFunctions);
+        return Sync["delete"](this.get("id"), callbackFunctions);
       };
 
       Model.prototype.update = function(json, clean) {
@@ -337,14 +332,14 @@
       };
 
       addCreateCollectionFunction = function(Child) {
-        return Child.createCollection = function(url) {
-          return new ServerSynchronisedCollection(Child, url);
+        return Child.createCollection = function() {
+          return new ServerSynchronisedCollection(Child);
         };
       };
 
       ensureModelValid = function(Model) {
-        if (!Model.url) {
-          throw "url must be set as a static property";
+        if (!Model.type) {
+          throw "type must be set as a static property: " + Model;
         }
       };
 

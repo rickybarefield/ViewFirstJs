@@ -1,4 +1,10 @@
-define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchronization"], (_, $, Property, Events, Sync) ->
+TODO Need to work out the dependencies between classes, sync will need to hold
+a connection which suggests it is not static, so need to look at dependencies since
+ViewFirst doesn't currently have anything to do with Sync but it will take the url...
+
+
+
+define ["underscore", "jquery", "Property", "ViewFirstEvents", "ScrudSync"], (_, $, Property, Events, Sync) ->
 
   class Collection extends Events
 
@@ -37,10 +43,9 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
 
   class ServerSynchronisedCollection extends Collection
 
-    constructor: (@modelType, @url) ->
+    constructor: (@modelType) ->
 
       super
-      @url = modelType.url unless @url
       @filteredCollections = []
 
     filter: (filter) =>
@@ -87,7 +92,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
           model = @modelType.load(json)
           @remove(model)
 
-      Sync.connectCollection(@url, callbackFunctions)
+      Sync.connectCollection(@modelType.type, callbackFunctions)
 
   class Model extends Events
 
@@ -155,15 +160,14 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
       property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
       return json
 
-    save: (additionalAjaxOptions) ->
+    save: ->
 
       callbackFunctions =
         success : @update
 
       saveFunction = if @isNew() then Sync.persist else Sync.update
-      url = if @isNew() then @.constructor.url else @.constructor.url + "/" + @get("id")
       json = JSON.stringify(@asJson())
-      saveFunction(url, json, callbackFunctions, additionalAjaxOptions)
+      saveFunction(json, callbackFunctions)
 
     delete: ->
 
@@ -171,7 +175,7 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
         success : ->
           console.log("TODO will need to trigger an event")
         
-      Sync.delete(@.constructor.url + "/" + @get("id"), callbackFunctions)
+      Sync.delete(@get("id"), callbackFunctions)
       
       
     update: (json, clean = true) =>
@@ -191,12 +195,12 @@ define ["underscore", "jquery", "Property", "ViewFirstEvents", "AtmosphereSynchr
         return childObject
 
     addCreateCollectionFunction = (Child) ->
-      Child.createCollection = (url) ->
-        new ServerSynchronisedCollection(Child, url)
+      Child.createCollection = ->
+        new ServerSynchronisedCollection(Child)
 
     ensureModelValid = (Model) ->
 
-      throw "url must be set as a static property" unless Model.url
+      throw "type must be set as a static property: #{Model}" unless Model.type
 
     @find: (modelType, id) -> @models[modelType].instancesById[id]
 

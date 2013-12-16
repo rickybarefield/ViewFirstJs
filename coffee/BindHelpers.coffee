@@ -1,4 +1,5 @@
 define ["underscore"], (_) ->
+
   class BindHelpers
 
     @TEXT_NODE = 3
