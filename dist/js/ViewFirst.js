@@ -4,15 +4,27 @@
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define(["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne", "ViewFirstConverters"], function(ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne, ViewFirstConverters) {
+  define(["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne", "ViewFirstConverters", "ScrudSync"], function(ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne, ViewFirstConverters, Sync) {
     var ViewFirst;
     return ViewFirst = (function(_super) {
+      var Models, OriginalExtend;
 
       __extends(ViewFirst, _super);
 
       ViewFirst.prototype._target = "body";
 
+      Models = [];
+
       ViewFirst.Model = ViewFirstModel;
+
+      OriginalExtend = ViewFirst.Model.extend;
+
+      ViewFirst.Model.extend = function(Child) {
+        var Extended;
+        Extended = OriginalExtend.call(this, Child);
+        Models.push(Extended);
+        return Extended;
+      };
 
       ViewFirst.OneToMany = OneToMany;
 
@@ -20,7 +32,7 @@
 
       ViewFirst.prototype.dateFormat = "DD/MM/YYYY";
 
-      function ViewFirst() {
+      function ViewFirst(url) {
         this.combine = __bind(this.combine, this);
 
         this.applySnippetsToSingleNodeAndChildren = __bind(this.applySnippetsToSingleNodeAndChildren, this);
@@ -29,8 +41,23 @@
 
         this.initialize = __bind(this.initialize, this);
 
-        var key, value,
+        var Model, key, sync, value, _fn, _i, _len,
           _this = this;
+        sync = new Sync(url);
+        this.sync = sync;
+        _fn = function(Model) {
+          _this[Model.modelName] = function() {
+            Model.apply(this, arguments);
+            this.sync = sync;
+            return this;
+          };
+          _.extend(_this[Model.modelName], Model);
+          return _this[Model.modelName].prototype = Model.prototype;
+        };
+        for (_i = 0, _len = Models.length; _i < _len; _i++) {
+          Model = Models[_i];
+          _fn(Model);
+        }
         this.views = {};
         this.namedModels = {};
         this.router = new ViewFirstRouter(this);
@@ -48,10 +75,9 @@
         });
       }
 
-      ViewFirst.prototype.initialize = function(url, initialView) {
+      ViewFirst.prototype.initialize = function(initialView) {
         this.router.initialize();
-        this.render(initialView);
-        return this.sync = new Sync(url);
+        return this.render(initialView);
       };
 
       ViewFirst.prototype.destroy = function() {

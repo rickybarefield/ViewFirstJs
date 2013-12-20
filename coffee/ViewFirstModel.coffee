@@ -1,9 +1,3 @@
-TODO Need to work out the dependencies between classes, sync will need to hold
-a connection which suggests it is not static, so need to look at dependencies since
-ViewFirst doesn't currently have anything to do with Sync but it will take the url...
-
-
-
 define ["underscore", "jquery", "Property", "ViewFirstEvents", "ScrudSync"], (_, $, Property, Events, Sync) ->
 
   class Collection extends Events

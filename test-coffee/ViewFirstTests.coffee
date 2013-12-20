@@ -1,5 +1,5 @@
-define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "sinon", "sandbox", "underscore", "jquery"],
- (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, sinon, sandbox, _, $) ->
+define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "underscore", "jquery"],
+ (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, _, $) ->
 
   mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
 
@@ -18,10 +18,11 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
 
   createHouse = ->
 
-    aHouse = new House()
-    kitchen = new Room()
-    bedroom = new Room()
-    fred = new Postman()
+    #Currently always creating a House
+    aHouse = new viewFirst.House()
+    kitchen = new viewFirst.Room()
+    bedroom = new viewFirst.Room()
+    fred = new viewFirst.Postman()
     fred.set "name", "Fred"
     fred.set "id", 99
     fred.set "dob", new Date(2013, 1, 1)
@@ -45,10 +46,7 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
     requests = null
 
     setup ->
-      requests = []
-      xhr = sinon.useFakeXMLHttpRequest()
-      xhr.onCreate = (req) -> requests.push(req)
-      viewFirst = new ViewFirst()
+      viewFirst = new ViewFirst("ws://address/of/websocket")
       House.instances = []
       House.instancesById = {}
       Room.instances = []
@@ -58,13 +56,26 @@ define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "
       createHouse()
       viewFirst._target = "#testDiv"
       $('#testDiv').html("")
-      viewFirst.initialize("ws://server.websocket.address", "basicView")
+      viewFirst.initialize("basicView")
 
     teardown ->
 
       viewFirst.destroy()
 
     suite 'ViewFirst Model Tests', ->
+
+      suite 'Model Creation', ->
+
+        test 'The correct sync dependencies should be added', ->
+
+          viewFirst2 = new ViewFirst("ws://other/address/of/websocket")
+
+          vf1House = new viewFirst.House()
+          vf2House = new viewFirst2.House()
+
+          expect(vf1House.sync.url).to.equal "ws://address/of/websocket"
+          expect(vf2House.sync.url).to.equal "ws://other/address/of/websocket"
+
 
       suite 'Setting properties', ->
 

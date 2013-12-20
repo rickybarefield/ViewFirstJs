@@ -3,9 +3,22 @@
 
   define(["Scrud-0.1"], function(Scrud) {
     var Sync;
-    return Sync = {
-      connectCollection: function() {}
-    };
+    Sync = (function() {
+
+      function Sync(url) {
+        this.url = url;
+      }
+
+      Sync.prototype.connect = function() {};
+
+      Sync.prototype.connectCollection = function() {
+        return console.log(arguments);
+      };
+
+      return Sync;
+
+    })();
+    return Sync;
   });
 
 }).call(this);

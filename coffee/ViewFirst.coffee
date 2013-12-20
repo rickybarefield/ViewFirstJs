@@ -1,16 +1,43 @@
-define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne", "ViewFirstConverters"], (ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne, ViewFirstConverters) ->
+define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHelpers", "TemplatingSnippets", "OneToMany", "ManyToOne", "ViewFirstConverters", "ScrudSync"],
+ (ViewFirstModel, ViewFirstRouter, ModelContainer, BindHelpers, TemplatingSnippets, OneToMany, ManyToOne, ViewFirstConverters, Sync) ->
   
   class ViewFirst extends BindHelpers
 
     _target: "body"
 
+    Models = []
+
     @Model = ViewFirstModel
+    OriginalExtend = @Model.extend
+
+    @Model.extend = (Child) ->
+
+      Extended = OriginalExtend.call(this, Child)
+      Models.push Extended
+      return Extended
+
     @OneToMany = OneToMany
     @ManyToOne = ManyToOne
 
     dateFormat: "DD/MM/YYYY"
     
-    constructor: () ->
+    constructor: (url) ->
+
+      sync = new Sync(url)
+      @sync = sync
+
+      for Model in Models
+
+        do (Model) =>
+
+          @[Model.modelName] = ->
+            Model.apply(this, arguments)
+            @sync = sync
+            return this
+
+          _.extend(@[Model.modelName], Model)
+
+          @[Model.modelName].prototype = Model.prototype
 
       @views = {}
       @namedModels = {}
@@ -24,11 +51,10 @@ define ["ViewFirstModel", "ViewFirstRouter", "ViewFirstModelContainer", "BindHel
         @views[viewName] = node.html()
         #TODO @router.addRoute viewName, viewName == @indexView
 
-    initialize: (url, initialView) =>
+    initialize: (initialView) =>
 
       @router.initialize()
       @render(initialView)
-      @sync = new Sync(url)
 
     destroy: () ->
 

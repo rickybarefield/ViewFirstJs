@@ -1,5 +1,14 @@
 define ["Scrud-0.1"], (Scrud) ->
 
-  Sync =
+  class Sync
+
+    constructor: (@url) ->
+
+    connect: () ->
+
+
 
     connectCollection: ->
+      console.log(arguments)
+
+  return Sync
