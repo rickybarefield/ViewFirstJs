@@ -1,3 +1,9 @@
+expect = require("./expect.js")
+sinon = require("sinon")
+Scrud = require("./Scrud.js")
+MockWebSocket = require("./MockWebSocket.js")
+assert = new expect.Assertion
+
 suite 'Existing entities', ->
 
   test 'If there are no existing models on the server the collection size should be 0', ->

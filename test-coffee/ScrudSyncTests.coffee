@@ -1,3 +1,6 @@
-define ["ViewFirstModel", "ViewFirst", "Property", "House", "Postman", "Room", "expect", "mocha", "underscore", "jquery"],
- (ViewFirstModel, ViewFirst, Property, House, Postman, Room, expect, mocha, _, $) ->
+expect = require("./expect.js")
+sinon = require("sinon")
+Scrud = require("./Scrud.js")
+MockWebSocket = require("./MockWebSocket.js")
+assert = new expect.Assertion
 

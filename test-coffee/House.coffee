@@ -1,6 +1,8 @@
-define ["ViewFirst", "Room", "Postman"], (ViewFirst, Room, Postman) ->
+ViewFirst = require("./ViewFirst")
+Room = require("./Room")
+Postman = require("./Postman")
 
-   House = ViewFirst.Model.extend class House
+module.exports = ViewFirst.Model.extend class House
   
      @type: "house"
   

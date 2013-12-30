@@ -1,6 +1,6 @@
-define ["ViewFirst"], (ViewFirst) ->
+ViewFirst = require("./ViewFirst")
 
-  ViewFirst.Model.extend class Postman
+module.exports = ViewFirst.Model.extend class Postman
 
     @type : "postman"
 

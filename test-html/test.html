@@ -7,54 +7,7 @@
 <body>
   <div id="mocha"></div>
 
-  <script src="../vendor/require.js"></script>
-
-  <script>
-	  require.config({
-		  baseUrl: '../dist/js',
-          paths: {
-            "sandbox": "sinon/sandbox",
-            "fake_server": "sinon/util/fake_server",
-            "fake_xml_http_request": "sinon/util/fake_xml_http_request",
-            "event": "sinon/util/event"
-          },
-		  shim: {
-		    underscore: {
-		      exports: '_'
-		    },
-		    mocha: {
-		    	exports: 'mocha'
-		    },
-		    expect: {
-		    	exports: 'expect'
-		    },
-            sandbox: {
-              deps: ["fake_server", "fake_xml_http_request", "event"],
-            },
-            sinon: {
-              exports: 'sinon'
-            },
-            Scrud : {
-
-              init: function (bar) {
-
-                 console.log(bar);
-              }
-
-            },
-            fake_xml_http_request: {
-
-              exports: "fake_xml_http_request",
-              init: function() {
-
-                sinon.extend(sinon.FakeXMLHttpRequest, sinon.Event)
-              }
-            }
-	    }
-		});  
-	  
-	  require(["../dist/js/AllTests.js"]);
-  </script>
+  <script src="../dist/js/ViewFirstTests.js" ></script>
   <h4>Test Area</h4>
   <hr />
   <div id="testDiv"></div>
@@ -66,6 +19,5 @@
   <script type="text/view-first-template" name="embedOfBasicView">Before[<div data-snippet="embed" data-view="basicView"></div>]After</script>
   <script type="text/view-first-template" name="templateView">TemplateStart[<div id="bind-point" data-bind-name="bind-point"></div>]TemplateEnd</script>
   <script type="text/view-first-template" name="surroundedView"><div data-snippet="surround" data-with="templateView" data-at="bind-point">Surrounded Views Content</div></script>
-
 </body>
 </html>

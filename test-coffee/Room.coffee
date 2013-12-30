@@ -1,10 +1,10 @@
-define ["ViewFirst"], (ViewFirst) ->
-  
-  ViewFirst.Model.extend class Room
+ViewFirst = require("./ViewFirst")
 
-    @type: "room"
+module.exports = ViewFirst.Model.extend class Room
 
-    constructor: ->
-      @createProperty("colour", String)
-      @createProperty("size", Number)
+  @type: "room"
+
+  constructor: ->
+    @createProperty("colour", String)
+    @createProperty("size", Number)
 
