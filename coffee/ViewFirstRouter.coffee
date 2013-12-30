@@ -1,55 +1,56 @@
-define ["ViewFirstModel", "underscore"], (ViewFirstModel, _) ->
+_ = require("underscore")
+ViewFirstModel = require("./ViewFirstModel")
 
-  class ViewFirstRouter
+module.exports = class ViewFirstRouter
 
-    constructor: (@viewFirst) ->
+  constructor: (@viewFirst) ->
 
-      @baseUrl = location.protocol + '//' + location.host + location.pathname
+    @baseUrl = location.protocol + '//' + location.host + location.pathname
 
-    locationRegex = /#([^|]*)\|?(.*)/
-    namedModelRegex = /([^=]*)=([^!]*)!(.*)/
+  locationRegex = /#([^|]*)\|?(.*)/
+  namedModelRegex = /([^=]*)=([^!]*)!(.*)/
 
-    handleBackButton = (event) ->
+  handleBackButton = (event) ->
 
-      matches = locationRegex.exec(location.hash)
+    matches = locationRegex.exec(location.hash)
 
-      viewName = matches[1]
-      namedModelStrings = matches[2]
+    viewName = matches[1]
+    namedModelStrings = matches[2]
 
-      if viewName?
-        @viewFirst.render(viewName)
+    if viewName?
+      @viewFirst.render(viewName)
 
-        if namedModelStrings? && namedModelStrings != ""
+      if namedModelStrings? && namedModelStrings != ""
 
-          for namedModelString in namedModelStrings.split("|")
-            parsedString = namedModelRegex.exec(namedModelString)
-            modelName = parsedString[1]
-            modelType = parsedString[2]
-            modelId = parsedString[3]
+        for namedModelString in namedModelStrings.split("|")
+          parsedString = namedModelRegex.exec(namedModelString)
+          modelName = parsedString[1]
+          modelType = parsedString[2]
+          modelId = parsedString[3]
 
-            @viewFirst.setNamedModel(modelName, ViewFirstModel.find(modelType, modelId))
+          @viewFirst.setNamedModel(modelName, ViewFirstModel.find(modelType, modelId))
 
-    refresh: => handleBackButton.call(@)
+  refresh: => handleBackButton.call(@)
 
-    initialize: =>
+  initialize: =>
 
-      @backButtonCallback = => handleBackButton.call(@)
+    @backButtonCallback = => handleBackButton.call(@)
 
-      window.addEventListener "popstate", @backButtonCallback
+    window.addEventListener "popstate", @backButtonCallback
 
-    destroy: =>
+  destroy: =>
 
-      window.removeEventListener "popstate", @backButtonCallback
+    window.removeEventListener "popstate", @backButtonCallback
 
-    deriveNamedModelString = (namedModels) ->
+  deriveNamedModelString = (namedModels) ->
 
-      namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when (container.model? && container.model.isPersisted()))
-      return namedModelStrings.join("|")
+    namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when (container.model? && container.model.isPersisted()))
+    return namedModelStrings.join("|")
 
-    update: ->
+  update: ->
 
-      namedModelString = deriveNamedModelString(@viewFirst.namedModels)
+    namedModelString = deriveNamedModelString(@viewFirst.namedModels)
 
-      namedModelString = "|" + namedModelString if namedModelString != ""
+    namedModelString = "|" + namedModelString if namedModelString != ""
 
-      history.pushState(null, null, "#{@baseUrl}##{@viewFirst.currentView}#{namedModelString}")
+    history.pushState(null, null, "#{@baseUrl}##{@viewFirst.currentView}#{namedModelString}")

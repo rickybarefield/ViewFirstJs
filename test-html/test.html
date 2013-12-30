@@ -34,6 +34,14 @@
             sinon: {
               exports: 'sinon'
             },
+            Scrud : {
+
+              init: function (bar) {
+
+                 console.log(bar);
+              }
+
+            },
             fake_xml_http_request: {
 
               exports: "fake_xml_http_request",
@@ -45,7 +53,7 @@
 	    }
 		});  
 	  
-	  require(["../dist/js/ViewFirstTests.js"]);
+	  require(["../dist/js/AllTests.js"]);
   </script>
   <h4>Test Area</h4>
   <hr />

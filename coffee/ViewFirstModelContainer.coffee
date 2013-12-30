@@ -1,12 +1,11 @@
-define ["ViewFirstEvents"], (Events) ->
+Events = require("./ViewFirstEvents")
 
-  class ViewFirstModelContainer extends Events
+module.exports = class ViewFirstModelContainer extends Events
 
-    constructor: () ->
-      super
+  constructor: () ->
+    super
 
-    set: (model) ->
-      oldModel = @model
-      @model = model
-      @trigger("change", oldModel, @model)
-
+  set: (model) ->
+    oldModel = @model
+    @model = model
+    @trigger("change", oldModel, @model)

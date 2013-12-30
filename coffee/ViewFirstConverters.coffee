@@ -1,6 +1,6 @@
-define ["moment"], (moment) ->
+moment = require("./moment")
 
-  ViewFirstConverters = (viewFirst) ->
+module.exports = (viewFirst) ->
 
     String._viewFirstConvert = (value) ->
 

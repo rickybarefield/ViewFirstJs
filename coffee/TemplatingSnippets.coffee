@@ -1,47 +1,42 @@
-define [], () ->
+bindParts = (surroundingContent, nodes) ->
 
-  bindParts = (surroundingContent, nodes) ->
+  for child in nodes
+    at = $(child).attr("data-at")
+    bind(surroundingContent, child.childNodes, at) if at?
 
-    for child in nodes
-      at = $(child).attr("data-at")
-      bind(surroundingContent, child.childNodes, at) if at?
+bind = (surroundingContent, html, at) ->
+  bindElement = surroundingContent.find("[data-bind-name='#{at}']")
+  bindElement.replaceWith(html)
 
-  bind = (surroundingContent, html, at) ->
-    bindElement = surroundingContent.find("[data-bind-name='#{at}']")
-    bindElement.replaceWith(html)
+module.exports =
 
+  surround: (node, argumentMap) ->
 
-  TemplatingSnippets =
+    nodes = node.contents() #This snippet is only interested in child nodes
+    #console.log "_surroundSnippet invoked with #{node}"
 
-    surround: (node, argumentMap) ->
+    surroundingName = argumentMap['with']
+    at = argumentMap['at']
+    surroundingView = @views[surroundingName]
 
-      nodes = node.contents() #This snippet is only interested in child nodes
-      #console.log "_surroundSnippet invoked with #{node}"
+    unless surroundingView?
+      throw "Unable to find surrounding view '#{surroundingName}'"
 
-      surroundingName = argumentMap['with']
-      at = argumentMap['at']
-      surroundingView = @views[surroundingName]
+    surroundingContent = $("<div>#{surroundingView}</div>")
 
-      unless surroundingView?
-        throw "Unable to find surrounding view '#{surroundingName}'"
+    if at?
+      bind(surroundingContent, nodes, at)
+    else
+      bindParts(surroundingContent, nodes)
 
-      surroundingContent = $("<div>#{surroundingView}</div>")
+    return surroundingContent.contents()
 
-      if at?
-        bind(surroundingContent, nodes, at)
-      else
-        bindParts(surroundingContent, nodes)
+  embed: (html, argumentMap) ->
 
-      return surroundingContent.contents()
+    templateName = argumentMap['view']
+    embeddedView = @views[templateName]
 
-    embed: (html, argumentMap) ->
+    unless embeddedView?
+      throw "Unable to find template to embed '#{templateName}'"
 
-      templateName = argumentMap['view']
-      embeddedView = @views[templateName]
-
-      unless embeddedView?
-        throw "Unable to find template to embed '#{templateName}'"
-
-      return $("<div>#{embeddedView}</div>").contents()
-
-  return TemplatingSnippets
+    return $("<div>#{embeddedView}</div>").contents()

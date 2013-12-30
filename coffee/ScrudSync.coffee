@@ -1,14 +1,21 @@
-define ["Scrud-0.1"], (Scrud) ->
+Scrud = require("./Scrud.js")
 
-  class Sync
+module.exports =  class Sync
 
-    constructor: (@url) ->
+  constructor: (@url) ->
 
-    connect: () ->
+    @Scud = new Scrud(@url)
+
+  connect: (callbackFunc) -> @Scrud.connect(callbackFunc)
+
+  forwardJson = (successFunc) ->
+    forwardingJson = (scrudMessage) -> successFunc(scrudMessage.resource)
 
 
+  persist: (modelType, json, successFunc) ->
 
-    connectCollection: ->
-      console.log(arguments)
+    createMessage = new @Scrud.Create(resourceType, resource)
+    createMessage.send(forwardJson(successFunc))
 
-  return Sync
+  connectCollection: ->
+    console.log(arguments)

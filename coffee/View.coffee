@@ -1,9 +1,7 @@
-define ["jquery"], ($) ->
-  class window.View
-    
-    @TEXT_NODE = 3
-    
-    constructor: (@viewId, @element) ->
-    
+$ = require('jquery/dist/jquery')(window)
 
-    getElement: () => @element
+module.exports = class window.View
+    
+  @TEXT_NODE = 3
+  constructor: (@viewId, @element) ->
+  getElement: () => @element

@@ -1,233 +1,233 @@
-define ["underscore", "jquery", "Property", "ViewFirstEvents", "ScrudSync"], (_, $, Property, Events, Sync) ->
+_ = require("underscore")
+$ = require('jquery/dist/jquery')(window)
+Events = require("./ViewFirstEvents")
+Sync = require("./ScrudSync")
 
-  class Collection extends Events
+module.exports = class Collection extends Events
 
-    constructor: () ->
+  constructor: () ->
 
-      super
-      @instances = {}
+    super
+    @instances = {}
 
-    getAll: ->
+  getAll: ->
 
-      value for key, value of @instances
+    value for key, value of @instances
 
-    size: -> Object.keys(@instances).length
+  size: -> Object.keys(@instances).length
 
-    add: (model, silent = false) ->
+  add: (model, silent = false) ->
 
-      if(@instances[model.clientId]?) then return false
-      @instances[model.clientId] = model
-      @trigger("add", model) unless silent
+    if(@instances[model.clientId]?) then return false
+    @instances[model.clientId] = model
+    @trigger("add", model) unless silent
+    return true
+
+  remove: (model) ->
+
+    delete @instances[model.clientId]
+    @trigger("remove", model)
+
+class ClientFilteredCollection extends Collection
+
+  constructor: (@serverSyncCollection) ->
+
+    super
+
+  deactivate: =>
+
+    @serverSyncCollection.removeFilteredCollection(@)
+
+class ServerSynchronisedCollection extends Collection
+
+  constructor: (@modelType) ->
+
+    super
+    @filteredCollections = []
+
+  filter: (filter) =>
+
+    filteredCollection = new ClientFilteredCollection(@)
+    filteredCollectionObject = {collection: filteredCollection, filter: filter}
+    @filteredCollections.push filteredCollectionObject
+    filteredCollection.add(model, true) for key, model of @instances when filter(model)
+    return filteredCollection
+
+  removeFilteredCollection: (collections...) =>
+
+     @filteredCollections = _.filter(@filteredCollections, (collObj) -> (collObj in collections))
+
+  add: (model, silent = false) ->
+
+    if(super)
+      filteredCollection.collection.add(model) for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+
+      model.on "change", =>
+
+        for filteredCollection in @filteredCollections
+
+          matches = filteredCollection.filter(model)
+
+          filteredCollection.collection.add(model, silent) if matches and not filteredCollection.collection.instances[model.clientId]?
+          filteredCollection.collection.remove(model) if not matches and filteredCollection.collection.instances[model.clientId]?
       return true
+    else
+      return false
 
-    remove: (model) ->
+  activate: =>
 
-      delete @instances[model.clientId]
-      @trigger("remove", model)
+    callbackFunctions =
+      create: (json) =>
+        model = @modelType.load(json)
+        @add(model)
+      update: (json) =>
+        @modelType.load(json)
+      delete: (json) =>
+        @modelType.load(json)
+        throw "delete is not yet implemented"
+      remove: (json) =>
+        model = @modelType.load(json)
+        @remove(model)
 
-  class ClientFilteredCollection extends Collection
+    Sync.connectCollection(@modelType.type, callbackFunctions)
 
-    constructor: (@serverSyncCollection) ->
+class Model extends Events
 
-      super
+  @models = {}
 
-    deactivate: =>
+  constructor: () ->
 
-      @serverSyncCollection.removeFilteredCollection(@)
+    super
+    @properties = {}
+    @clientId = createClientId()
+    idProperty = @createProperty("id", Number)
+    idProperty.on "change", (oldValue, newValue) =>
+                                    if oldValue? then throw "Cannot set id as it has already been set"
+                                    if @constructor.instancesById[newValue]? then throw "Cannot set the id to #{newValue} as another object has that id"
+                                    @constructor.instancesById[newValue] = this
 
-  class ServerSynchronisedCollection extends Collection
+  lastClientIdUsed = 0
 
-    constructor: (@modelType) ->
+  createClientId = ->
 
-      super
-      @filteredCollections = []
+    lastClientIdUsed = lastClientIdUsed + 1
 
-    filter: (filter) =>
 
-      filteredCollection = new ClientFilteredCollection(@)
-      filteredCollectionObject = {collection: filteredCollection, filter: filter}
-      @filteredCollections.push filteredCollectionObject
-      filteredCollection.add(model, true) for key, model of @instances when filter(model)
-      return filteredCollection
+  createProperty: (name, type, relationship) ->
+    property = new Property(name, type, relationship)
+    property.on("change", => @trigger("change"))
+    @properties[name] = property
+    return property
 
-    removeFilteredCollection: (collections...) =>
+  isNew: -> !(@isPersisted())
 
-       @filteredCollections = _.filter(@filteredCollections, (collObj) -> (collObj in collections))
+  isPersisted: ->
+    @properties["id"].isSet()
 
-    add: (model, silent = false) ->
+  get: (name) ->
+    @properties[name].get()
 
-      if(super)
-        filteredCollection.collection.add(model) for filteredCollection in @filteredCollections when filteredCollection.filter(model)
+  getProperty: (name) ->
+    @properties[name]
 
-        model.on "change", =>
+  findProperty: (key) ->
 
-          for filteredCollection in @filteredCollections
+    elements = key.split(".")
+    current = this
+    for element in elements
+      current = @getProperty(element)
+    return current
 
-            matches = filteredCollection.filter(model)
+  set: (name, value) ->
 
-            filteredCollection.collection.add(model, silent) if matches and not filteredCollection.collection.instances[model.clientId]?
-            filteredCollection.collection.remove(model) if not matches and filteredCollection.collection.instances[model.clientId]?
-        return true
-      else
-        return false
+    @properties[name].set(value)
 
-    activate: =>
+  add: (name, value) ->
+    @properties[name].add(value)
 
-      callbackFunctions =
-        create: (json) =>
-          model = @modelType.load(json)
-          @add(model)
-        update: (json) =>
-          @modelType.load(json)
-        delete: (json) =>
-          @modelType.load(json)
-          throw "delete is not yet implemented"
-        remove: (json) =>
-          model = @modelType.load(json)
-          @remove(model)
+  removeAll: (name) ->
+    @properties[name].removeAll()
 
-      Sync.connectCollection(@modelType.type, callbackFunctions)
+  onPropertyChange: (propertyName, func) ->
+    @properties[propertyName].on("change", func)
 
-  class Model extends Events
+  asJson: (includeOnlyDirtyProperties = true) ->
 
-    @models = {}
+    json = {}
+    property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
+    return json
 
-    constructor: () ->
+  save: ->
 
-      super
-      @properties = {}
-      @clientId = createClientId()
-      idProperty = @createProperty("id", Number)
-      idProperty.on "change", (oldValue, newValue) =>
-                                      if oldValue? then throw "Cannot set id as it has already been set"
-                                      if @constructor.instancesById[newValue]? then throw "Cannot set the id to #{newValue} as another object has that id"
-                                      @constructor.instancesById[newValue] = this
+    callbackFunctions =
+      success : @update
 
-    lastClientIdUsed = 0
+    saveFunction = if @isNew() then Sync.persist else Sync.update
+    json = JSON.stringify(@asJson())
+    saveFunction(json, callbackFunctions)
 
-    createClientId = ->
-    
-      lastClientIdUsed = lastClientIdUsed + 1
+  delete: ->
 
-      
-    createProperty: (name, type, relationship) ->
-      property = new Property(name, type, relationship)
-      property.on("change", => @trigger("change"))
-      @properties[name] = property
-      return property
+    callbackFunctions =
+      success : ->
+        console.log("TODO will need to trigger an event")
 
-    isNew: -> !(@isPersisted())
+    Sync.delete(@get("id"), callbackFunctions)
 
-    isPersisted: ->
-      @properties["id"].isSet()
 
-    get: (name) ->
-      @properties[name].get()
-      
-    getProperty: (name) ->
-      @properties[name]
-      
-    findProperty: (key) ->
-    
-      elements = key.split(".")
-      current = this
-      for element in elements
-        current = @getProperty(element)
-      return current
-      
-    set: (name, value) ->
+  update: (json, clean = true) =>
 
-      @properties[name].set(value)
+    for key, value of json
+      @properties[key].setFromJson(value, clean = true)
 
-    add: (name, value) ->
-      @properties[name].add(value)
+  addInstances = (Child) ->
+    Child.instances = []
+    Child.instancesById = {}
 
-    removeAll: (name) ->
-      @properties[name].removeAll()
-      
-    onPropertyChange: (propertyName, func) ->
-      @properties[propertyName].on("change", func)
+  addLoadMethod = (Child) ->
+    Child.load = (json) ->
+      id = json.id
+      childObject = if Child.instancesById[id]? then Child.instancesById[id] else new Child
+      childObject.update(json)
+      return childObject
 
-    asJson: (includeOnlyDirtyProperties = true) ->
-    
-      json = {}
-      property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
-      return json
+  addCreateCollectionFunction = (Child) ->
+    Child.createCollection = ->
+      new ServerSynchronisedCollection(Child)
 
-    save: ->
+  ensureModelValid = (Model) ->
 
-      callbackFunctions =
-        success : @update
+    throw "type must be set as a static property: #{Model}" unless Model.type
 
-      saveFunction = if @isNew() then Sync.persist else Sync.update
-      json = JSON.stringify(@asJson())
-      saveFunction(json, callbackFunctions)
+  @find: (modelType, id) -> @models[modelType].instancesById[id]
 
-    delete: ->
+  @extend: (Child) ->
 
-      callbackFunctions =
-        success : ->
-          console.log("TODO will need to trigger an event")
-        
-      Sync.delete(@get("id"), callbackFunctions)
-      
-      
-    update: (json, clean = true) =>
-    
-      for key, value of json
-        @properties[key].setFromJson(value, clean = true)
+    ensureModelValid(Child)
 
-    addInstances = (Child) ->
-      Child.instances = []
-      Child.instancesById = {}
+    ChildExtended = ->
+      Model.apply(this, arguments)
+      Child.apply(this, arguments)
+      @constructor.instances.push @
+      @constructor.trigger("created", @)
+      return this
 
-    addLoadMethod = (Child) ->
-      Child.load = (json) ->
-        id = json.id
-        childObject = if Child.instancesById[id]? then Child.instancesById[id] else new Child
-        childObject.update(json)
-        return childObject
+    ChildExtended.modelName = Child.name
+    @models[Child.name] = ChildExtended
 
-    addCreateCollectionFunction = (Child) ->
-      Child.createCollection = ->
-        new ServerSynchronisedCollection(Child)
+    Surrogate = ->
+    Surrogate.prototype = @prototype
 
-    ensureModelValid = (Model) ->
+    ChildExtended.prototype = new Surrogate
+    ChildExtended.prototype.constructor = ChildExtended
 
-      throw "type must be set as a static property: #{Model}" unless Model.type
+    _.extend(ChildExtended, new Events)
+    _.extend(ChildExtended, Child)
+    _.extend(ChildExtended.prototype, Child.prototype)
 
-    @find: (modelType, id) -> @models[modelType].instancesById[id]
+    addInstances ChildExtended
+    addLoadMethod ChildExtended
+    addCreateCollectionFunction ChildExtended
 
-    @extend: (Child) ->
+    return ChildExtended
 
-      ensureModelValid(Child)
-
-      ChildExtended = ->
-        Model.apply(this, arguments)
-        Child.apply(this, arguments)
-        @constructor.instances.push @
-        @constructor.trigger("created", @)
-        return this
-
-      ChildExtended.modelName = Child.name
-      @models[Child.name] = ChildExtended
-
-      Surrogate = ->
-      Surrogate.prototype = @prototype
-
-      ChildExtended.prototype = new Surrogate
-      ChildExtended.prototype.constructor = ChildExtended
-      
-      _.extend(ChildExtended, new Events)
-      _.extend(ChildExtended, Child)
-      _.extend(ChildExtended.prototype, Child.prototype)
-
-      addInstances ChildExtended
-      addLoadMethod ChildExtended
-      addCreateCollectionFunction ChildExtended
-
-      return ChildExtended
-
-  return Model
-
-  
