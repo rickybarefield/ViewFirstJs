@@ -1,8 +1,9 @@
 expect = require("./expect.js")
 sinon = require("sinon")
-MockWebSocket = require("./MockWebSocket.js")
 assert = new expect.Assertion
+ViewFirst = require("./ViewFirst-0.1")
 
+mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
 
 suite 'ViewFirst Tests', ->
 
