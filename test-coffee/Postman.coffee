@@ -1,4 +1,4 @@
-ViewFirst = require("./ViewFirst")
+ViewFirst = require("ViewFirstJs")
 
 module.exports = ViewFirst.Model.extend class Postman
 

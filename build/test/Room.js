@@ -2,7 +2,7 @@
 (function() {
   var Room, ViewFirst;
 
-  ViewFirst = require("./ViewFirst");
+  ViewFirst = require("ViewFirstJs");
 
   module.exports = ViewFirst.Model.extend(Room = (function() {
 

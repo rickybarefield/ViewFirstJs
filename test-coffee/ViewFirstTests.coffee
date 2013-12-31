@@ -2,6 +2,7 @@ expect = require("./expect.js")
 sinon = require("sinon")
 assert = new expect.Assertion
 ViewFirst = require("ViewFirstJs")
+require("./House")
 
 mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
 

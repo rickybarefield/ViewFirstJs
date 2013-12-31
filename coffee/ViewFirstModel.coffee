@@ -2,8 +2,9 @@ _ = require("./underscore-dep")
 $ = require('./jquery-dep')
 Events = require("./ViewFirstEvents")
 Sync = require("./ScrudSync")
+Property = require("./Property")
 
-module.exports = class Collection extends Events
+class Collection extends Events
 
   constructor: () ->
 
@@ -91,7 +92,7 @@ class ServerSynchronisedCollection extends Collection
 
     Sync.connectCollection(@modelType.type, callbackFunctions)
 
-class Model extends Events
+module.exports = class Model extends Events
 
   @models = {}
 

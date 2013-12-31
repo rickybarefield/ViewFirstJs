@@ -2,7 +2,7 @@
 (function() {
   var Postman, ViewFirst;
 
-  ViewFirst = require("./ViewFirst");
+  ViewFirst = require("ViewFirstJs");
 
   module.exports = ViewFirst.Model.extend(Postman = (function() {
 
