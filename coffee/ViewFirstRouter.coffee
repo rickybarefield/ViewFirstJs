@@ -1,4 +1,4 @@
-_ = require("underscore")
+_ = require("./underscore-dep")
 ViewFirstModel = require("./ViewFirstModel")
 
 module.exports = class ViewFirstRouter

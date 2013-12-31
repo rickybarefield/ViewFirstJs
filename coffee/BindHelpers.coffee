@@ -1,4 +1,4 @@
-_ = require("underscore")
+_ = require("./underscore-dep")
 
 module.exports = class BindHelpers
 

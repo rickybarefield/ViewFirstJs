@@ -1,4 +1,4 @@
-Scrud = require("./Scrud.js")
+Scrud = require("Scrud")
 
 module.exports =  class Sync
 

@@ -1,0 +1,1 @@
+module.exports = if _? then _ else require("underscore")

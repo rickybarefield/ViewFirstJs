@@ -1,24 +1,24 @@
 #Clean target directories
-rm -rf dist/*
+rm -rf build/*
 
 #Main
-coffee -o dist/js -c coffee
-cp -r vendor/* dist/js
+coffee -o build/dist/lib -c coffee
+cp -r vendor/* build/dist/lib
+cp README.md build/dist/
+cp package.json build/dist/
+cd build/dist
+npm link Scrud
+npm update
 
-cd dist
-npm install requirejs
-npm install sinon
-cd js
-browserify ViewFirst.js --outfile ../ViewFirst-0.1.js --external "./Scrud.js"  --require "./Scrud.js:underscore" --external "underscore" --external "jquery/dist/jquery"
-
-#Test
 cd ../..
-coffee -o dist/test-js -c test-coffee
-cp -r test-vendor/* dist/test-js
-cd dist/test-js
-cp ../ViewFirst-0.1.js .
+coffee -o build/test -c test-coffee
+cp -r test-vendor/* build/test
+cp test-html/* build/test
+cd build/test
 
-browserify AllTests.js --outfile ../AllTests.js --external "./ViewFirst-0.1.js" --require "./ViewFirst-0.1.js"
+npm install sinon
+npm link ViewFirstJs
+browserify AllTests.js --outfile BrowserTests.js --external underscore --external jquery
 
 cd ../..
 

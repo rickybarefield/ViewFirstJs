@@ -1,4 +1,4 @@
-$ = require('jquery/dist/jquery')(window)
+$ = require('./jquery-dep')
 
 module.exports = class window.View
     

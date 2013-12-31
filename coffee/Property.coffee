@@ -1,4 +1,4 @@
-_ = require("underscore")
+_ = require("./underscore-dep")
 Events = require("./ViewFirstEvents")
 
 module.exports = class Property extends Events

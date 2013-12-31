@@ -1,5 +1,5 @@
-_ = require("underscore")
-$ = require('jquery/dist/jquery')(window)
+_ = require("./underscore-dep")
+$ = require('./jquery-dep')
 Events = require("./ViewFirstEvents")
 Sync = require("./ScrudSync")
 

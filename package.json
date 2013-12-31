@@ -1,0 +1,15 @@
+{
+  "author": "Ricky Barefield",
+  "name": "ViewFirstJs",
+  "description": "ViewFirstJs",
+  "version": "0.0.1",
+  "main": "./lib/ViewFirst",
+  "dependencies": {
+    "underscore":"1.5.2",
+    "jquery":"2.1.0-beta3",
+    "Scrud":"0.0.1"
+  },
+  "engines": {
+    "node": "*"
+  }
+}

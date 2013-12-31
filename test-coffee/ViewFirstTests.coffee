@@ -1,7 +1,7 @@
 expect = require("./expect.js")
 sinon = require("sinon")
 assert = new expect.Assertion
-ViewFirst = require("./ViewFirst-0.1")
+ViewFirst = require("ViewFirstJs")
 
 mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
 
