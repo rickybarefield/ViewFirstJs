@@ -4,8 +4,6 @@ assert = new expect.Assertion
 ViewFirst = require("ViewFirstJs")
 require("./House")
 
-mocha.setup({ ui: 'tdd', globals: ['toString', 'getInterface']})
-
 suite 'ViewFirst Tests', ->
 
   suite 'Construction', ->

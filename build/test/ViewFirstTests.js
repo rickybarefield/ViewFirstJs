@@ -12,11 +12,6 @@
 
   require("./House");
 
-  mocha.setup({
-    ui: 'tdd',
-    globals: ['toString', 'getInterface']
-  });
-
   suite('ViewFirst Tests', function() {
     suite('Construction', function() {
       var snippetsContain;

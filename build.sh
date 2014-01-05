@@ -9,13 +9,21 @@ cp package.json build/dist/
 cd build/dist
 npm link Scrud
 npm update
-
 cd ../..
-coffee -o build/test -c test-coffee
-cp -r test-vendor/* build/test
-cp test-html/* build/test
-cd build/test
 
+#unit-test
+coffee -o build/unit-test/dist/lib -c unit-test-coffee
+cp build/dist build/unit-test
+cp -r test-vendor/* build/unit-test/dist/lib
+cd build/unit-test
+mocha -u tdd PropertyTests
+cd ../..
+
+#integration-test
+coffee -o build/test -c integration-test-coffee
+cp -r test-vendor/* build/integration-test
+cp test-html/* build/integration-test
+cd build/integration-test
 npm install sinon
 npm link ViewFirstJs
 browserify AllTests.js --outfile BrowserTests.js --external underscore --external jquery

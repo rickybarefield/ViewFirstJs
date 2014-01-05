@@ -1,1 +1,0 @@
-ViewFirstTests = require("./ViewFirstTests")
