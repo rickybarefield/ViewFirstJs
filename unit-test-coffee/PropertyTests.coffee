@@ -1,6 +1,10 @@
 expect = require("./expect.js")
 assert = new expect.Assertion
 Property = require("./Property")
+VFC = require("./ViewFirstConverters")
+
+viewFirst = {dateFormat: "DD/MM/YYYY"}
+VFC(viewFirst)
 
 suite 'ViewFirst Model Tests', ->
 
@@ -39,6 +43,11 @@ suite 'ViewFirst Model Tests', ->
         expect(dateProp.get().getFullYear()).to.equal 2013
         expect(dateProp.get().getMonth()).to.equal 0
 
+      test 'Converting a date to a string', ->
+
+        dateProp.set("20/01/2013")
+        expect(dateProp.get()._viewFirstToString()).to.equal "20/01/2013"
+
       test 'Setting from a string after changing the date format', ->
 
         viewFirst.dateFormat = "YYYY-MM-DD"
@@ -46,11 +55,6 @@ suite 'ViewFirst Model Tests', ->
         expect(dateProp.get().getDate()).to.equal 17
         expect(dateProp.get().getFullYear()).to.equal 2017
         expect(dateProp.get().getMonth()).to.equal 4
-
-      test 'Converting a date to a string', ->
-
-        dateProp.set("20/01/2013")
-        expect(dateProp.get()._viewFirstToString()).to.equal "20/01/2013"
 
     suite 'Setting number properties', ->
 
