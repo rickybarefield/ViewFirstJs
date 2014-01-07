@@ -4,7 +4,7 @@ module.exports =  class Sync
 
   constructor: (@url) ->
 
-    @Scud = new Scrud(@url)
+    @Scrud = new Scrud(@url)
 
   connect: (callbackFunc) -> @Scrud.connect(callbackFunc)
 

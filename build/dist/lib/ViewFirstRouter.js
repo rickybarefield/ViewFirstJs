@@ -67,11 +67,11 @@
     deriveNamedModelString = function(namedModels) {
       var container, name, namedModelStrings;
       namedModelStrings = (function() {
-        var _results;
+        var _ref, _results;
         _results = [];
         for (name in namedModels) {
           container = namedModels[name];
-          if ((container.model != null) && container.model.isPersisted()) {
+          if (((container != null ? (_ref = container.model) != null ? _ref.isPersisted : void 0 : void 0) != null) && container.model.isPersisted()) {
             _results.push("" + name + "=" + container.model.constructor.modelName + "!" + (container.model.get("id")));
           }
         }

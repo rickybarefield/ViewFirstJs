@@ -44,7 +44,7 @@ module.exports = class ViewFirstRouter
 
   deriveNamedModelString = (namedModels) ->
 
-    namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when (container.model? && container.model.isPersisted()))
+    namedModelStrings = ("#{name}=#{container.model.constructor.modelName}!#{container.model.get("id")}" for name, container of namedModels when (container?.model?.isPersisted? && container.model.isPersisted()))
     return namedModelStrings.join("|")
 
   update: ->

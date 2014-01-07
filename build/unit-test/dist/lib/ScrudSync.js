@@ -9,7 +9,7 @@
 
     function Sync(url) {
       this.url = url;
-      this.Scud = new Scrud(this.url);
+      this.Scrud = new Scrud(this.url);
     }
 
     Sync.prototype.connect = function(callbackFunc) {

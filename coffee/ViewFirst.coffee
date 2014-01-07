@@ -1,6 +1,6 @@
 ViewFirstModel = require("./ViewFirstModel")
 ViewFirstRouter = require("./ViewFirstRouter")
-ViewFirstModelContainer = require("./ViewFirstModelContainer")
+ModelContainer = require("./ViewFirstModelContainer")
 BindHelpers = require("./BindHelpers")
 TemplatingSnippets = require("./TemplatingSnippets")
 OneToMany = require("./OneToMany")
@@ -52,16 +52,22 @@ module.exports = class ViewFirst extends BindHelpers
     @router = new ViewFirstRouter(this)
     @addSnippet(key, value) for key, value of TemplatingSnippets
     ViewFirstConverters(@)
+
+  addViews = ->
+
     $('script[type="text/view-first-template"]').each (id, el) =>
       node = $(el)
       viewName = node.attr("name")
       @views[viewName] = node.html()
       #TODO @router.addRoute viewName, viewName == @indexView
 
+
   initialize: (callback) =>
 
-    @router.initialize()
+    #TODO Router needs initialising but current plan is to have no initial view
+    #@router.initialize()
     @sync.connect(callback)
+    addViews.call(@)
 
   render: (viewId) ->
 
