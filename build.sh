@@ -17,7 +17,7 @@ coffee -o build/unit-test/dist/lib -c unit-test-coffee
 cp -r build/dist build/unit-test/
 cp -r test-vendor/* build/unit-test/dist/lib
 cd build/unit-test/dist/lib
-mocha -u tdd PropertyTests
+mocha -u tdd PropertyTests ModelTests
 cd ../../../..
 
 #integration-test

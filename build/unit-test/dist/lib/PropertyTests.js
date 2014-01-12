@@ -16,7 +16,7 @@
 
   VFC(viewFirst);
 
-  suite('ViewFirst Model Tests', function() {
+  suite('ViewFirst Property Tests', function() {
     return suite('Setting properties', function() {
       suite('Setting date properties', function() {
         var dateProp;

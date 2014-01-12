@@ -6,7 +6,7 @@ VFC = require("./ViewFirstConverters")
 viewFirst = {dateFormat: "DD/MM/YYYY"}
 VFC(viewFirst)
 
-suite 'ViewFirst Model Tests', ->
+suite 'ViewFirst Property Tests', ->
 
   suite 'Setting properties', ->
 
