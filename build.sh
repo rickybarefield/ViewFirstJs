@@ -1,3 +1,4 @@
+#!/bin/sh
 #Clean target directories
 rm -rf build/*
 
