@@ -1,14 +1,14 @@
 #!/bin/sh
 
-#cd build/dist
-#npm update
-#cd ../..
+cd build/dist
+npm update
+cd ../..
 
 #Main
 coffee -o build/dist/lib -c coffee
 cp -r vendor/* build/dist/lib
 cp README.md build/dist/
-cp package.json build/dist/
+cp package/package.json build/dist/
 
 #unit-test
 coffee -o build/unit-test/dist/lib -c unit-test-coffee
