@@ -59,6 +59,13 @@ suite 'ViewFirst Property Tests', ->
         expect(dateProp.get().getFullYear()).to.equal 2017
         expect(dateProp.get().getMonth()).to.equal 4
 
+      test 'Setting from an empty String', ->
+
+        dateProp.set("")
+        expect(dateProp.get()).to.equal null
+
+
+
     suite 'Setting number properties', ->
 
       numberProp = null

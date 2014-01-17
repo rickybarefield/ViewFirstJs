@@ -75,7 +75,7 @@
     };
 
     Property.prototype.setFromJson = function(json, clean) {
-      this.set(json);
+      this.set(this.type.fromJson(json));
       return this.isDirty = !clean;
     };
 

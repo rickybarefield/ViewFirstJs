@@ -113,7 +113,7 @@
           return _this.remove(model);
         }
       };
-      return Sync.connectCollection(this.modelType.type, callbackFunctions);
+      return this.modelType.sync.connectCollection(this, this.modelType.type, callbackFunctions);
     };
 
     return ServerSynchronisedCollection;

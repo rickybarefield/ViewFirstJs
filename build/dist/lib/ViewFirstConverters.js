@@ -21,6 +21,7 @@
         return value.toString();
       }
     };
+    String.fromJson = String._viewFirstConvert;
     String.prototype._viewFirstToString = function() {
       return this.toString();
     };
@@ -33,6 +34,7 @@
         throw "Unable to convert " + value + " to a number";
       }
     };
+    Number.fromJson = Number._viewFirstConvert;
     Number.prototype._viewFirstToString = function() {
       return this.toString();
     };
@@ -42,10 +44,17 @@
       } else if (typeof value === "number" || value instanceof Number) {
         return new Date(value);
       } else if (typeof value === "string" || value instanceof String) {
-        return moment(value, viewFirst.dateFormat).toDate();
+        if (value === "") {
+          return null;
+        } else {
+          return moment(value, viewFirst.dateFormat).toDate();
+        }
       } else {
         throw "Unable to convert " + value + " to a Date";
       }
+    };
+    Date.fromJson = function(json) {
+      return new Date(json);
     };
     return Date.prototype._viewFirstToString = function() {
       return moment(this).format(viewFirst.dateFormat);

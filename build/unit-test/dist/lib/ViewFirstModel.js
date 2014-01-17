@@ -121,16 +121,13 @@
     };
 
     Model.prototype.save = function() {
-      var callbackFunctions, isPersisted, json, saveFunction;
+      var isPersisted, json, saveFunction;
       isPersisted = function() {
         return this.properties["id"].isSet();
       };
-      callbackFunctions = {
-        success: this.update
-      };
-      saveFunction = isPersisted() ? this.sync.update : this.sync.persist;
-      json = JSON.stringify(this.asJson());
-      return saveFunction(json, callbackFunctions);
+      saveFunction = isPersisted.call(this) ? this.constructor.sync.update : this.constructor.sync.persist;
+      json = this.asJson();
+      return saveFunction(this.constructor, json, this.update);
     };
 
     Model.prototype["delete"] = function() {
@@ -140,7 +137,7 @@
           return console.log("TODO will need to trigger an event");
         }
       };
-      return this.sync["delete"](this.get("id"), callbackFunctions);
+      return this.constructor.sync["delete"](this.get("id"), callbackFunctions);
     };
 
     Model.prototype.update = function(json, clean) {
@@ -167,14 +164,14 @@
         return Child.load = function(json) {
           var childObject, id;
           id = json.id;
-          childObject = Child.instancesById[id] != null ? Child.instancesById[id] : new Child;
+          childObject = this.instancesById[id] != null ? this.instancesById[id] : new this;
           childObject.update(json);
           return childObject;
         };
       };
       addCreateCollectionFunction = function(Child) {
         return Child.createCollection = function() {
-          return new ServerSynchronisedCollection(Child);
+          return new ServerSynchronisedCollection(this);
         };
       };
       ensureModelValid(Child);

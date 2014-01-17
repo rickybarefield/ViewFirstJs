@@ -12,10 +12,22 @@ module.exports =  class Sync
     forwardingJson = (scrudMessage) -> successFunc(scrudMessage.resource)
 
 
-  persist: (modelType, json, successFunc) ->
+  persist: (modelType, json, successFunc) =>
 
-    createMessage = new @Scrud.Create(resourceType, resource)
+    createMessage = new @Scrud.Create(modelType.modelName, json)
     createMessage.send(forwardJson(successFunc))
 
-  connectCollection: ->
-    console.log(arguments)
+  connectCollection : (collection, modelType, callbackFunctions) =>
+
+    onSuccess = (subscriptionSuccess) ->
+
+      for id, resource of subscriptionSuccess.resources
+
+        callbackFunctions.create(resource)
+
+    onCreated = (created) ->
+
+      callbackFunctions.create(created.resource)
+
+    subscribeMessage = new @Scrud.Subscribe(modelType, onSuccess)
+    subscribeMessage.send(onSuccess, onCreated)

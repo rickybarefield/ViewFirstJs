@@ -44,7 +44,6 @@ module.exports = class ViewFirst extends BindHelpers
         constructor = ->
           this.constructor = constructor
           AModel.apply(this, arguments)
-          @sync = sync
           return this
 
         _.extend(constructor, AModel)
@@ -52,6 +51,7 @@ module.exports = class ViewFirst extends BindHelpers
         constructor.prototype = AModel.prototype
 
         constructor.instances = []
+        constructor.sync = sync
         constructor.instancesById = {}
 
         @[AModel.modelName] = constructor

@@ -43,7 +43,7 @@ module.exports = class Property extends Events
   isSet: -> @value?
 
   setFromJson: (json, clean) ->
-    @set(json)
+    @set(@type.fromJson(json))
     @isDirty = !clean
 
   add: ->

@@ -72,12 +72,12 @@
         constructor = function() {
           this.constructor = constructor;
           AModel.apply(this, arguments);
-          this.sync = sync;
           return this;
         };
         _.extend(constructor, AModel);
         constructor.prototype = AModel.prototype;
         constructor.instances = [];
+        constructor.sync = sync;
         constructor.instancesById = {};
         return _this[AModel.modelName] = constructor;
       };

@@ -52,4 +52,4 @@ module.exports = class ServerSynchronisedCollection extends Collection
         model = @modelType.load(json)
         @remove(model)
 
-    Sync.connectCollection(@modelType.type, callbackFunctions)
+    @modelType.sync.connectCollection(this, @modelType.type, callbackFunctions)

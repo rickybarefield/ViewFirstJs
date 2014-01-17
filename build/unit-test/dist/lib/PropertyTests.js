@@ -52,12 +52,16 @@
           dateProp.set("20/01/2013");
           return expect(dateProp.get()._viewFirstToString()).to.equal("20/01/2013");
         });
-        return test('Setting from a string after changing the date format', function() {
+        test('Setting from a string after changing the date format', function() {
           viewFirst.dateFormat = "YYYY-MM-DD";
           dateProp.set("2017-05-17");
           expect(dateProp.get().getDate()).to.equal(17);
           expect(dateProp.get().getFullYear()).to.equal(2017);
           return expect(dateProp.get().getMonth()).to.equal(4);
+        });
+        return test('Setting from an empty String', function() {
+          dateProp.set("");
+          return expect(dateProp.get()).to.equal(null);
         });
       });
       suite('Setting number properties', function() {

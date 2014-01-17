@@ -16,6 +16,7 @@ module.exports = (viewFirst) ->
       else
         value.toString()
 
+    String.fromJson = String._viewFirstConvert
 
     String.prototype._viewFirstToString = -> this.toString()
 
@@ -28,6 +29,7 @@ module.exports = (viewFirst) ->
       else
         throw "Unable to convert #{value} to a number"
 
+    Number.fromJson = Number._viewFirstConvert
 
     Number.prototype._viewFirstToString = ->
 
@@ -40,9 +42,11 @@ module.exports = (viewFirst) ->
       else if typeof value == "number" || value instanceof Number
         new Date(value)
       else if typeof value == "string" || value instanceof String
-        moment(value, viewFirst.dateFormat).toDate()
+        if value == "" then null else moment(value, viewFirst.dateFormat).toDate()
       else
         throw "Unable to convert #{value} to a Date"
+
+    Date.fromJson = (json) -> new Date(json)
 
     Date.prototype._viewFirstToString = ->
 

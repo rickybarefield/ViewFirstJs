@@ -57,12 +57,9 @@ module.exports = class Model extends Events
 
     isPersisted = -> @properties["id"].isSet()
 
-    callbackFunctions =
-      success : @update
-
-    saveFunction = if isPersisted() then @sync.update else @sync.persist
-    json = JSON.stringify(@asJson())
-    saveFunction(json, callbackFunctions)
+    saveFunction = if isPersisted.call(this) then @constructor.sync.update else @constructor.sync.persist
+    json = @asJson()
+    saveFunction(@constructor, json, @update)
 
   delete: =>
 
@@ -70,7 +67,7 @@ module.exports = class Model extends Events
       success : ->
         console.log("TODO will need to trigger an event")
 
-    @sync.delete(@get("id"), callbackFunctions)
+    @constructor.sync.delete(@get("id"), callbackFunctions)
 
 
   update: (json, clean = true) =>
@@ -85,13 +82,13 @@ module.exports = class Model extends Events
     addLoadMethod = (Child) ->
       Child.load = (json) ->
         id = json.id
-        childObject = if Child.instancesById[id]? then Child.instancesById[id] else new Child
+        childObject = if @instancesById[id]? then @instancesById[id] else new this
         childObject.update(json)
         return childObject
 
     addCreateCollectionFunction = (Child) ->
       Child.createCollection = ->
-        new ServerSynchronisedCollection(Child)
+        new ServerSynchronisedCollection(this)
 
     ensureModelValid(Child)
 
