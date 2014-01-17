@@ -4,9 +4,12 @@ Property = require("./Property")
 VFC = require("./ViewFirstConverters")
 
 viewFirst = {dateFormat: "DD/MM/YYYY"}
-VFC(viewFirst)
 
 suite 'ViewFirst Property Tests', ->
+
+  setup ->
+
+    VFC(viewFirst)
 
   suite 'Setting properties', ->
 

@@ -25,7 +25,7 @@ module.exports = class Property extends Events
 
   convert = (value) ->
 
-    if !value? || value.constructor == @type
+    if !value? || value instanceof @type
       value
     else
       converter = @type._viewFirstConvert

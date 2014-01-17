@@ -1,7 +1,7 @@
 Collection = require("./Collection")
 ClientFilteredCollection = require("./ClientFilteredCollection")
 
-class ServerSynchronisedCollection extends Collection
+module.exports = class ServerSynchronisedCollection extends Collection
 
   constructor: (@modelType) ->
 

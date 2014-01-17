@@ -49,7 +49,7 @@
 
     convert = function(value) {
       var converter;
-      if (!(value != null) || value.constructor === this.type) {
+      if (!(value != null) || value instanceof this.type) {
         return value;
       } else {
         converter = this.type._viewFirstConvert;

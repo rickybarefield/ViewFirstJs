@@ -2,7 +2,7 @@
 (function() {
   var House, Postman, Room, ViewFirst;
 
-  ViewFirst = require("ViewFirstJs");
+  ViewFirst = require("./ViewFirst");
 
   Room = require("./Room");
 

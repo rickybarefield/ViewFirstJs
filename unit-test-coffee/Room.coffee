@@ -1,4 +1,4 @@
-ViewFirst = require("ViewFirstJs")
+ViewFirst = require("./ViewFirst")
 
 module.exports = ViewFirst.Model.extend class Room
 

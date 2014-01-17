@@ -11,7 +11,7 @@
 
   ClientFilteredCollection = require("./ClientFilteredCollection");
 
-  ServerSynchronisedCollection = (function(_super) {
+  module.exports = ServerSynchronisedCollection = (function(_super) {
 
     __extends(ServerSynchronisedCollection, _super);
 

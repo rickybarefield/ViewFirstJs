@@ -1,3 +1,10 @@
+###
+
+  TODO not keen on this class as adding to basic type prototypes means you
+  TODO could never have two ViewFirsts initialised, although I don't particularly
+  TODO see the point in having two, it could lead to really hard to find bugs
+
+###
 moment = require("./moment")
 
 module.exports = (viewFirst) ->

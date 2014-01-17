@@ -157,7 +157,7 @@
     };
 
     Model.extend = function(Child) {
-      var ChildExtended, Surrogate, addCreateCollectionFunction, addInstances, addLoadMethod, ensureModelValid;
+      var ChildExtended, Surrogate, addCreateCollectionFunction, addLoadMethod, ensureModelValid;
       ensureModelValid = function(Model) {
         if (!Model.type) {
           throw "type must be set as a static property: " + Model;
@@ -171,10 +171,6 @@
           childObject.update(json);
           return childObject;
         };
-      };
-      addInstances = function(Child) {
-        Child.instances = [];
-        return Child.instancesById = {};
       };
       addCreateCollectionFunction = function(Child) {
         return Child.createCollection = function() {
@@ -198,7 +194,6 @@
       _.extend(ChildExtended, new Events);
       _.extend(ChildExtended, Child);
       _.extend(ChildExtended.prototype, Child.prototype);
-      addInstances(ChildExtended);
       addLoadMethod(ChildExtended);
       addCreateCollectionFunction(ChildExtended);
       return ChildExtended;

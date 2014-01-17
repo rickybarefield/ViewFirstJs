@@ -6,6 +6,6 @@
     globals: ['toString', 'getInterface']
   });
 
-  require("./ViewFirstTests");
+  require("./BindingTests");
 
 }).call(this);

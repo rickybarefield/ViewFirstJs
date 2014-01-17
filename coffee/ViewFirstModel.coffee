@@ -89,10 +89,6 @@ module.exports = class Model extends Events
         childObject.update(json)
         return childObject
 
-    addInstances = (Child) ->
-      Child.instances = []
-      Child.instancesById = {}
-
     addCreateCollectionFunction = (Child) ->
       Child.createCollection = ->
         new ServerSynchronisedCollection(Child)
@@ -119,7 +115,6 @@ module.exports = class Model extends Events
     _.extend(ChildExtended, Child)
     _.extend(ChildExtended.prototype, Child.prototype)
 
-    addInstances ChildExtended
     addLoadMethod ChildExtended
     addCreateCollectionFunction ChildExtended
 

@@ -1,4 +1,4 @@
-ViewFirst = require("ViewFirstJs")
+ViewFirst = require("./ViewFirst")
 Room = require("./Room")
 Postman = require("./Postman")
 

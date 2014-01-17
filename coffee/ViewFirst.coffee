@@ -7,6 +7,8 @@ OneToMany = require("./OneToMany")
 ManyToOne = require("./ManyToOne")
 ViewFirstConverters = require("./ViewFirstConverters")
 Sync = require("./ScrudSync")
+$ = require("./jquery-dep")
+_ = require("./underscore-dep")
 
 module.exports = class ViewFirst extends BindHelpers
 
@@ -33,18 +35,26 @@ module.exports = class ViewFirst extends BindHelpers
     sync = new Sync(url)
     @sync = sync
 
-    for Model in Models
+    for AModel in Models
 
-      do (Model) =>
+      do (AModel) =>
 
-        @[Model.modelName] = ->
-          Model.apply(this, arguments)
+        constructor = ->
+
+        constructor = ->
+          this.constructor = constructor
+          AModel.apply(this, arguments)
           @sync = sync
           return this
 
-        _.extend(@[Model.modelName], Model)
+        _.extend(constructor, AModel)
 
-        @[Model.modelName].prototype = Model.prototype
+        constructor.prototype = AModel.prototype
+
+        constructor.instances = []
+        constructor.instancesById = {}
+
+        @[AModel.modelName] = constructor
 
     @views = {}
     @namedModels = {}

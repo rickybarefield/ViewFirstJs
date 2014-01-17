@@ -14,9 +14,10 @@
     dateFormat: "DD/MM/YYYY"
   };
 
-  VFC(viewFirst);
-
   suite('ViewFirst Property Tests', function() {
+    setup(function() {
+      return VFC(viewFirst);
+    });
     return suite('Setting properties', function() {
       suite('Setting date properties', function() {
         var dateProp;
