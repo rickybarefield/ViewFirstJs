@@ -78,7 +78,7 @@
     };
 
     Property.prototype.getField = function(fieldName) {
-      if (typeof value !== "undefined" && value !== null) {
+      if (this.value != null) {
         return this.value['get' + fieldName]();
       } else {
         return null;

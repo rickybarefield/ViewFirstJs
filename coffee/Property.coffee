@@ -48,7 +48,7 @@ module.exports = class Property extends Events
 
   getField : (fieldName) ->
 
-   if value?
+   if @value?
      @value['get' + fieldName]()
    else
      null

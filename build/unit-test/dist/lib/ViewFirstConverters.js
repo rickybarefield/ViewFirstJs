@@ -59,8 +59,11 @@
     Date.prototype._viewFirstToString = function() {
       return moment(this).format(viewFirst.dateFormat);
     };
-    return Date.prototype.setMonthOfYear = function(value) {
+    Date.prototype.setMonthOfYear = function(value) {
       return this.setMonth(value - 1);
+    };
+    return Date.prototype.getMonthOfYear = function() {
+      return this.getMonth() + 1;
     };
   };
 
