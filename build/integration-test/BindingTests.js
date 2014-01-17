@@ -140,6 +140,17 @@
         inputHtml.trigger(e);
         return expect(bedroom.get("size")).to.equal(7);
       });
+      test('Inputs with a data-field should bind to a field of a property', function() {
+        var e, inputHtml;
+        inputHtml = $("<input type=\"text\" data-property=\"dob\" data-field=\"FullYear\" />");
+        viewFirst.bindInputs(inputHtml, fred);
+        expect(inputHtml.val()).to.eql("2013");
+        inputHtml.val("1980");
+        e = $.Event("keypress");
+        e.keyCode = 13;
+        inputHtml.trigger(e);
+        return expect(fred.get("dob").getFullYear()).to.equal(1980);
+      });
       return test('Multiple child inputs should be bound', function() {
         var complexHtml, sizeInput;
         complexHtml = $("<input type=\"text\" data-property=\"colour\" /><span><input id=\"colour-input\" type=\"password\" data-property=\"size\" /></span>");

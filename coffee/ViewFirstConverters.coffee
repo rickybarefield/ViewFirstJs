@@ -51,3 +51,7 @@ module.exports = (viewFirst) ->
     Date.prototype._viewFirstToString = ->
 
       moment(this).format(viewFirst.dateFormat)
+
+    Date.prototype.setMonthOfYear = (value) ->
+
+      @setMonth(value - 1)

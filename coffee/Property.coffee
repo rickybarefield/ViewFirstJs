@@ -39,6 +39,19 @@ module.exports = class Property extends Events
     if oldValue != @value
       @trigger("change", oldValue, @value)
 
+  setField : (fieldName, fieldValue) ->
+
+    #we want to treat property values as immutable, therefore create a new one
+    newValue = new @type(@value)
+    newValue['set' + fieldName](fieldValue)
+    @set(newValue)
+
+  getField : (fieldName) ->
+
+   if value?
+     @value['get' + fieldName]()
+   else
+     null
 
   isSet: -> @value?
 

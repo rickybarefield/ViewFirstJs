@@ -66,22 +66,38 @@
         return node.attr("data-property") != null;
       };
       bindInput = function(node) {
-        var bindOptions, bindSimpleInput, collectionName, key, property;
+        var bindOptions, bindSimpleInput, collectionName, field, key, property;
         key = node.attr("data-property");
+        field = node.attr("data-field");
         property = model.findProperty(key);
         collectionName = node.attr("data-collection");
         bindSimpleInput = function() {
-          var _this = this;
-          node.val(property.toString());
+          var get, set,
+            _this = this;
+          get = function() {
+            if (field != null) {
+              return property.getField(field);
+            } else {
+              return property.toString();
+            }
+          };
+          set = function() {
+            if (field != null) {
+              return property.setField(field, node.val());
+            } else {
+              return property.set(node.val());
+            }
+          };
+          node.val(get());
           node.off("keypress.viewFirst");
           node.off("blur.viewFirst");
           node.on("keypress.viewFirst", function(e) {
             if ((e.keyCode || e.which) === 13) {
-              return property.set(node.val());
+              return set();
             }
           });
           return node.on("blur.viewFirst", function() {
-            return property.set(node.val());
+            return set();
           });
         };
         bindOptions = function() {

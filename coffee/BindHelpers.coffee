@@ -49,19 +49,33 @@ module.exports = class BindHelpers
     bindInput = (node) =>
 
       key = node.attr("data-property")
+      field = node.attr("data-field")
       property = model.findProperty(key)
       collectionName = node.attr("data-collection")
 
       bindSimpleInput = ->
-        node.val(property.toString())
+
+        get = ->
+          if field?
+            property.getField(field)
+          else
+            property.toString()
+
+        set = ->
+          if field?
+            property.setField(field, node.val())
+          else
+            property.set(node.val())
+
+        node.val(get())
         node.off("keypress.viewFirst")
         node.off("blur.viewFirst")
 
         node.on "keypress.viewFirst", (e) ->
           if ((e.keyCode || e.which) == 13)
-            property.set(node.val())
+            set()
         node.on "blur.viewFirst", =>
-          property.set(node.val())
+          set()
 
       bindOptions = ->
 

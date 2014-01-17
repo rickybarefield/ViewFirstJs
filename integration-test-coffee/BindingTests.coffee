@@ -138,6 +138,22 @@ suite 'Binding Tests', ->
 
       expect(bedroom.get("size")).to.equal 7
 
+    test 'Inputs with a data-field should bind to a field of a property', ->
+
+      inputHtml = $("<input type=\"text\" data-property=\"dob\" data-field=\"FullYear\" />")
+
+      viewFirst.bindInputs(inputHtml, fred)
+
+      expect(inputHtml.val()).to.eql "2013"
+      inputHtml.val("1980")
+
+      e = $.Event("keypress")
+      e.keyCode = 13
+      inputHtml.trigger(e)
+
+      expect(fred.get("dob").getFullYear()).to.equal 1980
+
+
 
     test 'Multiple child inputs should be bound', ->
 

@@ -56,8 +56,11 @@
     Date.fromJson = function(json) {
       return new Date(json);
     };
-    return Date.prototype._viewFirstToString = function() {
+    Date.prototype._viewFirstToString = function() {
       return moment(this).format(viewFirst.dateFormat);
+    };
+    return Date.prototype.setMonthOfYear = function(value) {
+      return this.setMonth(value - 1);
     };
   };
 

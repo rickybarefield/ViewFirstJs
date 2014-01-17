@@ -70,6 +70,21 @@
       }
     };
 
+    Property.prototype.setField = function(fieldName, fieldValue) {
+      var newValue;
+      newValue = new this.type(this.value);
+      newValue['set' + fieldName](fieldValue);
+      return this.set(newValue);
+    };
+
+    Property.prototype.getField = function(fieldName) {
+      if (typeof value !== "undefined" && value !== null) {
+        return this.value['get' + fieldName]();
+      } else {
+        return null;
+      }
+    };
+
     Property.prototype.isSet = function() {
       return this.value != null;
     };
