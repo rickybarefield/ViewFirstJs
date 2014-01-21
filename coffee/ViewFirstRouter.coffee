@@ -20,6 +20,9 @@ module.exports = class ViewFirstRouter
     if viewName?
       @viewFirst.render(viewName)
 
+      #TODO Need to work on this, looks to be in the wrong order, i.e. load named models then render view
+      #TODO also loading individual models is not yet supported by Scrud so work to be done there.
+
       if namedModelStrings? && namedModelStrings != ""
 
         for namedModelString in namedModelStrings.split("|")

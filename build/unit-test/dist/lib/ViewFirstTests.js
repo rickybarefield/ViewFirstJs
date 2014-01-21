@@ -26,6 +26,8 @@
 
   suite('ViewFirst Tests', function() {
     global.location = "";
+    global.window = {};
+    global.window.addEventListener = sinon.stub();
     suite('Construction', function() {
       var snippetsContain;
       test('The correct sync dependencies should be added', function() {

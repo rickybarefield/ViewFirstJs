@@ -74,8 +74,7 @@ module.exports = class ViewFirst extends BindHelpers
 
   initialize: (callback) =>
 
-    #TODO Router needs initialising but current plan is to have no initial view
-    #@router.initialize()
+    @router.initialize()
     @sync.connect(callback)
     addViews.call(@)
 

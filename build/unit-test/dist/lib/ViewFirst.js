@@ -107,6 +107,7 @@
     };
 
     ViewFirst.prototype.initialize = function(callback) {
+      this.router.initialize();
       this.sync.connect(callback);
       return addViews.call(this);
     };

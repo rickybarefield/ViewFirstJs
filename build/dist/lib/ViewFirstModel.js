@@ -41,6 +41,8 @@
 
       this.save = __bind(this.save, this);
 
+      this.isPersisted = __bind(this.isPersisted, this);
+
       var idProperty,
         _this = this;
       Model.__super__.constructor.apply(this, arguments);
@@ -120,12 +122,13 @@
       return json;
     };
 
+    Model.prototype.isPersisted = function() {
+      return this.properties["id"].isSet();
+    };
+
     Model.prototype.save = function() {
-      var isPersisted, json, saveFunction;
-      isPersisted = function() {
-        return this.properties["id"].isSet();
-      };
-      saveFunction = isPersisted.call(this) ? this.constructor.sync.update : this.constructor.sync.persist;
+      var json, saveFunction;
+      saveFunction = this.isPersisted() ? this.constructor.sync.update : this.constructor.sync.persist;
       json = this.asJson();
       return saveFunction(this.constructor, json, this.update);
     };

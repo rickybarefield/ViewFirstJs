@@ -13,6 +13,8 @@ proxyquire("./House", {"./ViewFirst":ViewFirst})
 suite 'ViewFirst Tests', ->
 
   global.location = ""
+  global.window = {}
+  global.window.addEventListener = sinon.stub()
 
   suite 'Construction', ->
 

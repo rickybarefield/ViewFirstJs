@@ -53,11 +53,11 @@ module.exports = class Model extends Events
     property.addToJson(json, includeOnlyDirtyProperties) for key, property of @properties when !includeOnlyDirtyProperties or property.isDirty or property.name == "id"
     return json
 
+  isPersisted: => @properties["id"].isSet()
+
   save: =>
 
-    isPersisted = -> @properties["id"].isSet()
-
-    saveFunction = if isPersisted.call(this) then @constructor.sync.update else @constructor.sync.persist
+    saveFunction = if @isPersisted() then @constructor.sync.update else @constructor.sync.persist
     json = @asJson()
     saveFunction(@constructor, json, @update)
 
